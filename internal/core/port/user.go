@@ -2,7 +2,8 @@ package port
 
 import (
 	"gocrud/internal/core/domain"
-	"net/http"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type UserRepository interface {
@@ -22,9 +23,9 @@ type UserService interface {
 }
 
 type UserHandler interface {
-	Create(w http.ResponseWriter, r *http.Request)
-	GetAll(w http.ResponseWriter, r *http.Request)
-	GetByID(w http.ResponseWriter, r *http.Request)
-	Update(w http.ResponseWriter, r *http.Request)
-	Delete(w http.ResponseWriter, r *http.Request)
+	Create(ctx *fiber.Ctx) error
+	GetAll(ctx *fiber.Ctx) error
+	GetByID(ctx *fiber.Ctx) error
+	Update(ctx *fiber.Ctx) error
+	Delete(ctx *fiber.Ctx) error
 }

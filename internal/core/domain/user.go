@@ -13,6 +13,11 @@ type User struct {
 	Password string `json:"password" form:"password"`
 }
 
+type UserDetails struct {
+	Token     string `json:"token"`
+	ExpiredAt string `json:"expired_at"`
+}
+
 type UserRequest struct {
 	ID       uint   `json:"id" gorm:"primaryKey"`
 	Name     string `json:"name" form:"name" validate:"required,min=4,max=30"`
