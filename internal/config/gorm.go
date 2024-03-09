@@ -7,15 +7,18 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewDatabase() (*gorm.DB, error) {
-	conf := GetConfig()
+func NewGorm() (*gorm.DB, error) {
+	cfg, err := NewConfig()
+	if err != nil {
+		return nil, err
+	}
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		conf.Database.User,
-		conf.Database.Pass,
-		conf.Database.Host,
-		conf.Database.Port,
-		conf.Database.Name,
+		cfg.Database.User,
+		cfg.Database.Password,
+		cfg.Database.Host,
+		cfg.Database.Port,
+		cfg.Database.Name,
 	)
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})

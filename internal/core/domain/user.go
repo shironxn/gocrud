@@ -19,13 +19,19 @@ type UserDetails struct {
 }
 
 type UserRequest struct {
-	ID       uint   `json:"id" gorm:"primaryKey"`
+	ID       uint   `json:"id"`
 	Name     string `json:"name" form:"name" validate:"required,min=4,max=30"`
 	Email    string `json:"email" form:"email" validate:"required,email"`
 	Password string `json:"password" form:"password" validate:"required,min=8,max=100"`
 }
 
-type LoginRequest struct {
+type UserRegisterRequest struct {
+	Name     string `json:"name" form:"name" validate:"required,min=4,max=30"`
+	Email    string `json:"email" form:"email" validate:"required,email"`
+	Password string `json:"password" form:"password" validate:"required,min=8,max=100"`
+}
+
+type UserLoginRequest struct {
 	Email    string `json:"email" form:"email" validate:"required"`
 	Password string `json:"password" form:"password" validate:"required"`
 }

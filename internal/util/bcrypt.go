@@ -2,7 +2,10 @@ package util
 
 import "golang.org/x/crypto/bcrypt"
 
-type Bcrypt struct {
+type Bcrypt struct{}
+
+func NewBcrypt() *Bcrypt {
+	return &Bcrypt{}
 }
 
 func (b *Bcrypt) HashPassword(password string) ([]byte, error) {
@@ -10,7 +13,7 @@ func (b *Bcrypt) HashPassword(password string) ([]byte, error) {
 	return hashedPassword, err
 }
 
-func (b *Bcrypt) ComparePassword(password string, compare []byte) error {
-	err := bcrypt.CompareHashAndPassword(compare, []byte(password))
+func (b *Bcrypt) ComparePassword(password string, hashedPassword []byte) error {
+	err := bcrypt.CompareHashAndPassword(hashedPassword, []byte(password))
 	return err
 }

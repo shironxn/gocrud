@@ -2,60 +2,62 @@ package util
 
 import (
 	"errors"
-	"gocrud/internal/config"
-	"gocrud/internal/core/domain"
-	"net/http"
 	"time"
 
-	"github.com/charmbracelet/log"
+	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
+
+	"gocrud/internal/config"
+	"gocrud/internal/core/domain"
 )
 
-type JWTManager struct {
+type JWT struct {
+	cfg *config.Config
 }
 
-func (j *JWTManager) GenerateToken(w http.ResponseWriter, user domain.User) (*domain.UserDetails, error) {
-	config := config.GetConfig()
+func NewJWT(cfg *config.Config) *JWT {
+	return &JWT{
+		cfg: cfg,
+	}
+}
 
-	jwtExpire := jwt.NewNumericDate(time.Now().Add(1 * time.Hour))
+func (j *JWT) GenerateToken(ctx *fiber.Ctx, user *domain.User) (*domain.UserDetails, error) {
+	jwtExpire := time.Now().Add(1 * time.Hour)
 
 	claims := domain.Claims{
 		UserID: user.ID,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwtExpire,
+			ExpiresAt: jwt.NewNumericDate(jwtExpire),
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(config.JWTSecret))
+	tokenString, err := token.SignedString([]byte(j.cfg.JWTSecret))
+	if err != nil {
+		return nil, err
+	}
 
 	cookieExpire := time.Now().Add(1 * time.Hour)
-	cookie := &http.Cookie{
+	ctx.Cookie(&fiber.Cookie{
 		Name:     "token",
 		Value:    tokenString,
 		Path:     "/",
-		HttpOnly: true,
+		HTTPOnly: true,
 		Expires:  cookieExpire,
-	}
-
-	http.SetCookie(w, cookie)
+	})
 
 	details := domain.UserDetails{
 		Token:     tokenString,
 		ExpiredAt: cookieExpire.String(),
 	}
 
-	return &details, err
+	return &details, nil
 }
 
-func (j *JWTManager) ValidateToken(token string) (jwt.Claims, error) {
-	config := config.GetConfig()
-
+func (j *JWT) ValidateToken(token string) (jwt.Claims, error) {
 	tokenString, err := jwt.ParseWithClaims(token, &domain.Claims{}, func(t *jwt.Token) (interface{}, error) {
-		return []byte(config.JWTSecret), nil
+		return []byte(j.cfg.JWTSecret), nil
 	})
-
-	log.Info(tokenString)
 
 	if err != nil {
 		return nil, err
@@ -70,7 +72,7 @@ func (j *JWTManager) ValidateToken(token string) (jwt.Claims, error) {
 		return nil, errors.New("invalid token claims")
 	}
 
-	if claims.ExpiresAt.Unix() < time.Now().Local().Unix() {
+	if claims.ExpiresAt.Unix() < time.Now().Unix() {
 		return nil, errors.New("token has expired")
 	}
 

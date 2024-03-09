@@ -17,13 +17,13 @@ func NewUserRepository(db *gorm.DB) port.UserRepository {
 	}
 }
 
-func (u *UserRepository) Create(req domain.UserRequest) (*domain.User, error) {
+func (u *UserRepository) Create(req domain.UserRegisterRequest) (*domain.User, error) {
 	entity := domain.User{
 		Name:     req.Name,
 		Email:    req.Email,
 		Password: req.Password,
 	}
-	err := u.db.Create(entity).Error
+	err := u.db.Create(&entity).Error
 	return &entity, err
 }
 
@@ -39,12 +39,18 @@ func (u *UserRepository) GetByID(id uint) (*domain.User, error) {
 	return &entity, err
 }
 
+func (u *UserRepository) GetByEmail(email string) (*domain.User, error) {
+	var entity domain.User
+	err := u.db.Where("email = ?", email).First(&entity).Error
+	return &entity, err
+}
+
 func (u *UserRepository) Update(entity *domain.User, req domain.UserRequest) (*domain.User, error) {
 	err := u.db.Model(&entity).Updates(req).Error
 	return entity, err
 }
 
 func (u *UserRepository) Delete(entity *domain.User) error {
-	err := u.db.Delete(entity).Error
+	err := u.db.Delete(&entity).Error
 	return err
 }
