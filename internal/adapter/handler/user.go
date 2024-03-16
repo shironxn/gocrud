@@ -27,7 +27,7 @@ func (u *UserHandler) Register(ctx *fiber.Ctx) error {
 	var req domain.UserRegisterRequest
 
 	if cookie := ctx.Cookies("token"); cookie != "" {
-		return fiber.NewError(fiber.StatusBadRequest, "user already register")
+		return fiber.NewError(fiber.StatusBadRequest, "user already registered")
 	}
 
 	if err := ctx.BodyParser(&req); err != nil {
@@ -54,7 +54,6 @@ func (u *UserHandler) Register(ctx *fiber.Ctx) error {
 		Message: "successfully create user",
 		Data:    data,
 	})
-
 }
 
 func (u *UserHandler) Login(ctx *fiber.Ctx) error {

@@ -1,8 +1,6 @@
 package config
 
 import (
-	"errors"
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -16,13 +14,13 @@ func ErrorHandler() fiber.ErrorHandler {
 	return func(ctx *fiber.Ctx, err error) error {
 		code := fiber.StatusInternalServerError
 
-		var e *fiber.Error
-		if errors.As(err, &e) {
+		if e, ok := err.(*fiber.Error); ok {
 			code = e.Code
 		}
 
 		return ctx.Status(code).JSON(fiber.Map{
-			"errors": err.Error(),
+			"code":  code,
+			"error": err.Error(),
 		})
 	}
 }

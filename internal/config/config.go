@@ -38,7 +38,7 @@ func LoadConfig() error {
 		return nil
 	}
 
-	err := godotenv.Load(".env")
+	err := godotenv.Load()
 	if err != nil {
 		return fmt.Errorf("error loading environment variables: %w", err)
 	}
