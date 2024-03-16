@@ -61,7 +61,7 @@ func TestUserService_Create(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name: "error",
+			name: "failure",
 			fields: fields{
 				repository: func() port.UserRepository {
 					mockUserRepository.EXPECT().Create(mock.AnythingOfType("domain.UserRegisterRequest")).Return(nil, errors.New("failed")).Once()
@@ -144,7 +144,7 @@ func TestUserService_Login(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name: "error",
+			name: "failure",
 			fields: fields{
 				repository: func() port.UserRepository {
 					mockUserRepository.EXPECT().GetByEmail(mock.AnythingOfType("string")).Return(nil, errors.New("failed")).Once()
@@ -215,7 +215,7 @@ func TestUserService_GetAll(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name: "error",
+			name: "failure",
 			fields: fields{
 				repository: func() port.UserRepository {
 					mockUserRepository.EXPECT().GetAll().Return(nil, errors.New("failed")).Once()
@@ -285,7 +285,7 @@ func TestUserService_GetByID(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name: "error",
+			name: "failure",
 			fields: fields{
 				repository: func() port.UserRepository {
 					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(nil, errors.New("failed")).Once()
@@ -365,7 +365,7 @@ func TestUserService_Update(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name: "error",
+			name: "failure",
 			fields: fields{
 				repository: func() port.UserRepository {
 					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(expected, nil).Once()
@@ -469,7 +469,7 @@ func TestUserService_Delete(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name: "error",
+			name: "failure",
 			fields: fields{
 				repository: func() port.UserRepository {
 					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(expected, nil).Once()
