@@ -18,23 +18,27 @@ func TestUserService_Create(t *testing.T) {
 		repository port.UserRepository
 		bcrypt     *util.Bcrypt
 	}
+
 	type args struct {
 		req domain.UserRegisterRequest
 	}
+
 	expected := &domain.User{
 		Model:    gorm.Model{ID: 1},
 		Name:     "shiron",
 		Email:    "shiron@example.com",
 		Password: "$2y$10$YovD7LTJb0XqE.Ll1Xtjnuns6tHiQM7MdO5T2QuThx3UyfLCkP1o6",
 	}
+
 	mockUserRepository := mocks.NewUserRepository(t)
 	bcrypt := util.NewBcrypt()
+
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
-		want    *domain.User
-		wantErr error
+		want    interface{}
+		wantErr bool
 	}{
 		{
 			name: "success",
@@ -58,7 +62,7 @@ func TestUserService_Create(t *testing.T) {
 				Email:    "shiron@example.com",
 				Password: "$2y$10$YovD7LTJb0XqE.Ll1Xtjnuns6tHiQM7MdO5T2QuThx3UyfLCkP1o6",
 			},
-			wantErr: nil,
+			wantErr: false,
 		},
 		{
 			name: "failure",
@@ -76,28 +80,27 @@ func TestUserService_Create(t *testing.T) {
 					Password: "password123",
 				},
 			},
-			want:    nil,
-			wantErr: errors.New("failed"),
+			want:    errors.New("failed"),
+			wantErr: true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			u := &UserService{
 				repository: tt.fields.repository,
 				bcrypt:     tt.fields.bcrypt,
 			}
+
 			got, err := u.Create(tt.args.req)
-			if (err != nil) && (tt.wantErr == nil) {
-				t.Errorf("UserService.Create() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if tt.wantErr != nil {
+
+			if tt.wantErr {
 				assert.Error(t, err)
-				assert.EqualError(t, err, tt.wantErr.Error())
+				assert.EqualError(t, err, tt.want.(error).Error())
 			} else {
 				assert.NoError(t, err)
+				assert.Equal(t, tt.want, got)
 			}
-			assert.Equal(t, tt.want, got)
 		})
 	}
 }
@@ -107,23 +110,27 @@ func TestUserService_Login(t *testing.T) {
 		repository port.UserRepository
 		bcrypt     *util.Bcrypt
 	}
+
 	type args struct {
 		req domain.UserLoginRequest
 	}
+
 	expected := &domain.User{
 		Model:    gorm.Model{ID: 1},
 		Name:     "shiron",
 		Email:    "shiron@example.com",
 		Password: "$2y$10$YovD7LTJb0XqE.Ll1Xtjnuns6tHiQM7MdO5T2QuThx3UyfLCkP1o6",
 	}
+
 	mockUserRepository := mocks.NewUserRepository(t)
 	bcrypt := util.NewBcrypt()
+
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
-		want    *domain.User
-		wantErr error
+		want    interface{}
+		wantErr bool
 	}{
 		{
 			name: "success",
@@ -141,7 +148,7 @@ func TestUserService_Login(t *testing.T) {
 				},
 			},
 			want:    expected,
-			wantErr: nil,
+			wantErr: false,
 		},
 		{
 			name: "failure",
@@ -158,28 +165,27 @@ func TestUserService_Login(t *testing.T) {
 					Password: "password123",
 				},
 			},
-			want:    nil,
-			wantErr: errors.New("failed"),
+			want:    errors.New("failed"),
+			wantErr: true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			u := &UserService{
 				repository: tt.fields.repository,
 				bcrypt:     tt.fields.bcrypt,
 			}
+
 			got, err := u.Login(tt.args.req)
-			if (err != nil) && (tt.wantErr == nil) {
-				t.Errorf("UserService.Login() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if tt.wantErr != nil {
+
+			if tt.wantErr {
 				assert.Error(t, err)
-				assert.EqualError(t, err, tt.wantErr.Error())
+				assert.EqualError(t, err, tt.want.(error).Error())
 			} else {
 				assert.NoError(t, err)
+				assert.Equal(t, tt.want, got)
 			}
-			assert.Equal(t, tt.want, got)
 		})
 	}
 }
@@ -188,6 +194,7 @@ func TestUserService_GetAll(t *testing.T) {
 	type fields struct {
 		repository port.UserRepository
 	}
+
 	expected := []domain.User{
 		{
 			Model:    gorm.Model{ID: 1},
@@ -195,13 +202,27 @@ func TestUserService_GetAll(t *testing.T) {
 			Email:    "shiron@example.com",
 			Password: "$2y$10$YovD7LTJb0XqE.Ll1Xtjnuns6tHiQM7MdO5T2QuThx3UyfLCkP1o6",
 		},
+		{
+			Model:    gorm.Model{ID: 2},
+			Name:     "shironz",
+			Email:    "shironz@example.com",
+			Password: "$2y$10$YovD7LTJb0XqE.Ll1Xtjnuns6tHiQM7MdO5T2QuThx3UyfLCkP1o6",
+		},
+		{
+			Model:    gorm.Model{ID: 3},
+			Name:     "shironzz",
+			Email:    "shironzz@example.com",
+			Password: "$2y$10$YovD7LTJb0XqE.Ll1Xtjnuns6tHiQM7MdO5T2QuThx3UyfLCkP1o6",
+		},
 	}
+
 	mockUserRepository := mocks.NewUserRepository(t)
+
 	tests := []struct {
 		name    string
 		fields  fields
-		want    []domain.User
-		wantErr error
+		want    interface{}
+		wantErr bool
 	}{
 		{
 			name: "success",
@@ -212,7 +233,7 @@ func TestUserService_GetAll(t *testing.T) {
 				}(),
 			},
 			want:    expected,
-			wantErr: nil,
+			wantErr: false,
 		},
 		{
 			name: "failure",
@@ -222,27 +243,26 @@ func TestUserService_GetAll(t *testing.T) {
 					return mockUserRepository
 				}(),
 			},
-			want:    nil,
-			wantErr: errors.New("failed"),
+			want:    errors.New("failed"),
+			wantErr: true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			u := &UserService{
 				repository: tt.fields.repository,
 			}
+
 			got, err := u.GetAll()
-			if (err != nil) && (tt.wantErr == nil) {
-				t.Errorf("UserService.GetAll() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if tt.wantErr != nil {
+
+			if tt.wantErr {
 				assert.Error(t, err)
-				assert.EqualError(t, err, tt.wantErr.Error())
+				assert.EqualError(t, err, tt.want.(error).Error())
 			} else {
 				assert.NoError(t, err)
+				assert.Equal(t, tt.want, got)
 			}
-			assert.Equal(t, tt.want, got)
 		})
 	}
 }
@@ -251,22 +271,26 @@ func TestUserService_GetByID(t *testing.T) {
 	type fields struct {
 		repository port.UserRepository
 	}
+
 	type args struct {
 		req domain.UserRequest
 	}
+
 	expected := &domain.User{
 		Model:    gorm.Model{ID: 1},
 		Name:     "shiron",
 		Email:    "shiron@example.com",
 		Password: "$2y$10$YovD7LTJb0XqE.Ll1Xtjnuns6tHiQM7MdO5T2QuThx3UyfLCkP1o6",
 	}
+
 	mockUserRepository := mocks.NewUserRepository(t)
+
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
-		want    *domain.User
-		wantErr error
+		want    interface{}
+		wantErr bool
 	}{
 		{
 			name: "success",
@@ -282,7 +306,7 @@ func TestUserService_GetByID(t *testing.T) {
 				},
 			},
 			want:    expected,
-			wantErr: nil,
+			wantErr: false,
 		},
 		{
 			name: "failure",
@@ -292,27 +316,26 @@ func TestUserService_GetByID(t *testing.T) {
 					return mockUserRepository
 				}(),
 			},
-			want:    nil,
-			wantErr: errors.New("failed"),
+			want:    errors.New("failed"),
+			wantErr: true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			u := &UserService{
 				repository: tt.fields.repository,
 			}
+
 			got, err := u.GetByID(tt.args.req)
-			if (err != nil) && (tt.wantErr == nil) {
-				t.Errorf("UserService.GetByID() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if tt.wantErr != nil {
+
+			if tt.wantErr {
 				assert.Error(t, err)
-				assert.EqualError(t, err, tt.wantErr.Error())
+				assert.EqualError(t, err, tt.want.(error).Error())
 			} else {
 				assert.NoError(t, err)
+				assert.Equal(t, tt.want, got)
 			}
-			assert.Equal(t, tt.want, got)
 		})
 	}
 }
@@ -322,24 +345,28 @@ func TestUserService_Update(t *testing.T) {
 		repository port.UserRepository
 		bcrypt     *util.Bcrypt
 	}
+
 	type args struct {
 		req    domain.UserRequest
 		claims *domain.Claims
 	}
+
 	expected := &domain.User{
 		Model:    gorm.Model{ID: 1},
 		Name:     "shiron",
 		Email:    "shiron@example.com",
 		Password: "$2y$10$YovD7LTJb0XqE.Ll1Xtjnuns6tHiQM7MdO5T2QuThx3UyfLCkP1o6",
 	}
+
 	mockUserRepository := mocks.NewUserRepository(t)
 	bcrypt := util.NewBcrypt()
+
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
-		want    *domain.User
-		wantErr error
+		want    interface{}
+		wantErr bool
 	}{
 		{
 			name: "success",
@@ -362,7 +389,7 @@ func TestUserService_Update(t *testing.T) {
 				},
 			},
 			want:    expected,
-			wantErr: nil,
+			wantErr: false,
 		},
 		{
 			name: "failure",
@@ -384,8 +411,8 @@ func TestUserService_Update(t *testing.T) {
 					UserID: 1,
 				},
 			},
-			want:    nil,
-			wantErr: errors.New("failed"),
+			want:    errors.New("failed"),
+			wantErr: true,
 		},
 		{
 			name: "permission denied",
@@ -403,27 +430,27 @@ func TestUserService_Update(t *testing.T) {
 					UserID: 2,
 				},
 			},
-			wantErr: errors.New("user does not have permission to perform this action"),
+			want:    errors.New("user does not have permission to perform this action"),
+			wantErr: true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			u := &UserService{
 				repository: tt.fields.repository,
 				bcrypt:     tt.fields.bcrypt,
 			}
+
 			got, err := u.Update(tt.args.req, tt.args.claims)
-			if (err != nil) && (tt.wantErr == nil) {
-				t.Errorf("UserService.Update() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if tt.wantErr != nil {
+
+			if tt.wantErr {
 				assert.Error(t, err)
-				assert.EqualError(t, err, tt.wantErr.Error())
+				assert.EqualError(t, err, tt.want.(error).Error())
 			} else {
 				assert.NoError(t, err)
+				assert.Equal(t, tt.want, got)
 			}
-			assert.Equal(t, tt.want, got)
 		})
 	}
 }
@@ -432,22 +459,27 @@ func TestUserService_Delete(t *testing.T) {
 	type fields struct {
 		repository port.UserRepository
 	}
+
 	type args struct {
 		req    domain.UserRequest
 		claims *domain.Claims
 	}
+
 	expected := &domain.User{
 		Model:    gorm.Model{ID: 1},
 		Name:     "shiron",
 		Email:    "shiron@example.com",
 		Password: "$2y$10$YovD7LTJb0XqE.Ll1Xtjnuns6tHiQM7MdO5T2QuThx3UyfLCkP1o6",
 	}
+
 	mockUserRepository := mocks.NewUserRepository(t)
+
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
-		wantErr error
+		want    interface{}
+		wantErr bool
 	}{
 		{
 			name: "success",
@@ -466,7 +498,8 @@ func TestUserService_Delete(t *testing.T) {
 					UserID: 1,
 				},
 			},
-			wantErr: nil,
+			want:    nil,
+			wantErr: false,
 		},
 		{
 			name: "failure",
@@ -485,7 +518,8 @@ func TestUserService_Delete(t *testing.T) {
 					UserID: 1,
 				},
 			},
-			wantErr: errors.New("failed"),
+			want:    errors.New("failed"),
+			wantErr: true,
 		},
 		{
 			name: "permission denied",
@@ -503,22 +537,22 @@ func TestUserService_Delete(t *testing.T) {
 					UserID: 2,
 				},
 			},
-			wantErr: errors.New("user does not have permission to perform this action"),
+			want:    errors.New("user does not have permission to perform this action"),
+			wantErr: true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			u := &UserService{
 				repository: tt.fields.repository,
 			}
+
 			err := u.Delete(tt.args.req, tt.args.claims)
-			if (err != nil) && (tt.wantErr == nil) {
-				t.Errorf("UserService.Delete() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if tt.wantErr != nil {
+
+			if tt.wantErr {
 				assert.Error(t, err)
-				assert.EqualError(t, err, tt.wantErr.Error())
+				assert.EqualError(t, err, tt.want.(error).Error())
 			} else {
 				assert.NoError(t, err)
 			}
