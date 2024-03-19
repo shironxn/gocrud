@@ -1,6 +1,8 @@
 package config
 
 import (
+	"gocrud/internal/core/domain"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -18,9 +20,8 @@ func ErrorHandler() fiber.ErrorHandler {
 			code = e.Code
 		}
 
-		return ctx.Status(code).JSON(fiber.Map{
-			"code":  code,
-			"error": err.Error(),
+		return ctx.Status(code).JSON(domain.ErrorResponse{
+			Message: err.Error(),
 		})
 	}
 }

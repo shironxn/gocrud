@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -13,11 +12,11 @@ type Config struct {
 		Port string
 	}
 	Database struct {
-		Host     string
-		Port     string
-		Name     string
-		User     string
-		Password string
+		Host string
+		Port string
+		Name string
+		User string
+		Pass string
 	}
 	JWTSecret string
 }
@@ -38,9 +37,14 @@ func LoadConfig() error {
 		return nil
 	}
 
-	err := godotenv.Load()
-	if err != nil {
-		return fmt.Errorf("error loading environment variables: %w", err)
+	if err := godotenv.Load(".env"); err != nil {
+		if !os.IsNotExist(err) {
+			return err
+		}
+	}
+
+	if err := godotenv.Load(".env.example"); err != nil {
+		return err
 	}
 
 	cfg = &Config{
@@ -52,17 +56,17 @@ func LoadConfig() error {
 			Port: os.Getenv("APP_PORT"),
 		},
 		Database: struct {
-			Host     string
-			Port     string
-			Name     string
-			User     string
-			Password string
+			Host string
+			Port string
+			Name string
+			User string
+			Pass string
 		}{
-			Host:     os.Getenv("DB_HOST"),
-			Port:     os.Getenv("DB_PORT"),
-			Name:     os.Getenv("DB_NAME"),
-			User:     os.Getenv("DB_USER"),
-			Password: os.Getenv("DB_PASS"),
+			Host: os.Getenv("DB_HOST"),
+			Port: os.Getenv("DB_PORT"),
+			Name: os.Getenv("DB_NAME"),
+			User: os.Getenv("DB_USER"),
+			Pass: os.Getenv("DB_PASS"),
 		},
 		JWTSecret: os.Getenv("JWT_SECRET"),
 	}

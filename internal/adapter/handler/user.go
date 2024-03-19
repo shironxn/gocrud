@@ -35,7 +35,7 @@ func (u *UserHandler) Register(ctx *fiber.Ctx) error {
 	}
 
 	if err := u.validator.Validate(req); err != nil {
-		return err
+		return ctx.Status(fiber.StatusBadRequest).JSON(err)
 	}
 
 	result, err := u.service.Create(req)
@@ -43,16 +43,14 @@ func (u *UserHandler) Register(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	data := domain.UserResponse{
-		ID:        result.ID,
-		Name:      result.Name,
-		CreatedAt: result.CreatedAt,
-		UpdatedAt: result.UpdatedAt,
-	}
-
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
 		Message: "successfully create user",
-		Data:    data,
+		Data: domain.UserResponse{
+			ID:        result.ID,
+			Name:      result.Name,
+			CreatedAt: result.CreatedAt,
+			UpdatedAt: result.UpdatedAt,
+		},
 	})
 }
 
@@ -60,11 +58,15 @@ func (u *UserHandler) Login(ctx *fiber.Ctx) error {
 	var req domain.UserLoginRequest
 
 	if cookie := ctx.Cookies("token"); cookie != "" {
-		return fiber.NewError(fiber.StatusBadRequest, "user already login")
+		return fiber.NewError(fiber.StatusBadRequest, "user already logged in")
 	}
 
 	if err := ctx.BodyParser(&req); err != nil {
 		return err
+	}
+
+	if err := u.validator.Validate(req); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(err)
 	}
 
 	result, err := u.service.Login(req)
@@ -89,7 +91,7 @@ func (u *UserHandler) Login(ctx *fiber.Ctx) error {
 
 func (u *UserHandler) Logout(ctx *fiber.Ctx) error {
 	if cookie := ctx.Cookies("token"); cookie == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "user already logout")
+		return fiber.NewError(fiber.StatusBadRequest, "user already logged out")
 	}
 
 	cookieExpire := time.Now().Add(-time.Hour * 24)
@@ -162,16 +164,14 @@ func (u *UserHandler) GetByID(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	data := domain.UserResponse{
-		ID:        result.ID,
-		Name:      result.Name,
-		CreatedAt: result.CreatedAt,
-		UpdatedAt: result.UpdatedAt,
-	}
-
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
 		Message: "successfully get user by id",
-		Data:    data,
+		Data: domain.UserResponse{
+			ID:        result.ID,
+			Name:      result.Name,
+			CreatedAt: result.CreatedAt,
+			UpdatedAt: result.UpdatedAt,
+		},
 	})
 }
 
@@ -186,6 +186,10 @@ func (u *UserHandler) Update(ctx *fiber.Ctx) error {
 		return err
 	}
 
+	if err := u.validator.Validate(req); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(err)
+	}
+
 	claims := ctx.Locals("claims").(*domain.Claims)
 
 	result, err := u.service.Update(req, claims)
@@ -193,16 +197,14 @@ func (u *UserHandler) Update(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	data := domain.UserResponse{
-		ID:        result.ID,
-		Name:      result.Name,
-		CreatedAt: result.CreatedAt,
-		UpdatedAt: result.UpdatedAt,
-	}
-
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
 		Message: "successfully update user by id",
-		Data:    data,
+		Data: domain.UserResponse{
+			ID:        result.ID,
+			Name:      result.Name,
+			CreatedAt: result.CreatedAt,
+			UpdatedAt: result.UpdatedAt,
+		},
 	})
 }
 

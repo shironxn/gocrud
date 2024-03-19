@@ -1,10 +1,11 @@
 package service
 
 import (
-	"errors"
 	"gocrud/internal/core/domain"
 	"gocrud/internal/core/port"
 	"gocrud/internal/util"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type UserService struct {
@@ -42,7 +43,7 @@ func (u *UserService) Login(req domain.UserLoginRequest) (*domain.User, error) {
 	}
 
 	if err := u.bcrypt.ComparePassword(req.Password, []byte(data.Password)); err != nil {
-		return nil, err
+		return nil, fiber.NewError(fiber.StatusUnauthorized, "invalid password")
 	}
 
 	return data, nil
@@ -73,7 +74,7 @@ func (u *UserService) Update(req domain.UserRequest, claims *domain.Claims) (*do
 	}
 
 	if user.ID != claims.UserID {
-		return nil, errors.New("user does not have permission to perform this action")
+		return nil, fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")
 	}
 
 	hashedPassword, err := u.bcrypt.HashPassword(req.Password)
@@ -98,7 +99,7 @@ func (u *UserService) Delete(req domain.UserRequest, claims *domain.Claims) erro
 	}
 
 	if user.ID != claims.UserID {
-		return errors.New("user does not have permission to perform this action")
+		return fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")
 	}
 
 	err = u.repository.Delete(user)

@@ -19,13 +19,10 @@ func NewAuthMiddleware(jwt *util.JWT) *AuthMiddleware {
 func (a *AuthMiddleware) Auth() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		cookie := ctx.Cookies("token")
-		if cookie == "" {
-			return fiber.NewError(fiber.StatusUnauthorized, "unauthorized access")
-		}
 
 		claims, err := a.jwt.ValidateToken(cookie)
 		if err != nil {
-			return err
+			return fiber.NewError(fiber.StatusUnauthorized, "unauthorized access")
 		}
 
 		ctx.Locals("claims", claims)

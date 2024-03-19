@@ -2,7 +2,7 @@ package util
 
 import (
 	"errors"
-	"fmt"
+	"gocrud/internal/core/domain"
 
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
@@ -17,26 +17,36 @@ type Validator struct {
 
 func NewValidator() (*Validator, error) {
 	validate := validator.New()
-	en := en.New()
-	uni := ut.New(en, en)
+
+	enLocale := en.New()
+	uni := ut.New(enLocale, enLocale)
 	trans, ok := uni.GetTranslator("en")
 	if !ok {
 		return nil, errors.New("failed to get translator")
 	}
-	en_translations.RegisterDefaultTranslations(validate, trans)
+
+	if err := en_translations.RegisterDefaultTranslations(validate, trans); err != nil {
+		return nil, err
+	}
+
 	return &Validator{validate: validate, trans: trans}, nil
 }
 
-func (v *Validator) Validate(data interface{}) error {
-	err := v.validate.Struct(data)
-	if err != nil {
+func (v *Validator) Validate(data interface{}) *domain.ErrorValidationResponse {
+	if err := v.validate.Struct(data); err != nil {
+		var errMessages []domain.ValidationError
 		errs := err.(validator.ValidationErrors)
 		for _, e := range errs {
-			field := e.Field()
-			tag := e.Tag()
-			translatedTag, _ := v.trans.T(tag, field)
-			return fmt.Errorf("%s: %s", field, translatedTag)
+			errMessages = append(errMessages, domain.ValidationError{
+				Field: e.Field(),
+				Error: e.Translate(v.trans),
+			})
+		}
+		return &domain.ErrorValidationResponse{
+			Message: "validation error",
+			Errors:  errMessages,
 		}
 	}
+
 	return nil
 }

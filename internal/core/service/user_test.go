@@ -168,6 +168,24 @@ func TestUserService_Login(t *testing.T) {
 			want:    errors.New("failed"),
 			wantErr: true,
 		},
+		{
+			name: "invalid password",
+			fields: fields{
+				repository: func() port.UserRepository {
+					mockUserRepository.EXPECT().GetByEmail(mock.AnythingOfType("string")).Return(expected, nil).Once()
+					return mockUserRepository
+				}(),
+				bcrypt: bcrypt,
+			},
+			args: args{
+				req: domain.UserLoginRequest{
+					Email:    "shiron@example.com",
+					Password: "password1234",
+				},
+			},
+			want:    errors.New("invalid password"),
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {

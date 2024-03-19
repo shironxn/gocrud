@@ -7,10 +7,14 @@ type SuccessResponse struct {
 
 type ErrorResponse struct {
 	Message string `json:"message"`
-	Errors  error  `json:"errors"`
+}
+
+type ErrorValidationResponse struct {
+	Message string            `json:"message"`
+	Errors  []ValidationError `json:"errors"`
 }
 
 type ValidationError struct {
-	Field  string `json:"field"`
-	Errors string `json:"errors,omitempty"`
+	Field string `json:"field"`
+	Error string `json:"error"`
 }
