@@ -19,7 +19,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	db, err := config.NewGorm()
+	db, err := config.NewGorm(cfg).Connection()
 	if err != nil {
 		log.Fatal(err)
 	}

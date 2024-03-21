@@ -1,6 +1,8 @@
 package config
 
 import (
+	"errors"
+	"flag"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -32,19 +34,36 @@ func NewConfig() (*Config, error) {
 	return cfg, nil
 }
 
+func LoadEnv(fileName string) error {
+	err := godotenv.Load(fileName)
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+
+	if os.IsNotExist(err) {
+		if err := godotenv.Load(".env.example"); err != nil {
+			return errors.New("failed to load environment file")
+		}
+
+		return err
+	}
+
+	return nil
+}
+
 func LoadConfig() error {
 	if cfg != nil {
 		return nil
 	}
 
-	if err := godotenv.Load(".env"); err != nil {
-		if !os.IsNotExist(err) {
+	if flag.Lookup("test.v") != nil {
+		if err := godotenv.Load("../../.env.test"); err != nil {
 			return err
 		}
-	}
-
-	if err := godotenv.Load(".env.example"); err != nil {
-		return err
+	} else {
+		if err := LoadEnv(".env"); err != nil {
+			return err
+		}
 	}
 
 	cfg = &Config{
