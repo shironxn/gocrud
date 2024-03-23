@@ -11,11 +11,11 @@ import (
 
 type UserHandler struct {
 	service   port.UserService
-	validator *util.Validator
-	jwt       *util.JWT
+	validator util.Validator
+	jwt       util.JWT
 }
 
-func NewUserHandler(service port.UserService, validator *util.Validator, jwt *util.JWT) port.UserHandler {
+func NewUserHandler(service port.UserService, validator util.Validator, jwt util.JWT) port.UserHandler {
 	return &UserHandler{
 		service:   service,
 		validator: validator,
@@ -190,7 +190,7 @@ func (u *UserHandler) Update(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(err)
 	}
 
-	claims := ctx.Locals("claims").(*domain.Claims)
+	claims := ctx.Locals("claims").(domain.Claims)
 
 	result, err := u.service.Update(req, claims)
 	if err != nil {
@@ -215,7 +215,7 @@ func (u *UserHandler) Delete(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	claims := ctx.Locals("claims").(*domain.Claims)
+	claims := ctx.Locals("claims").(domain.Claims)
 
 	err := u.service.Delete(req, claims)
 	if err != nil {

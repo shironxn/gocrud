@@ -16,7 +16,7 @@ import (
 func TestUserService_Create(t *testing.T) {
 	type fields struct {
 		repository port.UserRepository
-		bcrypt     *util.Bcrypt
+		bcrypt     util.Bcrypt
 	}
 
 	type args struct {
@@ -108,7 +108,7 @@ func TestUserService_Create(t *testing.T) {
 func TestUserService_Login(t *testing.T) {
 	type fields struct {
 		repository port.UserRepository
-		bcrypt     *util.Bcrypt
+		bcrypt     util.Bcrypt
 	}
 
 	type args struct {
@@ -361,12 +361,12 @@ func TestUserService_GetByID(t *testing.T) {
 func TestUserService_Update(t *testing.T) {
 	type fields struct {
 		repository port.UserRepository
-		bcrypt     *util.Bcrypt
+		bcrypt     util.Bcrypt
 	}
 
 	type args struct {
 		req    domain.UserRequest
-		claims *domain.Claims
+		claims domain.Claims
 	}
 
 	expected := &domain.User{
@@ -391,7 +391,7 @@ func TestUserService_Update(t *testing.T) {
 			fields: fields{
 				repository: func() port.UserRepository {
 					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(expected, nil).Once()
-					mockUserRepository.EXPECT().Update(mock.AnythingOfType("*domain.User"), mock.AnythingOfType("domain.UserRequest")).Return(expected, nil).Once()
+					mockUserRepository.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("*domain.User")).Return(expected, nil).Once()
 					return mockUserRepository
 				}(),
 				bcrypt: bcrypt,
@@ -402,7 +402,7 @@ func TestUserService_Update(t *testing.T) {
 					Email:    "shiron@example.com",
 					Password: "password123",
 				},
-				claims: &domain.Claims{
+				claims: domain.Claims{
 					UserID: 1,
 				},
 			},
@@ -414,7 +414,7 @@ func TestUserService_Update(t *testing.T) {
 			fields: fields{
 				repository: func() port.UserRepository {
 					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(expected, nil).Once()
-					mockUserRepository.EXPECT().Update(mock.AnythingOfType("*domain.User"), mock.AnythingOfType("domain.UserRequest")).Return(nil, errors.New("failed")).Once()
+					mockUserRepository.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("*domain.User")).Return(nil, errors.New("failed")).Once()
 					return mockUserRepository
 				}(),
 				bcrypt: bcrypt,
@@ -425,7 +425,7 @@ func TestUserService_Update(t *testing.T) {
 					Email:    "shiron@example.com",
 					Password: "password123",
 				},
-				claims: &domain.Claims{
+				claims: domain.Claims{
 					UserID: 1,
 				},
 			},
@@ -444,7 +444,7 @@ func TestUserService_Update(t *testing.T) {
 				req: domain.UserRequest{
 					ID: 1,
 				},
-				claims: &domain.Claims{
+				claims: domain.Claims{
 					UserID: 2,
 				},
 			},
@@ -480,7 +480,7 @@ func TestUserService_Delete(t *testing.T) {
 
 	type args struct {
 		req    domain.UserRequest
-		claims *domain.Claims
+		claims domain.Claims
 	}
 
 	expected := &domain.User{
@@ -512,7 +512,7 @@ func TestUserService_Delete(t *testing.T) {
 				req: domain.UserRequest{
 					ID: 10,
 				},
-				claims: &domain.Claims{
+				claims: domain.Claims{
 					UserID: 1,
 				},
 			},
@@ -532,7 +532,7 @@ func TestUserService_Delete(t *testing.T) {
 				req: domain.UserRequest{
 					ID: 1,
 				},
-				claims: &domain.Claims{
+				claims: domain.Claims{
 					UserID: 1,
 				},
 			},
@@ -551,7 +551,7 @@ func TestUserService_Delete(t *testing.T) {
 				req: domain.UserRequest{
 					ID: 1,
 				},
-				claims: &domain.Claims{
+				claims: domain.Claims{
 					UserID: 2,
 				},
 			},

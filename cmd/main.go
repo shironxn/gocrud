@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gocrud/internal/adapter/handler"
+	"gocrud/internal/adapter/http/handler"
 	"gocrud/internal/adapter/http/middleware"
 	"gocrud/internal/adapter/http/route"
 	"gocrud/internal/adapter/repository"
@@ -23,29 +23,34 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	db.AutoMigrate(&domain.User{})
+	db.AutoMigrate(&domain.User{}, &domain.Note{})
 
-	validate, err := util.NewValidator()
+	validator, err := util.NewValidator()
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	app := config.NewFiber()
 	bcrypt := util.NewBcrypt()
 	jwt := util.NewJWT(cfg)
 
-	app := config.NewFiber()
-
 	userRepository := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepository, bcrypt)
-	userHandler := handler.NewUserHandler(userService, validate, jwt)
+	userHandler := handler.NewUserHandler(userService, validator, jwt)
+
+	noteRepository := repository.NewNoteRepository(db)
+	noteService := service.NewNoteService(noteRepository)
+	noteHandler := handler.NewNoteHandler(noteService, validator)
 
 	authMiddleware := middleware.NewAuthMiddleware(jwt)
 
-	authRoute := route.NewAuthRoute(userHandler)
+	authRoute := route.NewAuthRoute(userHandler, authMiddleware)
 	userRoute := route.NewUserRoute(userHandler, authMiddleware)
+	noteRoute := route.NewNoteRoute(noteHandler, authMiddleware)
 
 	authRoute.Route(app)
 	userRoute.Route(app)
+	noteRoute.Route(app)
 
 	if err = app.Listen(cfg.Server.Host + ":" + cfg.Server.Port); err != nil {
 		log.Fatal(err)

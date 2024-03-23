@@ -80,7 +80,7 @@ func (_c *UserService_Create_Call) RunAndReturn(run func(domain.UserRegisterRequ
 }
 
 // Delete provides a mock function with given fields: req, claims
-func (_m *UserService) Delete(req domain.UserRequest, claims *domain.Claims) error {
+func (_m *UserService) Delete(req domain.UserRequest, claims domain.Claims) error {
 	ret := _m.Called(req, claims)
 
 	if len(ret) == 0 {
@@ -88,7 +88,7 @@ func (_m *UserService) Delete(req domain.UserRequest, claims *domain.Claims) err
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(domain.UserRequest, *domain.Claims) error); ok {
+	if rf, ok := ret.Get(0).(func(domain.UserRequest, domain.Claims) error); ok {
 		r0 = rf(req, claims)
 	} else {
 		r0 = ret.Error(0)
@@ -104,14 +104,14 @@ type UserService_Delete_Call struct {
 
 // Delete is a helper method to define mock.On call
 //   - req domain.UserRequest
-//   - claims *domain.Claims
+//   - claims domain.Claims
 func (_e *UserService_Expecter) Delete(req interface{}, claims interface{}) *UserService_Delete_Call {
 	return &UserService_Delete_Call{Call: _e.mock.On("Delete", req, claims)}
 }
 
-func (_c *UserService_Delete_Call) Run(run func(req domain.UserRequest, claims *domain.Claims)) *UserService_Delete_Call {
+func (_c *UserService_Delete_Call) Run(run func(req domain.UserRequest, claims domain.Claims)) *UserService_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(domain.UserRequest), args[1].(*domain.Claims))
+		run(args[0].(domain.UserRequest), args[1].(domain.Claims))
 	})
 	return _c
 }
@@ -121,7 +121,7 @@ func (_c *UserService_Delete_Call) Return(_a0 error) *UserService_Delete_Call {
 	return _c
 }
 
-func (_c *UserService_Delete_Call) RunAndReturn(run func(domain.UserRequest, *domain.Claims) error) *UserService_Delete_Call {
+func (_c *UserService_Delete_Call) RunAndReturn(run func(domain.UserRequest, domain.Claims) error) *UserService_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -300,7 +300,7 @@ func (_c *UserService_Login_Call) RunAndReturn(run func(domain.UserLoginRequest)
 }
 
 // Update provides a mock function with given fields: req, claims
-func (_m *UserService) Update(req domain.UserRequest, claims *domain.Claims) (*domain.User, error) {
+func (_m *UserService) Update(req domain.UserRequest, claims domain.Claims) (*domain.User, error) {
 	ret := _m.Called(req, claims)
 
 	if len(ret) == 0 {
@@ -309,10 +309,10 @@ func (_m *UserService) Update(req domain.UserRequest, claims *domain.Claims) (*d
 
 	var r0 *domain.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(domain.UserRequest, *domain.Claims) (*domain.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(domain.UserRequest, domain.Claims) (*domain.User, error)); ok {
 		return rf(req, claims)
 	}
-	if rf, ok := ret.Get(0).(func(domain.UserRequest, *domain.Claims) *domain.User); ok {
+	if rf, ok := ret.Get(0).(func(domain.UserRequest, domain.Claims) *domain.User); ok {
 		r0 = rf(req, claims)
 	} else {
 		if ret.Get(0) != nil {
@@ -320,7 +320,7 @@ func (_m *UserService) Update(req domain.UserRequest, claims *domain.Claims) (*d
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(domain.UserRequest, *domain.Claims) error); ok {
+	if rf, ok := ret.Get(1).(func(domain.UserRequest, domain.Claims) error); ok {
 		r1 = rf(req, claims)
 	} else {
 		r1 = ret.Error(1)
@@ -336,14 +336,14 @@ type UserService_Update_Call struct {
 
 // Update is a helper method to define mock.On call
 //   - req domain.UserRequest
-//   - claims *domain.Claims
+//   - claims domain.Claims
 func (_e *UserService_Expecter) Update(req interface{}, claims interface{}) *UserService_Update_Call {
 	return &UserService_Update_Call{Call: _e.mock.On("Update", req, claims)}
 }
 
-func (_c *UserService_Update_Call) Run(run func(req domain.UserRequest, claims *domain.Claims)) *UserService_Update_Call {
+func (_c *UserService_Update_Call) Run(run func(req domain.UserRequest, claims domain.Claims)) *UserService_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(domain.UserRequest), args[1].(*domain.Claims))
+		run(args[0].(domain.UserRequest), args[1].(domain.Claims))
 	})
 	return _c
 }
@@ -353,7 +353,7 @@ func (_c *UserService_Update_Call) Return(_a0 *domain.User, _a1 error) *UserServ
 	return _c
 }
 
-func (_c *UserService_Update_Call) RunAndReturn(run func(domain.UserRequest, *domain.Claims) (*domain.User, error)) *UserService_Update_Call {
+func (_c *UserService_Update_Call) RunAndReturn(run func(domain.UserRequest, domain.Claims) (*domain.User, error)) *UserService_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

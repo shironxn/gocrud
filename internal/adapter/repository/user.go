@@ -23,34 +23,28 @@ func (u *UserRepository) Create(req domain.UserRegisterRequest) (*domain.User, e
 		Email:    req.Email,
 		Password: req.Password,
 	}
-	err := u.db.Create(&entity).Error
-	return &entity, err
+	return &entity, u.db.Create(&entity).Error
 }
 
 func (u *UserRepository) GetAll() ([]domain.User, error) {
 	var entity []domain.User
-	err := u.db.Find(&entity).Error
-	return entity, err
+	return entity, u.db.Find(&entity).Error
 }
 
 func (u *UserRepository) GetByID(id uint) (*domain.User, error) {
 	var entity domain.User
-	err := u.db.First(&entity, id).Error
-	return &entity, err
+	return &entity, u.db.First(&entity, id).Error
 }
 
 func (u *UserRepository) GetByEmail(email string) (*domain.User, error) {
 	var entity domain.User
-	err := u.db.Where("email = ?", email).First(&entity).Error
-	return &entity, err
+	return &entity, u.db.Where("email = ?", email).First(&entity).Error
 }
 
-func (u *UserRepository) Update(entity *domain.User, req domain.UserRequest) (*domain.User, error) {
-	err := u.db.Model(&entity).Updates(req).Error
-	return entity, err
+func (u *UserRepository) Update(req domain.UserRequest, entity *domain.User) (*domain.User, error) {
+	return entity, u.db.Model(&entity).Updates(req).Error
 }
 
 func (u *UserRepository) Delete(entity *domain.User) error {
-	err := u.db.Delete(&entity).Error
-	return err
+	return u.db.Delete(&entity).Error
 }

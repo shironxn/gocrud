@@ -15,24 +15,24 @@ type Validator struct {
 	trans    ut.Translator
 }
 
-func NewValidator() (*Validator, error) {
+func NewValidator() (Validator, error) {
 	validate := validator.New()
 
 	enLocale := en.New()
 	uni := ut.New(enLocale, enLocale)
 	trans, ok := uni.GetTranslator("en")
 	if !ok {
-		return nil, errors.New("failed to get translator")
+		return Validator{}, errors.New("failed to get translator")
 	}
 
 	if err := en_translations.RegisterDefaultTranslations(validate, trans); err != nil {
-		return nil, err
+		return Validator{}, err
 	}
 
-	return &Validator{validate: validate, trans: trans}, nil
+	return Validator{validate: validate, trans: trans}, nil
 }
 
-func (v *Validator) Validate(data interface{}) *domain.ErrorValidationResponse {
+func (v Validator) Validate(data interface{}) *domain.ErrorValidationResponse {
 	if err := v.validate.Struct(data); err != nil {
 		var errMessages []domain.ValidationError
 		errs := err.(validator.ValidationErrors)

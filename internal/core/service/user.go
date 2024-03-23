@@ -10,10 +10,10 @@ import (
 
 type UserService struct {
 	repository port.UserRepository
-	bcrypt     *util.Bcrypt
+	bcrypt     util.Bcrypt
 }
 
-func NewUserService(repository port.UserRepository, bcrypt *util.Bcrypt) port.UserService {
+func NewUserService(repository port.UserRepository, bcrypt util.Bcrypt) port.UserService {
 	return &UserService{
 		repository: repository,
 		bcrypt:     bcrypt,
@@ -28,12 +28,7 @@ func (u *UserService) Create(req domain.UserRegisterRequest) (*domain.User, erro
 
 	req.Password = string(hashedPassword)
 
-	data, err := u.repository.Create(req)
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
+	return u.repository.Create(req)
 }
 
 func (u *UserService) Login(req domain.UserLoginRequest) (*domain.User, error) {
@@ -50,24 +45,14 @@ func (u *UserService) Login(req domain.UserLoginRequest) (*domain.User, error) {
 }
 
 func (u *UserService) GetAll() ([]domain.User, error) {
-	data, err := u.repository.GetAll()
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
+	return u.repository.GetAll()
 }
 
 func (u *UserService) GetByID(req domain.UserRequest) (*domain.User, error) {
-	data, err := u.repository.GetByID(req.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
+	return u.repository.GetByID(req.ID)
 }
 
-func (u *UserService) Update(req domain.UserRequest, claims *domain.Claims) (*domain.User, error) {
+func (u *UserService) Update(req domain.UserRequest, claims domain.Claims) (*domain.User, error) {
 	user, err := u.repository.GetByID(req.ID)
 	if err != nil {
 		return nil, err
@@ -84,15 +69,10 @@ func (u *UserService) Update(req domain.UserRequest, claims *domain.Claims) (*do
 
 	req.Password = string(hashedPassword)
 
-	data, err := u.repository.Update(user, req)
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
+	return u.repository.Update(req, user)
 }
 
-func (u *UserService) Delete(req domain.UserRequest, claims *domain.Claims) error {
+func (u *UserService) Delete(req domain.UserRequest, claims domain.Claims) error {
 	user, err := u.repository.GetByID(req.ID)
 	if err != nil {
 		return err
@@ -102,10 +82,5 @@ func (u *UserService) Delete(req domain.UserRequest, claims *domain.Claims) erro
 		return fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")
 	}
 
-	err = u.repository.Delete(user)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return u.repository.Delete(user)
 }

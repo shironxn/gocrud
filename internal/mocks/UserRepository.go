@@ -298,9 +298,9 @@ func (_c *UserRepository_GetByID_Call) RunAndReturn(run func(uint) (*domain.User
 	return _c
 }
 
-// Update provides a mock function with given fields: entity, req
-func (_m *UserRepository) Update(entity *domain.User, req domain.UserRequest) (*domain.User, error) {
-	ret := _m.Called(entity, req)
+// Update provides a mock function with given fields: req, entity
+func (_m *UserRepository) Update(req domain.UserRequest, entity *domain.User) (*domain.User, error) {
+	ret := _m.Called(req, entity)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
@@ -308,19 +308,19 @@ func (_m *UserRepository) Update(entity *domain.User, req domain.UserRequest) (*
 
 	var r0 *domain.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*domain.User, domain.UserRequest) (*domain.User, error)); ok {
-		return rf(entity, req)
+	if rf, ok := ret.Get(0).(func(domain.UserRequest, *domain.User) (*domain.User, error)); ok {
+		return rf(req, entity)
 	}
-	if rf, ok := ret.Get(0).(func(*domain.User, domain.UserRequest) *domain.User); ok {
-		r0 = rf(entity, req)
+	if rf, ok := ret.Get(0).(func(domain.UserRequest, *domain.User) *domain.User); ok {
+		r0 = rf(req, entity)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*domain.User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*domain.User, domain.UserRequest) error); ok {
-		r1 = rf(entity, req)
+	if rf, ok := ret.Get(1).(func(domain.UserRequest, *domain.User) error); ok {
+		r1 = rf(req, entity)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -334,15 +334,15 @@ type UserRepository_Update_Call struct {
 }
 
 // Update is a helper method to define mock.On call
-//   - entity *domain.User
 //   - req domain.UserRequest
-func (_e *UserRepository_Expecter) Update(entity interface{}, req interface{}) *UserRepository_Update_Call {
-	return &UserRepository_Update_Call{Call: _e.mock.On("Update", entity, req)}
+//   - entity *domain.User
+func (_e *UserRepository_Expecter) Update(req interface{}, entity interface{}) *UserRepository_Update_Call {
+	return &UserRepository_Update_Call{Call: _e.mock.On("Update", req, entity)}
 }
 
-func (_c *UserRepository_Update_Call) Run(run func(entity *domain.User, req domain.UserRequest)) *UserRepository_Update_Call {
+func (_c *UserRepository_Update_Call) Run(run func(req domain.UserRequest, entity *domain.User)) *UserRepository_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*domain.User), args[1].(domain.UserRequest))
+		run(args[0].(domain.UserRequest), args[1].(*domain.User))
 	})
 	return _c
 }
@@ -352,7 +352,7 @@ func (_c *UserRepository_Update_Call) Return(_a0 *domain.User, _a1 error) *UserR
 	return _c
 }
 
-func (_c *UserRepository_Update_Call) RunAndReturn(run func(*domain.User, domain.UserRequest) (*domain.User, error)) *UserRepository_Update_Call {
+func (_c *UserRepository_Update_Call) RunAndReturn(run func(domain.UserRequest, *domain.User) (*domain.User, error)) *UserRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

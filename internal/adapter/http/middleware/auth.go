@@ -1,16 +1,17 @@
 package middleware
 
 import (
+	"gocrud/internal/core/port"
 	"gocrud/internal/util"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 type AuthMiddleware struct {
-	jwt *util.JWT
+	jwt util.JWT
 }
 
-func NewAuthMiddleware(jwt *util.JWT) *AuthMiddleware {
+func NewAuthMiddleware(jwt util.JWT) port.Middleware {
 	return &AuthMiddleware{
 		jwt: jwt,
 	}

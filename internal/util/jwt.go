@@ -15,13 +15,13 @@ type JWT struct {
 	cfg *config.Config
 }
 
-func NewJWT(cfg *config.Config) *JWT {
-	return &JWT{
+func NewJWT(cfg *config.Config) JWT {
+	return JWT{
 		cfg: cfg,
 	}
 }
 
-func (j *JWT) GenerateToken(ctx *fiber.Ctx, user *domain.User) (*domain.UserDetails, error) {
+func (j JWT) GenerateToken(ctx *fiber.Ctx, user *domain.User) (*domain.UserDetails, error) {
 	jwtExpire := time.Now().Add(1 * time.Hour)
 
 	claims := domain.Claims{
@@ -54,7 +54,7 @@ func (j *JWT) GenerateToken(ctx *fiber.Ctx, user *domain.User) (*domain.UserDeta
 	return &details, nil
 }
 
-func (j *JWT) ValidateToken(token string) (jwt.Claims, error) {
+func (j JWT) ValidateToken(token string) (jwt.Claims, error) {
 	tokenString, err := jwt.ParseWithClaims(token, &domain.Claims{}, func(t *jwt.Token) (interface{}, error) {
 		return []byte(j.cfg.JWTSecret), nil
 	})

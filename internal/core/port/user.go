@@ -11,7 +11,7 @@ type UserRepository interface {
 	GetAll() ([]domain.User, error)
 	GetByID(id uint) (*domain.User, error)
 	GetByEmail(email string) (*domain.User, error)
-	Update(entity *domain.User, req domain.UserRequest) (*domain.User, error)
+	Update(req domain.UserRequest, entity *domain.User) (*domain.User, error)
 	Delete(entity *domain.User) error
 }
 
@@ -20,8 +20,8 @@ type UserService interface {
 	Login(req domain.UserLoginRequest) (*domain.User, error)
 	GetAll() ([]domain.User, error)
 	GetByID(req domain.UserRequest) (*domain.User, error)
-	Update(req domain.UserRequest, claims *domain.Claims) (*domain.User, error)
-	Delete(req domain.UserRequest, claims *domain.Claims) error
+	Update(req domain.UserRequest, claims domain.Claims) (*domain.User, error)
+	Delete(req domain.UserRequest, claims domain.Claims) error
 }
 
 type UserHandler interface {

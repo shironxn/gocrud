@@ -24,7 +24,7 @@ import (
 func TestUserHandler_Register(t *testing.T) {
 	type fields struct {
 		service   port.UserService
-		validator *util.Validator
+		validator util.Validator
 	}
 
 	type args struct {
@@ -139,8 +139,8 @@ func TestUserHandler_Register(t *testing.T) {
 func TestUserHandler_Login(t *testing.T) {
 	type fields struct {
 		service   port.UserService
-		validator *util.Validator
-		jwt       *util.JWT
+		validator util.Validator
+		jwt       util.JWT
 	}
 
 	type args struct {
@@ -656,7 +656,7 @@ func TestUserHandler_GetByID(t *testing.T) {
 func TestUserHandler_Update(t *testing.T) {
 	type fields struct {
 		service   port.UserService
-		validator *util.Validator
+		validator util.Validator
 	}
 
 	type args struct {
@@ -678,7 +678,7 @@ func TestUserHandler_Update(t *testing.T) {
 		fields  fields
 		args    args
 		code    int
-		claims  *domain.Claims
+		claims  domain.Claims
 		want    interface{}
 		wantErr bool
 	}{
@@ -686,7 +686,7 @@ func TestUserHandler_Update(t *testing.T) {
 			name: "success",
 			fields: fields{
 				service: func() port.UserService {
-					mockUserService.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("*domain.Claims")).Return(expected, nil).Once()
+					mockUserService.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("domain.Claims")).Return(expected, nil).Once()
 					return mockUserService
 				}(),
 				validator: validator,
@@ -700,7 +700,7 @@ func TestUserHandler_Update(t *testing.T) {
 				},
 			},
 			code: fiber.StatusOK,
-			claims: &domain.Claims{
+			claims: domain.Claims{
 				UserID: expected.ID,
 			},
 			want: domain.SuccessResponse{
@@ -716,7 +716,7 @@ func TestUserHandler_Update(t *testing.T) {
 			name: "failure",
 			fields: fields{
 				service: func() port.UserService {
-					mockUserService.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("*domain.Claims")).Return(nil, errors.New("failed")).Once()
+					mockUserService.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("domain.Claims")).Return(nil, errors.New("failed")).Once()
 					return mockUserService
 				}(),
 				validator: validator,
@@ -730,7 +730,7 @@ func TestUserHandler_Update(t *testing.T) {
 				},
 			},
 			code: fiber.StatusInternalServerError,
-			claims: &domain.Claims{
+			claims: domain.Claims{
 				UserID: expected.ID,
 			},
 			want: domain.ErrorResponse{
@@ -742,7 +742,7 @@ func TestUserHandler_Update(t *testing.T) {
 			name: "permission",
 			fields: fields{
 				service: func() port.UserService {
-					mockUserService.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), &domain.Claims{UserID: expected.ID}).Return(nil, fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")).Once()
+					mockUserService.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), domain.Claims{UserID: expected.ID}).Return(nil, fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")).Once()
 					return mockUserService
 				}(),
 				validator: validator,
@@ -758,7 +758,7 @@ func TestUserHandler_Update(t *testing.T) {
 				},
 			},
 			code: fiber.StatusForbidden,
-			claims: &domain.Claims{
+			claims: domain.Claims{
 				UserID: expected.ID,
 			},
 			want: domain.ErrorResponse{
@@ -832,7 +832,7 @@ func TestUserHandler_Delete(t *testing.T) {
 		fields  fields
 		args    args
 		code    int
-		claims  *domain.Claims
+		claims  domain.Claims
 		want    interface{}
 		wantErr bool
 	}{
@@ -840,7 +840,7 @@ func TestUserHandler_Delete(t *testing.T) {
 			name: "success",
 			fields: fields{
 				service: func() port.UserService {
-					mockUserService.EXPECT().Delete(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("*domain.Claims")).Return(nil).Once()
+					mockUserService.EXPECT().Delete(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("domain.Claims")).Return(nil).Once()
 					return mockUserService
 				}(),
 			},
@@ -850,7 +850,7 @@ func TestUserHandler_Delete(t *testing.T) {
 				},
 			},
 			code: fiber.StatusOK,
-			claims: &domain.Claims{
+			claims: domain.Claims{
 				UserID: expected.ID,
 			},
 			want: domain.SuccessResponse{
@@ -862,7 +862,7 @@ func TestUserHandler_Delete(t *testing.T) {
 			name: "failure",
 			fields: fields{
 				service: func() port.UserService {
-					mockUserService.EXPECT().Delete(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("*domain.Claims")).Return(errors.New("failed")).Once()
+					mockUserService.EXPECT().Delete(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("domain.Claims")).Return(errors.New("failed")).Once()
 					return mockUserService
 				}(),
 			},
@@ -872,7 +872,7 @@ func TestUserHandler_Delete(t *testing.T) {
 				},
 			},
 			code: fiber.StatusInternalServerError,
-			claims: &domain.Claims{
+			claims: domain.Claims{
 				UserID: expected.ID,
 			},
 			want: domain.ErrorResponse{
@@ -884,7 +884,7 @@ func TestUserHandler_Delete(t *testing.T) {
 			name: "permission",
 			fields: fields{
 				service: func() port.UserService {
-					mockUserService.EXPECT().Delete(mock.AnythingOfType("domain.UserRequest"), &domain.Claims{UserID: expected.ID}).Return(fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")).Once()
+					mockUserService.EXPECT().Delete(mock.AnythingOfType("domain.UserRequest"), domain.Claims{UserID: expected.ID}).Return(fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")).Once()
 					return mockUserService
 				}(),
 			},
@@ -896,7 +896,7 @@ func TestUserHandler_Delete(t *testing.T) {
 				},
 			},
 			code: fiber.StatusForbidden,
-			claims: &domain.Claims{
+			claims: domain.Claims{
 				UserID: expected.ID,
 			},
 			want: domain.ErrorResponse{
