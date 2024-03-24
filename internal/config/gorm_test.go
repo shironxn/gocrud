@@ -33,15 +33,7 @@ func TestDB_Connection(t *testing.T) {
 		{
 			name: "error",
 			fields: fields{
-				cfg: &Config{
-					Database: struct {
-						Host string
-						Port string
-						Name string
-						User string
-						Pass string
-					}{},
-				},
+				cfg: &Config{},
 			},
 			want:    nil,
 			wantErr: true,
@@ -56,9 +48,11 @@ func TestDB_Connection(t *testing.T) {
 
 			if tt.wantErr {
 				assert.Error(t, err)
+				assert.Nil(t, got)
 			} else {
 				assert.NoError(t, err)
 				assert.IsType(t, tt.want, got)
+				assert.NotNil(t, got)
 			}
 		})
 	}

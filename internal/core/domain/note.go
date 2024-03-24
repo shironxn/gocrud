@@ -19,7 +19,7 @@ type NoteRequest struct {
 	ID         uint
 	Title      string `validate:"required"`
 	Content    string `validate:"required"`
-	Visibility string `validate:"required;oneof=private public"`
+	Visibility string `validate:"oneof=private public"`
 }
 
 type NoteResponse struct {

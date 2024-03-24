@@ -38,9 +38,9 @@ func (n *NoteHandler) Create(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(
+	return ctx.Status(fiber.StatusCreated).JSON(
 		domain.SuccessResponse{
-			Message: "successfully create note",
+			Message: "successfully created note",
 			Data: domain.NoteResponse{
 				ID:         result.ID,
 				Title:      result.Title,
@@ -74,7 +74,7 @@ func (n *NoteHandler) GetAll(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully get all notes",
+		Message: "successfully retrieved notes",
 		Data:    data,
 	})
 }
@@ -92,7 +92,7 @@ func (n *NoteHandler) GetByID(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully get note by id",
+		Message: "successfully retrieved note by id",
 		Data: domain.NoteResponse{
 			ID:         result.ID,
 			Title:      result.Title,
@@ -120,7 +120,7 @@ func (n *NoteHandler) Update(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(err)
 	}
 
-	claims := ctx.Locals("token").(domain.Claims)
+	claims := ctx.Locals("claims").(domain.Claims)
 
 	result, err := n.service.Update(req, claims)
 	if err != nil {
@@ -128,7 +128,7 @@ func (n *NoteHandler) Update(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully update note",
+		Message: "successfully updated note by id",
 		Data: domain.NoteResponse{
 			ID:         result.ID,
 			Title:      result.Title,
@@ -148,13 +148,13 @@ func (n *NoteHandler) Delete(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	claims := ctx.Locals("token").(domain.Claims)
+	claims := ctx.Locals("claims").(domain.Claims)
 
 	if err := n.service.Delete(req, claims); err != nil {
 		return err
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully delete note",
+		Message: "successfully deleted note by id",
 	})
 }

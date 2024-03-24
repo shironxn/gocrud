@@ -64,9 +64,9 @@ func TestUserHandler_Register(t *testing.T) {
 					Password: entity.Password,
 				},
 			},
-			code: fiber.StatusOK,
+			code: fiber.StatusCreated,
 			want: domain.SuccessResponse{
-				Message: "successfully create user",
+				Message: "user successfully registered",
 				Data: domain.UserResponse{
 					ID:   entity.ID,
 					Name: entity.Name,
@@ -198,7 +198,7 @@ func TestUserHandler_Login(t *testing.T) {
 			},
 			code: fiber.StatusOK,
 			want: domain.SuccessResponse{
-				Message: "successfully login user",
+				Message: "user successfully logged in",
 				Data: domain.UserResponse{
 					ID:   entity.ID,
 					Name: entity.Name,
@@ -320,7 +320,7 @@ func TestUserHandler_Logout(t *testing.T) {
 				Value: "dummy-cookie",
 			},
 			want: domain.SuccessResponse{
-				Message: "successfully logout user",
+				Message: "user successfully logged out",
 			},
 			wantErr: false,
 		},
@@ -329,7 +329,7 @@ func TestUserHandler_Logout(t *testing.T) {
 			code:   fiber.StatusBadRequest,
 			cookie: nil,
 			want: domain.ErrorResponse{
-				Message: "user already logged out",
+				Message: "user is already logged out",
 			},
 			wantErr: true,
 		},
@@ -340,9 +340,9 @@ func TestUserHandler_Logout(t *testing.T) {
 			u := &UserHandler{}
 
 			app := config.NewFiber()
-			app.Post("/api/v1/auth/register", u.Logout)
+			app.Post("/api/v1/auth/logout", u.Logout)
 
-			req := httptest.NewRequest(fiber.MethodPost, "/api/v1/auth/register", nil)
+			req := httptest.NewRequest(fiber.MethodPost, "/api/v1/auth/logout", nil)
 			req.Header.Set("Content-Type", "application/json")
 			if tt.cookie != nil {
 				req.AddCookie(tt.cookie)
@@ -413,13 +413,13 @@ func TestUserHandler_GetCurrent(t *testing.T) {
 				}(),
 			},
 			args: args{
-				domain.Claims{
+				claims: domain.Claims{
 					UserID: entity.ID,
 				},
 			},
 			code: fiber.StatusOK,
 			want: domain.SuccessResponse{
-				Message: "successfully get current user data",
+				Message: "successfully retrieved current user data",
 				Data: domain.UserResponse{
 					ID:   entity.ID,
 					Name: entity.Name,
@@ -436,7 +436,7 @@ func TestUserHandler_GetCurrent(t *testing.T) {
 				}(),
 			},
 			args: args{
-				domain.Claims{
+				claims: domain.Claims{
 					UserID: entity.ID,
 				},
 			},
@@ -477,7 +477,7 @@ func TestUserHandler_GetCurrent(t *testing.T) {
 				var got domain.SuccessResponse
 				err = json.NewDecoder(res.Body).Decode(&got)
 				assert.NoError(t, err)
-				assert.Equal(t, tt.args.claims, entity.ID)
+				assert.Equal(t, tt.args.claims.UserID, entity.ID)
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).ID, uint(got.Data.(map[string]interface{})["id"].(float64)))
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).Name, got.Data.(map[string]interface{})["name"].(string))
@@ -530,9 +530,8 @@ func TestUserHandler_GetAll(t *testing.T) {
 				}(),
 			},
 			code: fiber.StatusOK,
-
 			want: domain.SuccessResponse{
-				Message: "successfully get all user data",
+				Message: "successfully retrieved all user data",
 				Data: func() []domain.UserResponse {
 					var data []domain.UserResponse
 					for _, user := range entity {
@@ -631,9 +630,14 @@ func TestUserHandler_GetByID(t *testing.T) {
 					return mockUserService
 				}(),
 			},
+			args: args{
+				req: domain.UserRequest{
+					ID: entity.ID,
+				},
+			},
 			code: fiber.StatusOK,
 			want: domain.SuccessResponse{
-				Message: "successfully get user by id",
+				Message: "successfully retrieved user by id",
 				Data: domain.UserResponse{
 					ID:   entity.ID,
 					Name: entity.Name,
@@ -698,7 +702,8 @@ func TestUserHandler_Update(t *testing.T) {
 	}
 
 	type args struct {
-		req domain.UserRequest
+		req    domain.UserRequest
+		claims domain.Claims
 	}
 
 	entity := &domain.User{
@@ -716,7 +721,6 @@ func TestUserHandler_Update(t *testing.T) {
 		fields  fields
 		args    args
 		code    int
-		claims  domain.Claims
 		want    interface{}
 		wantErr bool
 	}{
@@ -730,19 +734,19 @@ func TestUserHandler_Update(t *testing.T) {
 				validator: validator,
 			},
 			args: args{
-				domain.UserRequest{
+				req: domain.UserRequest{
 					ID:       entity.ID,
 					Name:     entity.Name,
 					Email:    entity.Email,
 					Password: entity.Password,
 				},
+				claims: domain.Claims{
+					UserID: entity.ID,
+				},
 			},
 			code: fiber.StatusOK,
-			claims: domain.Claims{
-				UserID: entity.ID,
-			},
 			want: domain.SuccessResponse{
-				Message: "successfully update user by id",
+				Message: "successfully updated user by id",
 				Data: domain.UserResponse{
 					ID:   entity.ID,
 					Name: entity.Name,
@@ -760,17 +764,17 @@ func TestUserHandler_Update(t *testing.T) {
 				validator: validator,
 			},
 			args: args{
-				domain.UserRequest{
+				req: domain.UserRequest{
 					ID:       entity.ID,
 					Name:     entity.Name,
 					Email:    entity.Email,
 					Password: entity.Password,
 				},
+				claims: domain.Claims{
+					UserID: entity.ID,
+				},
 			},
 			code: fiber.StatusInternalServerError,
-			claims: domain.Claims{
-				UserID: entity.ID,
-			},
 			want: domain.ErrorResponse{
 				Message: "failed",
 			},
@@ -786,17 +790,17 @@ func TestUserHandler_Update(t *testing.T) {
 				validator: validator,
 			},
 			args: args{
-				domain.UserRequest{
+				req: domain.UserRequest{
 					ID:       entity.ID + 1,
 					Name:     entity.Name,
 					Email:    entity.Email,
 					Password: entity.Password,
 				},
+				claims: domain.Claims{
+					UserID: entity.ID,
+				},
 			},
 			code: fiber.StatusForbidden,
-			claims: domain.Claims{
-				UserID: entity.ID,
-			},
 			want: domain.ErrorResponse{
 				Message: "user does not have permission to perform this action",
 			},
@@ -825,7 +829,7 @@ func TestUserHandler_Update(t *testing.T) {
 
 			app := config.NewFiber()
 			app.Use(func(ctx *fiber.Ctx) error {
-				ctx.Locals("claims", tt.claims)
+				ctx.Locals("claims", tt.args.claims)
 				return ctx.Next()
 			})
 			app.Put("/api/v1/user/:id", u.Update)
@@ -897,16 +901,16 @@ func TestUserHandler_Delete(t *testing.T) {
 				}(),
 			},
 			args: args{
-				domain.UserRequest{
+				req: domain.UserRequest{
 					ID: entity.ID,
 				},
-				domain.Claims{
+				claims: domain.Claims{
 					UserID: entity.ID,
 				},
 			},
 			code: fiber.StatusOK,
 			want: domain.SuccessResponse{
-				Message: "successfully delete user by id",
+				Message: "successfully deleted user by id",
 			},
 			wantErr: false,
 		},
@@ -919,10 +923,10 @@ func TestUserHandler_Delete(t *testing.T) {
 				}(),
 			},
 			args: args{
-				domain.UserRequest{
+				req: domain.UserRequest{
 					ID: entity.ID,
 				},
-				domain.Claims{
+				claims: domain.Claims{
 					UserID: entity.ID,
 				},
 			},
@@ -941,10 +945,10 @@ func TestUserHandler_Delete(t *testing.T) {
 				}(),
 			},
 			args: args{
-				domain.UserRequest{
+				req: domain.UserRequest{
 					ID: entity.ID + 1,
 				},
-				domain.Claims{
+				claims: domain.Claims{
 					UserID: entity.ID,
 				},
 			},

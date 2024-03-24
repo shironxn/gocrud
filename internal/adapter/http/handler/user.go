@@ -27,7 +27,7 @@ func (u *UserHandler) Register(ctx *fiber.Ctx) error {
 	var req domain.UserRegisterRequest
 
 	if cookie := ctx.Cookies("token"); cookie != "" {
-		return fiber.NewError(fiber.StatusBadRequest, "user already registered")
+		return fiber.NewError(fiber.StatusBadRequest, "user is already registered")
 	}
 
 	if err := ctx.BodyParser(&req); err != nil {
@@ -43,8 +43,8 @@ func (u *UserHandler) Register(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully create user",
+	return ctx.Status(fiber.StatusCreated).JSON(domain.SuccessResponse{
+		Message: "user successfully registered",
 		Data: domain.UserResponse{
 			ID:        result.ID,
 			Name:      result.Name,
@@ -58,7 +58,7 @@ func (u *UserHandler) Login(ctx *fiber.Ctx) error {
 	var req domain.UserLoginRequest
 
 	if cookie := ctx.Cookies("token"); cookie != "" {
-		return fiber.NewError(fiber.StatusBadRequest, "user already logged in")
+		return fiber.NewError(fiber.StatusBadRequest, "user is already logged in")
 	}
 
 	if err := ctx.BodyParser(&req); err != nil {
@@ -80,7 +80,7 @@ func (u *UserHandler) Login(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully login user",
+		Message: "user successfully logged in",
 		Data: domain.UserResponse{
 			ID:        result.ID,
 			Name:      result.Name,
@@ -91,7 +91,7 @@ func (u *UserHandler) Login(ctx *fiber.Ctx) error {
 
 func (u *UserHandler) Logout(ctx *fiber.Ctx) error {
 	if cookie := ctx.Cookies("token"); cookie == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "user already logged out")
+		return fiber.NewError(fiber.StatusBadRequest, "user is already logged out")
 	}
 
 	cookieExpire := time.Now().Add(-time.Hour * 24)
@@ -102,14 +102,14 @@ func (u *UserHandler) Logout(ctx *fiber.Ctx) error {
 	})
 
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully logout user",
+		Message: "user successfully logged out",
 	})
 }
 
 func (u *UserHandler) GetCurrent(ctx *fiber.Ctx) error {
 	var req domain.UserRequest
 
-	claims := ctx.Locals("claims").(*domain.Claims)
+	claims := ctx.Locals("claims").(domain.Claims)
 	req.ID = claims.UserID
 
 	result, err := u.service.GetByID(req)
@@ -118,7 +118,7 @@ func (u *UserHandler) GetCurrent(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully get current user data",
+		Message: "successfully retrieved current user data",
 		Data: domain.UserResponse{
 			ID:        result.ID,
 			Name:      result.Name,
@@ -146,7 +146,7 @@ func (u *UserHandler) GetAll(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully get all user data",
+		Message: "successfully retrieved all user data",
 		Data:    data,
 	})
 }
@@ -165,7 +165,7 @@ func (u *UserHandler) GetByID(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully get user by id",
+		Message: "successfully retrieved user by id",
 		Data: domain.UserResponse{
 			ID:        result.ID,
 			Name:      result.Name,
@@ -198,7 +198,7 @@ func (u *UserHandler) Update(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully update user by id",
+		Message: "successfully updated user by id",
 		Data: domain.UserResponse{
 			ID:        result.ID,
 			Name:      result.Name,
@@ -223,6 +223,6 @@ func (u *UserHandler) Delete(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully delete user by id",
+		Message: "successfully deleted user by id",
 	})
 }
