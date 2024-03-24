@@ -498,7 +498,7 @@ func TestNoteHandler_Update(t *testing.T) {
 			},
 			args: args{
 				req: domain.NoteRequest{
-					ID:         entity.ID + 1,
+					ID:         entity.ID,
 					Title:      entity.Title,
 					Content:    entity.Content,
 					Visibility: entity.Visibility,
@@ -658,7 +658,7 @@ func TestNoteHandler_Delete(t *testing.T) {
 			},
 			args: args{
 				req: domain.NoteRequest{
-					ID: entity.ID + 1,
+					ID: entity.ID,
 				},
 				claims: domain.Claims{
 					UserID: entity.ID,

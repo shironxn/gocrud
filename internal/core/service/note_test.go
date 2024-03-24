@@ -338,10 +338,10 @@ func TestNoteService_Update(t *testing.T) {
 			},
 			args: args{
 				req: domain.NoteRequest{
-					ID: entity.ID + 1,
+					ID: entity.ID,
 				},
 				claims: domain.Claims{
-					UserID: entity.ID,
+					UserID: entity.UserID + 1,
 				},
 			},
 			want:    errors.New("user does not have permission to perform this action"),
@@ -452,10 +452,10 @@ func TestNoteService_Delete(t *testing.T) {
 			},
 			args: args{
 				req: domain.NoteRequest{
-					ID: entity.ID + 1,
+					ID: entity.ID,
 				},
 				claims: domain.Claims{
-					UserID: entity.ID,
+					UserID: entity.UserID + 1,
 				},
 			},
 			want:    errors.New("user does not have permission to perform this action"),

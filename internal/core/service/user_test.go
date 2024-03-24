@@ -427,10 +427,10 @@ func TestUserService_Update(t *testing.T) {
 			},
 			args: args{
 				req: domain.UserRequest{
-					ID: entity.ID + 1,
+					ID: entity.ID,
 				},
 				claims: domain.Claims{
-					UserID: entity.ID,
+					UserID: entity.ID + 1,
 				},
 			},
 			want:    errors.New("user does not have permission to perform this action"),
@@ -539,10 +539,10 @@ func TestUserService_Delete(t *testing.T) {
 			},
 			args: args{
 				req: domain.UserRequest{
-					ID: entity.ID + 1,
+					ID: entity.ID,
 				},
 				claims: domain.Claims{
-					UserID: entity.ID,
+					UserID: entity.ID + 1,
 				},
 			},
 			want:    errors.New("user does not have permission to perform this action"),

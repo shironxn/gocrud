@@ -784,14 +784,14 @@ func TestUserHandler_Update(t *testing.T) {
 			name: "permission denied",
 			fields: fields{
 				service: func() port.UserService {
-					mockUserService.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), domain.Claims{UserID: entity.ID}).Return(nil, fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")).Once()
+					mockUserService.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("domain.Claims")).Return(nil, fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")).Once()
 					return mockUserService
 				}(),
 				validator: validator,
 			},
 			args: args{
 				req: domain.UserRequest{
-					ID:       entity.ID + 1,
+					ID:       entity.ID,
 					Name:     entity.Name,
 					Email:    entity.Email,
 					Password: entity.Password,
@@ -940,13 +940,13 @@ func TestUserHandler_Delete(t *testing.T) {
 			name: "permission denied",
 			fields: fields{
 				service: func() port.UserService {
-					mockUserService.EXPECT().Delete(mock.AnythingOfType("domain.UserRequest"), domain.Claims{UserID: entity.ID}).Return(fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")).Once()
+					mockUserService.EXPECT().Delete(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("domain.Claims")).Return(fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")).Once()
 					return mockUserService
 				}(),
 			},
 			args: args{
 				req: domain.UserRequest{
-					ID: entity.ID + 1,
+					ID: entity.ID,
 				},
 				claims: domain.Claims{
 					UserID: entity.ID,
