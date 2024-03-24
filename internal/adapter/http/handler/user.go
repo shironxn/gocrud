@@ -109,7 +109,7 @@ func (u *UserHandler) Logout(ctx *fiber.Ctx) error {
 func (u *UserHandler) GetCurrent(ctx *fiber.Ctx) error {
 	var req domain.UserRequest
 
-	claims := ctx.Locals("claims").(domain.Claims)
+	claims := ctx.Locals("claims").(*domain.Claims)
 	req.ID = claims.UserID
 
 	result, err := u.service.GetByID(req)
@@ -186,13 +186,13 @@ func (u *UserHandler) Update(ctx *fiber.Ctx) error {
 		return err
 	}
 
+	claims := ctx.Locals("claims").(*domain.Claims)
+
 	if err := u.validator.Validate(req); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(err)
 	}
 
-	claims := ctx.Locals("claims").(domain.Claims)
-
-	result, err := u.service.Update(req, claims)
+	result, err := u.service.Update(req, *claims)
 	if err != nil {
 		return err
 	}
@@ -215,9 +215,9 @@ func (u *UserHandler) Delete(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	claims := ctx.Locals("claims").(domain.Claims)
+	claims := ctx.Locals("claims").(*domain.Claims)
 
-	err := u.service.Delete(req, claims)
+	err := u.service.Delete(req, *claims)
 	if err != nil {
 		return err
 	}

@@ -22,6 +22,7 @@ func (n *NoteRepository) Create(req domain.NoteRequest) (*domain.Note, error) {
 		Title:      req.Title,
 		Content:    req.Content,
 		Visibility: req.Visibility,
+		UserID:     req.UserID,
 	}
 	return &entity, n.db.Create(&entity).Error
 }
@@ -37,7 +38,7 @@ func (n *NoteRepository) GetByID(id uint) (*domain.Note, error) {
 }
 
 func (n *NoteRepository) Update(req domain.NoteRequest, entity *domain.Note) (*domain.Note, error) {
-	return entity, n.db.Model(&req).Updates(req).Error
+	return entity, n.db.Model(&entity).Updates(req).Error
 }
 
 func (n *NoteRepository) Delete(entity *domain.Note) error {

@@ -27,6 +27,9 @@ func (n *NoteHandler) Create(ctx *fiber.Ctx) error {
 		return err
 	}
 
+	claims := ctx.Locals("claims").(*domain.Claims)
+	req.UserID = claims.UserID
+
 	if err := n.validator.Validate(req); err != nil {
 		if err := n.validator.Validate(req); err != nil {
 			return ctx.Status(fiber.StatusBadRequest).JSON(err)
@@ -116,13 +119,14 @@ func (n *NoteHandler) Update(ctx *fiber.Ctx) error {
 		return err
 	}
 
+	claims := ctx.Locals("claims").(*domain.Claims)
+	req.UserID = claims.UserID
+
 	if err := n.validator.Validate(req); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(err)
 	}
 
-	claims := ctx.Locals("claims").(domain.Claims)
-
-	result, err := n.service.Update(req, claims)
+	result, err := n.service.Update(req, *claims)
 	if err != nil {
 		return err
 	}
@@ -148,9 +152,9 @@ func (n *NoteHandler) Delete(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	claims := ctx.Locals("claims").(domain.Claims)
+	claims := ctx.Locals("claims").(*domain.Claims)
 
-	if err := n.service.Delete(req, claims); err != nil {
+	if err := n.service.Delete(req, *claims); err != nil {
 		return err
 	}
 

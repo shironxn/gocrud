@@ -25,7 +25,6 @@ func (u *UserRoute) Route(app *fiber.App) {
 	v1.Get("/current", u.handler.GetCurrent)
 	v1.Get("/", u.handler.GetAll)
 	v1.Get("/:id", u.handler.GetByID)
-	v1.Post("/", u.handler.Register)
 	v1.Put("/:id", u.handler.Update)
 	v1.Delete(":id", u.handler.Delete)
 }

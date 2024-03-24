@@ -44,10 +44,12 @@ func main() {
 
 	authMiddleware := middleware.NewAuthMiddleware(jwt)
 
+	welcomeRoute := route.NewWelcomeRoute()
 	authRoute := route.NewAuthRoute(userHandler, authMiddleware)
 	userRoute := route.NewUserRoute(userHandler, authMiddleware)
 	noteRoute := route.NewNoteRoute(noteHandler, authMiddleware)
 
+	welcomeRoute.Route(app)
 	authRoute.Route(app)
 	userRoute.Route(app)
 	noteRoute.Route(app)
