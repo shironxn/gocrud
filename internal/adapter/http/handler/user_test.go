@@ -10,7 +10,6 @@ import (
 	"gocrud/internal/core/port"
 	"gocrud/internal/mocks"
 	"gocrud/internal/util"
-	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -31,7 +30,7 @@ func TestUserHandler_Register(t *testing.T) {
 		req domain.UserRegisterRequest
 	}
 
-	expected := &domain.User{
+	entity := &domain.User{
 		Model:    gorm.Model{ID: 1},
 		Name:     "shiron",
 		Email:    "shiron@example.com",
@@ -53,24 +52,24 @@ func TestUserHandler_Register(t *testing.T) {
 			name: "success",
 			fields: fields{
 				service: func() port.UserService {
-					mockUserService.EXPECT().Create(mock.AnythingOfType("domain.UserRegisterRequest")).Return(expected, nil).Once()
+					mockUserService.EXPECT().Create(mock.AnythingOfType("domain.UserRegisterRequest")).Return(entity, nil).Once()
 					return mockUserService
 				}(),
 				validator: validator,
 			},
 			args: args{
 				req: domain.UserRegisterRequest{
-					Name:     "shiron",
-					Email:    "shiron@example.com",
-					Password: "password123",
+					Name:     entity.Name,
+					Email:    entity.Email,
+					Password: entity.Password,
 				},
 			},
 			code: fiber.StatusOK,
 			want: domain.SuccessResponse{
 				Message: "successfully create user",
 				Data: domain.UserResponse{
-					ID:   expected.ID,
-					Name: expected.Name,
+					ID:   entity.ID,
+					Name: entity.Name,
 				},
 			},
 			wantErr: false,
@@ -86,14 +85,26 @@ func TestUserHandler_Register(t *testing.T) {
 			},
 			args: args{
 				req: domain.UserRegisterRequest{
-					Name:     "shiron",
-					Email:    "shiron@example.com",
-					Password: "password123",
+					Name:     entity.Name,
+					Email:    entity.Email,
+					Password: entity.Password,
 				},
 			},
 			code: fiber.StatusInternalServerError,
 			want: domain.ErrorResponse{
 				Message: "failed",
+			},
+			wantErr: true,
+		},
+		{
+			name: "validation error",
+			fields: fields{
+				service:   mockUserService,
+				validator: validator,
+			},
+			code: fiber.StatusBadRequest,
+			want: domain.ErrorResponse{
+				Message: "validation error",
 			},
 			wantErr: true,
 		},
@@ -128,6 +139,9 @@ func TestUserHandler_Register(t *testing.T) {
 				var got domain.SuccessResponse
 				err = json.NewDecoder(res.Body).Decode(&got)
 				assert.NoError(t, err)
+				assert.Equal(t, tt.args.req.Name, entity.Name)
+				assert.Equal(t, tt.args.req.Email, entity.Email)
+				assert.Equal(t, tt.args.req.Password, entity.Password)
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).ID, uint(got.Data.(map[string]interface{})["id"].(float64)))
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).Name, got.Data.(map[string]interface{})["name"].(string))
@@ -147,7 +161,7 @@ func TestUserHandler_Login(t *testing.T) {
 		req domain.UserLoginRequest
 	}
 
-	expected := &domain.User{
+	entity := &domain.User{
 		Model:    gorm.Model{ID: 1},
 		Name:     "shiron",
 		Email:    "shiron@example.com",
@@ -170,7 +184,7 @@ func TestUserHandler_Login(t *testing.T) {
 			name: "success",
 			fields: fields{
 				service: func() port.UserService {
-					mockUserService.EXPECT().Login(mock.AnythingOfType("domain.UserLoginRequest")).Return(expected, nil).Once()
+					mockUserService.EXPECT().Login(mock.AnythingOfType("domain.UserLoginRequest")).Return(entity, nil).Once()
 					return mockUserService
 				}(),
 				validator: validator,
@@ -178,16 +192,16 @@ func TestUserHandler_Login(t *testing.T) {
 			},
 			args: args{
 				req: domain.UserLoginRequest{
-					Email:    "shiron@example.com",
-					Password: "password123",
+					Email:    entity.Email,
+					Password: entity.Password,
 				},
 			},
 			code: fiber.StatusOK,
 			want: domain.SuccessResponse{
 				Message: "successfully login user",
 				Data: domain.UserResponse{
-					ID:   expected.ID,
-					Name: expected.Name,
+					ID:   entity.ID,
+					Name: entity.Name,
 				},
 			},
 			wantErr: false,
@@ -204,8 +218,8 @@ func TestUserHandler_Login(t *testing.T) {
 			},
 			args: args{
 				req: domain.UserLoginRequest{
-					Email:    "shiron@example.com",
-					Password: "password123",
+					Email:    entity.Email,
+					Password: entity.Password,
 				},
 			},
 			code: fiber.StatusInternalServerError,
@@ -226,13 +240,25 @@ func TestUserHandler_Login(t *testing.T) {
 			},
 			args: args{
 				req: domain.UserLoginRequest{
-					Email:    "shiron@example.com",
-					Password: "wrong",
+					Email:    entity.Email,
+					Password: entity.Password + "lol",
 				},
 			},
 			code: fiber.StatusUnauthorized,
 			want: domain.ErrorResponse{
 				Message: "invalid password",
+			},
+			wantErr: true,
+		},
+		{
+			name: "validation error",
+			fields: fields{
+				service:   mockUserService,
+				validator: validator,
+			},
+			code: fiber.StatusBadRequest,
+			want: domain.ErrorResponse{
+				Message: "validation error",
 			},
 			wantErr: true,
 		},
@@ -268,6 +294,8 @@ func TestUserHandler_Login(t *testing.T) {
 				var got domain.SuccessResponse
 				err = json.NewDecoder(res.Body).Decode(&got)
 				assert.NoError(t, err)
+				assert.Equal(t, tt.args.req.Email, entity.Email)
+				assert.Equal(t, tt.args.req.Password, entity.Password)
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).ID, uint(got.Data.(map[string]interface{})["id"].(float64)))
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).Name, got.Data.(map[string]interface{})["name"].(string))
@@ -355,7 +383,11 @@ func TestUserHandler_GetCurrent(t *testing.T) {
 		service port.UserService
 	}
 
-	expected := &domain.User{
+	type args struct {
+		claims domain.Claims
+	}
+
+	entity := &domain.User{
 		Model:    gorm.Model{ID: 1},
 		Name:     "shiron",
 		Email:    "shiron@example.com",
@@ -367,8 +399,8 @@ func TestUserHandler_GetCurrent(t *testing.T) {
 	tests := []struct {
 		name    string
 		fields  fields
+		args    args
 		code    int
-		claims  *domain.Claims
 		want    interface{}
 		wantErr bool
 	}{
@@ -376,19 +408,21 @@ func TestUserHandler_GetCurrent(t *testing.T) {
 			name: "success",
 			fields: fields{
 				service: func() port.UserService {
-					mockUserService.EXPECT().GetByID(mock.AnythingOfType("domain.UserRequest")).Return(expected, nil).Once()
+					mockUserService.EXPECT().GetByID(mock.AnythingOfType("domain.UserRequest")).Return(entity, nil).Once()
 					return mockUserService
 				}(),
 			},
-			code: fiber.StatusOK,
-			claims: &domain.Claims{
-				UserID: expected.ID,
+			args: args{
+				domain.Claims{
+					UserID: entity.ID,
+				},
 			},
+			code: fiber.StatusOK,
 			want: domain.SuccessResponse{
 				Message: "successfully get current user data",
 				Data: domain.UserResponse{
-					ID:   expected.ID,
-					Name: expected.Name,
+					ID:   entity.ID,
+					Name: entity.Name,
 				},
 			},
 			wantErr: false,
@@ -401,10 +435,12 @@ func TestUserHandler_GetCurrent(t *testing.T) {
 					return mockUserService
 				}(),
 			},
-			code: fiber.StatusInternalServerError,
-			claims: &domain.Claims{
-				UserID: expected.ID,
+			args: args{
+				domain.Claims{
+					UserID: entity.ID,
+				},
 			},
+			code: fiber.StatusInternalServerError,
 			want: domain.ErrorResponse{
 				Message: "failed",
 			},
@@ -420,7 +456,7 @@ func TestUserHandler_GetCurrent(t *testing.T) {
 
 			app := config.NewFiber()
 			app.Use(func(ctx *fiber.Ctx) error {
-				ctx.Locals("claims", tt.claims)
+				ctx.Locals("claims", tt.args.claims)
 				return ctx.Next()
 			})
 			app.Get("/api/v1/user/current", u.GetCurrent)
@@ -441,6 +477,7 @@ func TestUserHandler_GetCurrent(t *testing.T) {
 				var got domain.SuccessResponse
 				err = json.NewDecoder(res.Body).Decode(&got)
 				assert.NoError(t, err)
+				assert.Equal(t, tt.args.claims, entity.ID)
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).ID, uint(got.Data.(map[string]interface{})["id"].(float64)))
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).Name, got.Data.(map[string]interface{})["name"].(string))
@@ -454,7 +491,7 @@ func TestUserHandler_GetAll(t *testing.T) {
 		service port.UserService
 	}
 
-	expected := []domain.User{
+	entity := []domain.User{
 		{
 			Model:    gorm.Model{ID: 1},
 			Name:     "shiron",
@@ -488,7 +525,7 @@ func TestUserHandler_GetAll(t *testing.T) {
 			name: "success",
 			fields: fields{
 				service: func() port.UserService {
-					mockUserService.EXPECT().GetAll().Return(expected, nil).Once()
+					mockUserService.EXPECT().GetAll().Return(entity, nil).Once()
 					return mockUserService
 				}(),
 			},
@@ -498,7 +535,7 @@ func TestUserHandler_GetAll(t *testing.T) {
 				Message: "successfully get all user data",
 				Data: func() []domain.UserResponse {
 					var data []domain.UserResponse
-					for _, user := range expected {
+					for _, user := range entity {
 						data = append(data, domain.UserResponse{
 							ID:   user.ID,
 							Name: user.Name,
@@ -569,7 +606,7 @@ func TestUserHandler_GetByID(t *testing.T) {
 		req domain.UserRequest
 	}
 
-	expected := &domain.User{
+	entity := &domain.User{
 		Model:    gorm.Model{ID: 1},
 		Name:     "shiron",
 		Email:    "shiron@example.com",
@@ -590,7 +627,7 @@ func TestUserHandler_GetByID(t *testing.T) {
 			name: "success",
 			fields: fields{
 				service: func() port.UserService {
-					mockUserService.EXPECT().GetByID(mock.AnythingOfType("domain.UserRequest")).Return(expected, nil).Once()
+					mockUserService.EXPECT().GetByID(mock.AnythingOfType("domain.UserRequest")).Return(entity, nil).Once()
 					return mockUserService
 				}(),
 			},
@@ -598,8 +635,8 @@ func TestUserHandler_GetByID(t *testing.T) {
 			want: domain.SuccessResponse{
 				Message: "successfully get user by id",
 				Data: domain.UserResponse{
-					ID:   expected.ID,
-					Name: expected.Name,
+					ID:   entity.ID,
+					Name: entity.Name,
 				},
 			},
 			wantErr: false,
@@ -645,6 +682,7 @@ func TestUserHandler_GetByID(t *testing.T) {
 				var got domain.SuccessResponse
 				err = json.NewDecoder(res.Body).Decode(&got)
 				assert.NoError(t, err)
+				assert.Equal(t, tt.args.req.ID, entity.ID)
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).ID, uint(got.Data.(map[string]interface{})["id"].(float64)))
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).Name, got.Data.(map[string]interface{})["name"].(string))
@@ -663,7 +701,7 @@ func TestUserHandler_Update(t *testing.T) {
 		req domain.UserRequest
 	}
 
-	expected := &domain.User{
+	entity := &domain.User{
 		Model:    gorm.Model{ID: 1},
 		Name:     "shiron",
 		Email:    "shiron@example.com",
@@ -686,28 +724,28 @@ func TestUserHandler_Update(t *testing.T) {
 			name: "success",
 			fields: fields{
 				service: func() port.UserService {
-					mockUserService.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("domain.Claims")).Return(expected, nil).Once()
+					mockUserService.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("domain.Claims")).Return(entity, nil).Once()
 					return mockUserService
 				}(),
 				validator: validator,
 			},
 			args: args{
 				domain.UserRequest{
-					ID:       expected.ID,
-					Name:     expected.Name,
-					Email:    expected.Email,
-					Password: expected.Password,
+					ID:       entity.ID,
+					Name:     entity.Name,
+					Email:    entity.Email,
+					Password: entity.Password,
 				},
 			},
 			code: fiber.StatusOK,
 			claims: domain.Claims{
-				UserID: expected.ID,
+				UserID: entity.ID,
 			},
 			want: domain.SuccessResponse{
 				Message: "successfully update user by id",
 				Data: domain.UserResponse{
-					ID:   expected.ID,
-					Name: expected.Name,
+					ID:   entity.ID,
+					Name: entity.Name,
 				},
 			},
 			wantErr: false,
@@ -723,15 +761,15 @@ func TestUserHandler_Update(t *testing.T) {
 			},
 			args: args{
 				domain.UserRequest{
-					ID:       expected.ID,
-					Name:     expected.Name,
-					Email:    expected.Email,
-					Password: expected.Password,
+					ID:       entity.ID,
+					Name:     entity.Name,
+					Email:    entity.Email,
+					Password: entity.Password,
 				},
 			},
 			code: fiber.StatusInternalServerError,
 			claims: domain.Claims{
-				UserID: expected.ID,
+				UserID: entity.ID,
 			},
 			want: domain.ErrorResponse{
 				Message: "failed",
@@ -739,30 +777,40 @@ func TestUserHandler_Update(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "permission",
+			name: "permission denied",
 			fields: fields{
 				service: func() port.UserService {
-					mockUserService.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), domain.Claims{UserID: expected.ID}).Return(nil, fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")).Once()
+					mockUserService.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), domain.Claims{UserID: entity.ID}).Return(nil, fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")).Once()
 					return mockUserService
 				}(),
 				validator: validator,
 			},
 			args: args{
 				domain.UserRequest{
-					ID: func() uint {
-						return uint(rand.Uint32())
-					}(),
-					Name:     expected.Name,
-					Email:    expected.Email,
-					Password: expected.Password,
+					ID:       entity.ID + 1,
+					Name:     entity.Name,
+					Email:    entity.Email,
+					Password: entity.Password,
 				},
 			},
 			code: fiber.StatusForbidden,
 			claims: domain.Claims{
-				UserID: expected.ID,
+				UserID: entity.ID,
 			},
 			want: domain.ErrorResponse{
 				Message: "user does not have permission to perform this action",
+			},
+			wantErr: true,
+		},
+		{
+			name: "validation error",
+			fields: fields{
+				service:   mockUserService,
+				validator: validator,
+			},
+			code: fiber.StatusBadRequest,
+			want: domain.ErrorResponse{
+				Message: "validation error",
 			},
 			wantErr: true,
 		},
@@ -801,6 +849,10 @@ func TestUserHandler_Update(t *testing.T) {
 				var got domain.SuccessResponse
 				err = json.NewDecoder(res.Body).Decode(&got)
 				assert.NoError(t, err)
+				assert.Equal(t, tt.args.req.ID, entity.ID)
+				assert.Equal(t, tt.args.req.Name, entity.Name)
+				assert.Equal(t, tt.args.req.Email, entity.Email)
+				assert.Equal(t, tt.args.req.Password, entity.Password)
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).ID, uint(got.Data.(map[string]interface{})["id"].(float64)))
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).Name, got.Data.(map[string]interface{})["name"].(string))
@@ -815,10 +867,11 @@ func TestUserHandler_Delete(t *testing.T) {
 	}
 
 	type args struct {
-		req domain.UserRequest
+		req    domain.UserRequest
+		claims domain.Claims
 	}
 
-	expected := &domain.User{
+	entity := &domain.User{
 		Model:    gorm.Model{ID: 1},
 		Name:     "shiron",
 		Email:    "shiron@example.com",
@@ -832,7 +885,6 @@ func TestUserHandler_Delete(t *testing.T) {
 		fields  fields
 		args    args
 		code    int
-		claims  domain.Claims
 		want    interface{}
 		wantErr bool
 	}{
@@ -846,13 +898,13 @@ func TestUserHandler_Delete(t *testing.T) {
 			},
 			args: args{
 				domain.UserRequest{
-					ID: expected.ID,
+					ID: entity.ID,
+				},
+				domain.Claims{
+					UserID: entity.ID,
 				},
 			},
 			code: fiber.StatusOK,
-			claims: domain.Claims{
-				UserID: expected.ID,
-			},
 			want: domain.SuccessResponse{
 				Message: "successfully delete user by id",
 			},
@@ -868,37 +920,35 @@ func TestUserHandler_Delete(t *testing.T) {
 			},
 			args: args{
 				domain.UserRequest{
-					ID: expected.ID,
+					ID: entity.ID,
+				},
+				domain.Claims{
+					UserID: entity.ID,
 				},
 			},
 			code: fiber.StatusInternalServerError,
-			claims: domain.Claims{
-				UserID: expected.ID,
-			},
 			want: domain.ErrorResponse{
 				Message: "failed",
 			},
 			wantErr: true,
 		},
 		{
-			name: "permission",
+			name: "permission denied",
 			fields: fields{
 				service: func() port.UserService {
-					mockUserService.EXPECT().Delete(mock.AnythingOfType("domain.UserRequest"), domain.Claims{UserID: expected.ID}).Return(fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")).Once()
+					mockUserService.EXPECT().Delete(mock.AnythingOfType("domain.UserRequest"), domain.Claims{UserID: entity.ID}).Return(fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")).Once()
 					return mockUserService
 				}(),
 			},
 			args: args{
 				domain.UserRequest{
-					ID: func() uint {
-						return uint(rand.Uint32())
-					}(),
+					ID: entity.ID + 1,
+				},
+				domain.Claims{
+					UserID: entity.ID,
 				},
 			},
 			code: fiber.StatusForbidden,
-			claims: domain.Claims{
-				UserID: expected.ID,
-			},
 			want: domain.ErrorResponse{
 				Message: "user does not have permission to perform this action",
 			},
@@ -914,7 +964,7 @@ func TestUserHandler_Delete(t *testing.T) {
 
 			app := config.NewFiber()
 			app.Use(func(ctx *fiber.Ctx) error {
-				ctx.Locals("claims", tt.claims)
+				ctx.Locals("claims", tt.args.claims)
 				return ctx.Next()
 			})
 			app.Delete("/api/v1/user/:id", u.Delete)
@@ -935,6 +985,7 @@ func TestUserHandler_Delete(t *testing.T) {
 				var got domain.SuccessResponse
 				err = json.NewDecoder(res.Body).Decode(&got)
 				assert.NoError(t, err)
+				assert.Equal(t, tt.args.req.ID, entity.ID)
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
 			}
 		})

@@ -23,7 +23,7 @@ func TestUserService_Create(t *testing.T) {
 		req domain.UserRegisterRequest
 	}
 
-	expected := &domain.User{
+	entity := &domain.User{
 		Model:    gorm.Model{ID: 1},
 		Name:     "shiron",
 		Email:    "shiron@example.com",
@@ -44,24 +44,19 @@ func TestUserService_Create(t *testing.T) {
 			name: "success",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().Create(mock.AnythingOfType("domain.UserRegisterRequest")).Return(expected, nil).Once()
+					mockUserRepository.EXPECT().Create(mock.AnythingOfType("domain.UserRegisterRequest")).Return(entity, nil).Once()
 					return mockUserRepository
 				}(),
 				bcrypt: bcrypt,
 			},
 			args: args{
 				req: domain.UserRegisterRequest{
-					Name:     "shiron",
-					Email:    "shiron@example.com",
+					Name:     entity.Name,
+					Email:    entity.Email,
 					Password: "password123",
 				},
 			},
-			want: &domain.User{
-				Model:    gorm.Model{ID: 1},
-				Name:     "shiron",
-				Email:    "shiron@example.com",
-				Password: "$2y$10$YovD7LTJb0XqE.Ll1Xtjnuns6tHiQM7MdO5T2QuThx3UyfLCkP1o6",
-			},
+			want:    entity,
 			wantErr: false,
 		},
 		{
@@ -72,13 +67,6 @@ func TestUserService_Create(t *testing.T) {
 					return mockUserRepository
 				}(),
 				bcrypt: bcrypt,
-			},
-			args: args{
-				req: domain.UserRegisterRequest{
-					Name:     "shiron",
-					Email:    "shiron@example.com",
-					Password: "password123",
-				},
 			},
 			want:    errors.New("failed"),
 			wantErr: true,
@@ -99,6 +87,8 @@ func TestUserService_Create(t *testing.T) {
 				assert.EqualError(t, err, tt.want.(error).Error())
 			} else {
 				assert.NoError(t, err)
+				assert.Equal(t, tt.args.req.Name, entity.Name)
+				assert.Equal(t, tt.args.req.Email, entity.Email)
 				assert.Equal(t, tt.want, got)
 			}
 		})
@@ -115,7 +105,7 @@ func TestUserService_Login(t *testing.T) {
 		req domain.UserLoginRequest
 	}
 
-	expected := &domain.User{
+	entity := &domain.User{
 		Model:    gorm.Model{ID: 1},
 		Name:     "shiron",
 		Email:    "shiron@example.com",
@@ -136,18 +126,18 @@ func TestUserService_Login(t *testing.T) {
 			name: "success",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByEmail(mock.AnythingOfType("string")).Return(expected, nil).Once()
+					mockUserRepository.EXPECT().GetByEmail(mock.AnythingOfType("string")).Return(entity, nil).Once()
 					return mockUserRepository
 				}(),
 				bcrypt: bcrypt,
 			},
 			args: args{
 				req: domain.UserLoginRequest{
-					Email:    "shiron@example.com",
+					Email:    entity.Email,
 					Password: "password123",
 				},
 			},
-			want:    expected,
+			want:    entity,
 			wantErr: false,
 		},
 		{
@@ -159,12 +149,6 @@ func TestUserService_Login(t *testing.T) {
 				}(),
 				bcrypt: bcrypt,
 			},
-			args: args{
-				req: domain.UserLoginRequest{
-					Email:    "shiron@example.com",
-					Password: "password123",
-				},
-			},
 			want:    errors.New("failed"),
 			wantErr: true,
 		},
@@ -172,15 +156,15 @@ func TestUserService_Login(t *testing.T) {
 			name: "invalid password",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByEmail(mock.AnythingOfType("string")).Return(expected, nil).Once()
+					mockUserRepository.EXPECT().GetByEmail(mock.AnythingOfType("string")).Return(entity, nil).Once()
 					return mockUserRepository
 				}(),
 				bcrypt: bcrypt,
 			},
 			args: args{
 				req: domain.UserLoginRequest{
-					Email:    "shiron@example.com",
-					Password: "password1234",
+					Email:    entity.Email,
+					Password: "invalid",
 				},
 			},
 			want:    errors.New("invalid password"),
@@ -202,6 +186,7 @@ func TestUserService_Login(t *testing.T) {
 				assert.EqualError(t, err, tt.want.(error).Error())
 			} else {
 				assert.NoError(t, err)
+				assert.Equal(t, tt.args.req.Email, entity.Email)
 				assert.Equal(t, tt.want, got)
 			}
 		})
@@ -213,7 +198,7 @@ func TestUserService_GetAll(t *testing.T) {
 		repository port.UserRepository
 	}
 
-	expected := []domain.User{
+	entity := []domain.User{
 		{
 			Model:    gorm.Model{ID: 1},
 			Name:     "shiron",
@@ -246,11 +231,11 @@ func TestUserService_GetAll(t *testing.T) {
 			name: "success",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetAll().Return(expected, nil).Once()
+					mockUserRepository.EXPECT().GetAll().Return(entity, nil).Once()
 					return mockUserRepository
 				}(),
 			},
-			want:    expected,
+			want:    entity,
 			wantErr: false,
 		},
 		{
@@ -294,7 +279,7 @@ func TestUserService_GetByID(t *testing.T) {
 		req domain.UserRequest
 	}
 
-	expected := &domain.User{
+	entity := &domain.User{
 		Model:    gorm.Model{ID: 1},
 		Name:     "shiron",
 		Email:    "shiron@example.com",
@@ -314,16 +299,16 @@ func TestUserService_GetByID(t *testing.T) {
 			name: "success",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(expected, nil).Once()
+					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(entity, nil).Once()
 					return mockUserRepository
 				}(),
 			},
 			args: args{
 				req: domain.UserRequest{
-					ID: 1,
+					ID: entity.ID,
 				},
 			},
-			want:    expected,
+			want:    entity,
 			wantErr: false,
 		},
 		{
@@ -352,6 +337,7 @@ func TestUserService_GetByID(t *testing.T) {
 				assert.EqualError(t, err, tt.want.(error).Error())
 			} else {
 				assert.NoError(t, err)
+				assert.Equal(t, tt.args.req.ID, entity.ID)
 				assert.Equal(t, tt.want, got)
 			}
 		})
@@ -369,7 +355,7 @@ func TestUserService_Update(t *testing.T) {
 		claims domain.Claims
 	}
 
-	expected := &domain.User{
+	entity := &domain.User{
 		Model:    gorm.Model{ID: 1},
 		Name:     "shiron",
 		Email:    "shiron@example.com",
@@ -390,30 +376,31 @@ func TestUserService_Update(t *testing.T) {
 			name: "success",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(expected, nil).Once()
-					mockUserRepository.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("*domain.User")).Return(expected, nil).Once()
+					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(entity, nil).Once()
+					mockUserRepository.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("*domain.User")).Return(entity, nil).Once()
 					return mockUserRepository
 				}(),
 				bcrypt: bcrypt,
 			},
 			args: args{
 				req: domain.UserRequest{
-					Name:     "shiron",
-					Email:    "shiron@example.com",
-					Password: "password123",
+					ID:       entity.ID,
+					Name:     entity.Name,
+					Email:    entity.Email,
+					Password: entity.Password,
 				},
 				claims: domain.Claims{
-					UserID: 1,
+					UserID: entity.ID,
 				},
 			},
-			want:    expected,
+			want:    entity,
 			wantErr: false,
 		},
 		{
 			name: "failure",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(expected, nil).Once()
+					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(entity, nil).Once()
 					mockUserRepository.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("*domain.User")).Return(nil, errors.New("failed")).Once()
 					return mockUserRepository
 				}(),
@@ -421,12 +408,10 @@ func TestUserService_Update(t *testing.T) {
 			},
 			args: args{
 				req: domain.UserRequest{
-					Name:     "shiron",
-					Email:    "shiron@example.com",
-					Password: "password123",
+					ID: entity.ID,
 				},
 				claims: domain.Claims{
-					UserID: 1,
+					UserID: entity.ID,
 				},
 			},
 			want:    errors.New("failed"),
@@ -436,16 +421,16 @@ func TestUserService_Update(t *testing.T) {
 			name: "permission denied",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(expected, nil).Once()
+					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(entity, nil).Once()
 					return mockUserRepository
 				}(),
 			},
 			args: args{
 				req: domain.UserRequest{
-					ID: 1,
+					ID: entity.ID + 1,
 				},
 				claims: domain.Claims{
-					UserID: 2,
+					UserID: entity.ID,
 				},
 			},
 			want:    errors.New("user does not have permission to perform this action"),
@@ -467,6 +452,11 @@ func TestUserService_Update(t *testing.T) {
 				assert.EqualError(t, err, tt.want.(error).Error())
 			} else {
 				assert.NoError(t, err)
+				assert.Equal(t, tt.args.req.ID, entity.ID)
+				assert.Equal(t, tt.args.req.Name, entity.Name)
+				assert.Equal(t, tt.args.req.Email, entity.Email)
+				assert.Equal(t, tt.args.req.Password, entity.Password)
+				assert.Equal(t, tt.args.claims.UserID, entity.ID)
 				assert.Equal(t, tt.want, got)
 			}
 		})
@@ -483,7 +473,7 @@ func TestUserService_Delete(t *testing.T) {
 		claims domain.Claims
 	}
 
-	expected := &domain.User{
+	entity := &domain.User{
 		Model:    gorm.Model{ID: 1},
 		Name:     "shiron",
 		Email:    "shiron@example.com",
@@ -503,17 +493,17 @@ func TestUserService_Delete(t *testing.T) {
 			name: "success",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(expected, nil).Once()
+					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(entity, nil).Once()
 					mockUserRepository.EXPECT().Delete(mock.AnythingOfType("*domain.User")).Return(nil).Once()
 					return mockUserRepository
 				}(),
 			},
 			args: args{
 				req: domain.UserRequest{
-					ID: 10,
+					ID: entity.ID,
 				},
 				claims: domain.Claims{
-					UserID: 1,
+					UserID: entity.ID,
 				},
 			},
 			want:    nil,
@@ -523,17 +513,17 @@ func TestUserService_Delete(t *testing.T) {
 			name: "failure",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(expected, nil).Once()
+					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(entity, nil).Once()
 					mockUserRepository.EXPECT().Delete(mock.AnythingOfType("*domain.User")).Return(errors.New("failed")).Once()
 					return mockUserRepository
 				}(),
 			},
 			args: args{
 				req: domain.UserRequest{
-					ID: 1,
+					ID: entity.ID,
 				},
 				claims: domain.Claims{
-					UserID: 1,
+					UserID: entity.ID,
 				},
 			},
 			want:    errors.New("failed"),
@@ -543,16 +533,16 @@ func TestUserService_Delete(t *testing.T) {
 			name: "permission denied",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(expected, nil).Once()
+					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(entity, nil).Once()
 					return mockUserRepository
 				}(),
 			},
 			args: args{
 				req: domain.UserRequest{
-					ID: 1,
+					ID: entity.ID + 1,
 				},
 				claims: domain.Claims{
-					UserID: 2,
+					UserID: entity.ID,
 				},
 			},
 			want:    errors.New("user does not have permission to perform this action"),
@@ -573,6 +563,8 @@ func TestUserService_Delete(t *testing.T) {
 				assert.EqualError(t, err, tt.want.(error).Error())
 			} else {
 				assert.NoError(t, err)
+				assert.Equal(t, tt.args.req.ID, entity.ID)
+				assert.Equal(t, tt.args.claims.UserID, entity.ID)
 			}
 		})
 	}
