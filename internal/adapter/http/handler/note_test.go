@@ -26,7 +26,8 @@ func TestNoteHandler_Create(t *testing.T) {
 	}
 
 	type args struct {
-		req domain.NoteRequest
+		req    domain.NoteRequest
+		claims domain.Claims
 	}
 
 	entity := &domain.Note{
@@ -65,6 +66,9 @@ func TestNoteHandler_Create(t *testing.T) {
 					Content:    entity.Content,
 					Visibility: entity.Visibility,
 				},
+				claims: domain.Claims{
+					UserID: entity.ID,
+				},
 			},
 			code: fiber.StatusCreated,
 			want: domain.SuccessResponse{
@@ -93,6 +97,9 @@ func TestNoteHandler_Create(t *testing.T) {
 					Title:      entity.Title,
 					Content:    entity.Content,
 					Visibility: entity.Visibility,
+				},
+				claims: domain.Claims{
+					UserID: entity.ID,
 				},
 			},
 			code: fiber.StatusInternalServerError,
@@ -123,6 +130,10 @@ func TestNoteHandler_Create(t *testing.T) {
 			}
 
 			app := config.NewFiber()
+			app.Use(func(ctx *fiber.Ctx) error {
+				ctx.Locals("claims", &tt.args.claims)
+				return ctx.Next()
+			})
 			app.Post("/api/v1/note", n.Create)
 
 			requestBody, err := json.Marshal(tt.args.req)
@@ -536,7 +547,7 @@ func TestNoteHandler_Update(t *testing.T) {
 
 			app := config.NewFiber()
 			app.Use(func(ctx *fiber.Ctx) error {
-				ctx.Locals("claims", tt.args.claims)
+				ctx.Locals("claims", &tt.args.claims)
 				return ctx.Next()
 			})
 			app.Put("/api/v1/note/:id", n.Update)
@@ -680,7 +691,7 @@ func TestNoteHandler_Delete(t *testing.T) {
 
 			app := config.NewFiber()
 			app.Use(func(ctx *fiber.Ctx) error {
-				ctx.Locals("claims", tt.args.claims)
+				ctx.Locals("claims", &tt.args.claims)
 				return ctx.Next()
 			})
 			app.Delete("/api/v1/note/:id", n.Delete)

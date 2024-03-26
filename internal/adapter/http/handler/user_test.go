@@ -456,7 +456,7 @@ func TestUserHandler_GetCurrent(t *testing.T) {
 
 			app := config.NewFiber()
 			app.Use(func(ctx *fiber.Ctx) error {
-				ctx.Locals("claims", tt.args.claims)
+				ctx.Locals("claims", &tt.args.claims)
 				return ctx.Next()
 			})
 			app.Get("/api/v1/user/current", u.GetCurrent)
@@ -829,7 +829,7 @@ func TestUserHandler_Update(t *testing.T) {
 
 			app := config.NewFiber()
 			app.Use(func(ctx *fiber.Ctx) error {
-				ctx.Locals("claims", tt.args.claims)
+				ctx.Locals("claims", &tt.args.claims)
 				return ctx.Next()
 			})
 			app.Put("/api/v1/user/:id", u.Update)
@@ -968,7 +968,7 @@ func TestUserHandler_Delete(t *testing.T) {
 
 			app := config.NewFiber()
 			app.Use(func(ctx *fiber.Ctx) error {
-				ctx.Locals("claims", tt.args.claims)
+				ctx.Locals("claims", &tt.args.claims)
 				return ctx.Next()
 			})
 			app.Delete("/api/v1/user/:id", u.Delete)
