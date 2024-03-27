@@ -23,6 +23,16 @@ func NewUserHandler(service port.UserService, validator util.Validator, jwt util
 	}
 }
 
+// Register is a handler for registering a new user
+// @Summary Register a new user
+// @Description Register a new user with the specified name, email, and password
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param user body domain.UserRegisterRequest true "User registration request object"
+// @Success 201 {object} domain.UserResponse "Successfully registered a new user"
+// @Failure 400 {object} domain.ErrorValidationResponse "Validation failed"
+// @Router /auth/register [post]
 func (u *UserHandler) Register(ctx *fiber.Ctx) error {
 	var req domain.UserRegisterRequest
 
@@ -54,6 +64,16 @@ func (u *UserHandler) Register(ctx *fiber.Ctx) error {
 	})
 }
 
+// Login is a handler for user login
+// @Summary User login
+// @Description Log in an existing user with the provided email and password
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param user body domain.UserLoginRequest true "User login request object"
+// @Success 200 {object} domain.UserResponse "Successfully logged in"
+// @Failure 400 {object} domain.ErrorValidationResponse "Validation failed"
+// @Router /auth/login [post]
 func (u *UserHandler) Login(ctx *fiber.Ctx) error {
 	var req domain.UserLoginRequest
 
@@ -89,6 +109,14 @@ func (u *UserHandler) Login(ctx *fiber.Ctx) error {
 		}})
 }
 
+// Logout is a handler for user logout
+// @Summary User logout
+// @Description Log out the currently logged-in user
+// @Tags auth
+// @Produce json
+// @Success 200 {object} domain.SuccessResponse "Successfully logged out"
+// @Failure 400 {object} domain.ErrorValidationResponse "Validation failed"
+// @Router /auth/logout [post]
 func (u *UserHandler) Logout(ctx *fiber.Ctx) error {
 	if cookie := ctx.Cookies("token"); cookie == "" {
 		return fiber.NewError(fiber.StatusBadRequest, "user is already logged out")
@@ -106,6 +134,14 @@ func (u *UserHandler) Logout(ctx *fiber.Ctx) error {
 	})
 }
 
+// GetCurrent is a handler for retrieving current user data
+// @Summary Get current user data
+// @Description Retrieve data of the currently logged-in user
+// @Tags user
+// @Produce json
+// @Success 200 {object} domain.UserResponse "Successfully retrieved current user data"
+// @Failure 400 {object} domain.ErrorValidationResponse "Validation failed"
+// @Router /user/current [get]
 func (u *UserHandler) GetCurrent(ctx *fiber.Ctx) error {
 	var req domain.UserRequest
 
@@ -128,6 +164,14 @@ func (u *UserHandler) GetCurrent(ctx *fiber.Ctx) error {
 	})
 }
 
+// GetAll is a handler for retrieving all users
+// @Summary Get all users
+// @Description Retrieve data of all registered users
+// @Tags user
+// @Produce json
+// @Success 200 {object} []domain.UserResponse "Successfully retrieved all user data"
+// @Failure 400 {object} domain.ErrorValidationResponse "Validation failed"
+// @Router /user [get]
 func (u *UserHandler) GetAll(ctx *fiber.Ctx) error {
 	result, err := u.service.GetAll()
 	if err != nil {
@@ -151,6 +195,14 @@ func (u *UserHandler) GetAll(ctx *fiber.Ctx) error {
 	})
 }
 
+// GetByID is a handler for retrieving a user by ID
+// @Summary Get a user by ID
+// @Description Retrieve data of a user based on the provided ID
+// @Tags user
+// @Produce json
+// @Param id path int true "User ID"
+// @Success 200 {object} domain.UserResponse "Successfully retrieved user by ID"
+// @Router /user/{id} [get]
 func (u *UserHandler) GetByID(ctx *fiber.Ctx) error {
 	var req domain.UserRequest
 
@@ -175,6 +227,17 @@ func (u *UserHandler) GetByID(ctx *fiber.Ctx) error {
 	})
 }
 
+// Update is a handler for updating user data
+// @Summary Update user data by ID
+// @Description Update data of an existing user based on the provided ID
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Param user body domain.UserRequest true "Updated user data object"
+// @Success 200 {object} domain.UserResponse "Successfully updated user by ID"
+// @Failure 400 {object} domain.ErrorValidationResponse "Validation failed"
+// @Router /user/{id} [put]
 func (u *UserHandler) Update(ctx *fiber.Ctx) error {
 	var req domain.UserRequest
 
@@ -208,6 +271,15 @@ func (u *UserHandler) Update(ctx *fiber.Ctx) error {
 	})
 }
 
+// Delete is a handler for deleting a user
+// @Summary Delete a user by ID
+// @Description Delete an existing user based on the provided ID
+// @Tags user
+// @Produce json
+// @Param id path int true "User ID"
+// @Success 200 {object} domain.SuccessResponse "Successfully deleted user by ID"
+// @Failure 400 {object} domain.ErrorValidationResponse "Validation failed"
+// @Router /user/{id} [delete]
 func (u *UserHandler) Delete(ctx *fiber.Ctx) error {
 	var req domain.UserRequest
 

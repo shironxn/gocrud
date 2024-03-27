@@ -5,8 +5,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
+	_ "gocrud/docs"
+
 	"github.com/gofiber/swagger"
-	_ "github.com/shironxn/gocrud/docs"
 )
 
 type WelcomeRoute struct {

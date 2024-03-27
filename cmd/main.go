@@ -10,20 +10,17 @@ import (
 	"gocrud/internal/core/service"
 	"gocrud/internal/util"
 
+	_ "gocrud/docs"
+
 	"github.com/charmbracelet/log"
-	_ "github.com/shironxn/gocrud/docs"
 )
 
-// @title Fiber Example API
+// @title gocrud
 // @version 1.0
-// @description This is a sample swagger for Fiber
-// @termsOfService http://swagger.io/terms/
-// @contact.name API Support
-// @contact.email fiber@swagger.io
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @description golang crud api
+
 // @host localhost:8080
-// @BasePath /
+// @BasePath /api/v1
 func main() {
 	cfg, err := config.NewConfig()
 	if err != nil {

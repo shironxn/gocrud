@@ -5,6 +5,8 @@ import (
 	"gocrud/internal/core/port"
 	"gocrud/internal/util"
 
+	_ "gocrud/docs"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -20,6 +22,16 @@ func NewNoteHandler(service port.NoteService, validator util.Validator) port.Not
 	}
 }
 
+// Create is a handler for creating a new note
+// @Summary Create a new note
+// @Description Create a new note with the specified title, content, and visibility
+// @Tags note
+// @Accept json
+// @Produce json
+// @Param note body domain.NoteRequest true "Note request object"
+// @Success 201 {object} domain.NoteResponse "Successfully created a new note"
+// @Failure 400 {object} domain.ErrorValidationResponse "Validation failed"
+// @Router /note [post]
 func (n *NoteHandler) Create(ctx *fiber.Ctx) error {
 	var req domain.NoteRequest
 
@@ -57,6 +69,13 @@ func (n *NoteHandler) Create(ctx *fiber.Ctx) error {
 	)
 }
 
+// GetAll is a handler for retrieving all notes
+// @Summary Get all notes
+// @Description Retrieve all available notes
+// @Tags note
+// @Produce json
+// @Success 200 {object} []domain.NoteResponse "Successfully retrieved all notes"
+// @Router /note [get]
 func (n *NoteHandler) GetAll(ctx *fiber.Ctx) error {
 	result, err := n.service.GetAll()
 	if err != nil {
@@ -82,6 +101,15 @@ func (n *NoteHandler) GetAll(ctx *fiber.Ctx) error {
 	})
 }
 
+// GetByID is a handler for retrieving a note by ID
+// @Summary Get a note by ID
+// @Description Retrieve a note based on the provided ID
+// @Tags note
+// @Accept json
+// @Produce json
+// @Param id path int true "Note ID"
+// @Success 200 {object} domain.NoteResponse "Successfully retrieved a note by ID"
+// @Router /note/{id} [get]
 func (n *NoteHandler) GetByID(ctx *fiber.Ctx) error {
 	var req domain.NoteRequest
 
@@ -108,6 +136,17 @@ func (n *NoteHandler) GetByID(ctx *fiber.Ctx) error {
 	})
 }
 
+// Update is a handler for updating a note
+// @Summary Update a note by ID
+// @Description Update an existing note based on the provided ID
+// @Tags note
+// @Accept json
+// @Produce json
+// @Param id path int true "Note ID"
+// @Param note body domain.NoteRequest true "Updated note object"
+// @Success 200 {object} domain.NoteResponse "Successfully updated a note by ID"
+// @Failure 400 {object} domain.ErrorValidationResponse "Validation failed"
+// @Router /note/{id} [put]
 func (n *NoteHandler) Update(ctx *fiber.Ctx) error {
 	var req domain.NoteRequest
 
@@ -145,6 +184,14 @@ func (n *NoteHandler) Update(ctx *fiber.Ctx) error {
 	})
 }
 
+// Delete is a handler for deleting a note
+// @Summary Delete a note by ID
+// @Description Delete an existing note based on the provided ID
+// @Tags note
+// @Produce json
+// @Param id path int true "Note ID"
+// @Success 200 {object} domain.SuccessResponse "Successfully deleted a note by ID"
+// @Router /note/{id} [delete]
 func (n *NoteHandler) Delete(ctx *fiber.Ctx) error {
 	var req domain.NoteRequest
 
