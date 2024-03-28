@@ -47,7 +47,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Validation failed",
+                        "description": "Validation error",
                         "schema": {
                             "$ref": "#/definitions/domain.ErrorValidationResponse"
                         }
@@ -70,12 +70,6 @@ const docTemplate = `{
                         "description": "Successfully logged out",
                         "schema": {
                             "$ref": "#/definitions/domain.SuccessResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorValidationResponse"
                         }
                     }
                 }
@@ -113,7 +107,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Validation failed",
+                        "description": "Validation error",
                         "schema": {
                             "$ref": "#/definitions/domain.ErrorValidationResponse"
                         }
@@ -174,7 +168,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Validation failed",
+                        "description": "Validation error",
                         "schema": {
                             "$ref": "#/definitions/domain.ErrorValidationResponse"
                         }
@@ -249,12 +243,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/domain.NoteResponse"
                         }
-                    },
-                    "400": {
-                        "description": "Validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorValidationResponse"
-                        }
                     }
                 }
             },
@@ -307,7 +295,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Validation failed",
+                        "description": "Validation error",
                         "schema": {
                             "$ref": "#/definitions/domain.ErrorValidationResponse"
                         }
@@ -330,12 +318,6 @@ const docTemplate = `{
                         "description": "Successfully retrieved current user data",
                         "schema": {
                             "$ref": "#/definitions/domain.UserResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorValidationResponse"
                         }
                     }
                 }
@@ -365,12 +347,6 @@ const docTemplate = `{
                         "description": "Successfully retrieved user by ID",
                         "schema": {
                             "$ref": "#/definitions/domain.UserResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorValidationResponse"
                         }
                     }
                 }
@@ -413,7 +389,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Validation failed",
+                        "description": "Validation error",
                         "schema": {
                             "$ref": "#/definitions/domain.ErrorValidationResponse"
                         }
@@ -443,12 +419,6 @@ const docTemplate = `{
                         "description": "Successfully deleted user by ID",
                         "schema": {
                             "$ref": "#/definitions/domain.SuccessResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Validation failed",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorValidationResponse"
                         }
                     }
                 }

@@ -143,7 +143,7 @@ paths:
           schema:
             $ref: '#/definitions/domain.UserResponse'
         "400":
-          description: Validation failed
+          description: Validation error
           schema:
             $ref: '#/definitions/domain.ErrorValidationResponse'
       summary: User login
@@ -159,10 +159,6 @@ paths:
           description: Successfully logged out
           schema:
             $ref: '#/definitions/domain.SuccessResponse'
-        "400":
-          description: Validation failed
-          schema:
-            $ref: '#/definitions/domain.ErrorValidationResponse'
       summary: User logout
       tags:
       - auth
@@ -186,7 +182,7 @@ paths:
           schema:
             $ref: '#/definitions/domain.UserResponse'
         "400":
-          description: Validation failed
+          description: Validation error
           schema:
             $ref: '#/definitions/domain.ErrorValidationResponse'
       summary: Register a new user
@@ -226,7 +222,7 @@ paths:
           schema:
             $ref: '#/definitions/domain.NoteResponse'
         "400":
-          description: Validation failed
+          description: Validation error
           schema:
             $ref: '#/definitions/domain.ErrorValidationResponse'
       summary: Create a new note
@@ -294,10 +290,6 @@ paths:
           description: Successfully updated a note by ID
           schema:
             $ref: '#/definitions/domain.NoteResponse'
-        "400":
-          description: Validation failed
-          schema:
-            $ref: '#/definitions/domain.ErrorValidationResponse'
       summary: Update a note by ID
       tags:
       - note
@@ -314,7 +306,7 @@ paths:
               $ref: '#/definitions/domain.UserResponse'
             type: array
         "400":
-          description: Validation failed
+          description: Validation error
           schema:
             $ref: '#/definitions/domain.ErrorValidationResponse'
       summary: Get all users
@@ -336,10 +328,6 @@ paths:
           description: Successfully deleted user by ID
           schema:
             $ref: '#/definitions/domain.SuccessResponse'
-        "400":
-          description: Validation failed
-          schema:
-            $ref: '#/definitions/domain.ErrorValidationResponse'
       summary: Delete a user by ID
       tags:
       - user
@@ -358,10 +346,6 @@ paths:
           description: Successfully retrieved user by ID
           schema:
             $ref: '#/definitions/domain.UserResponse'
-        "400":
-          description: Validation failed
-          schema:
-            $ref: '#/definitions/domain.ErrorValidationResponse'
       summary: Get a user by ID
       tags:
       - user
@@ -389,7 +373,7 @@ paths:
           schema:
             $ref: '#/definitions/domain.UserResponse'
         "400":
-          description: Validation failed
+          description: Validation error
           schema:
             $ref: '#/definitions/domain.ErrorValidationResponse'
       summary: Update user data by ID
@@ -405,10 +389,6 @@ paths:
           description: Successfully retrieved current user data
           schema:
             $ref: '#/definitions/domain.UserResponse'
-        "400":
-          description: Validation failed
-          schema:
-            $ref: '#/definitions/domain.ErrorValidationResponse'
       summary: Get current user data
       tags:
       - user
