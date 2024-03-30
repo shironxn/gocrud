@@ -20,34 +20,9 @@
     A simple Golang CRUD API
   </p>
 
-[<img src="https://forthebadge.com/images/badges/built-with-love.svg" href="https://gorm.io" alt="gorm" width="30%">][built-with-heart-url]
+[<img src="https://forthebadge.com/images/badges/built-with-love.svg" href="https://gorm.io" alt="gorm" width="20%">][built-with-heart-url]
 
 </div>
-
-<!-- TABLE OF CONTENTS -->
-
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ol>
-</details>
 
 <!-- ABOUT THE PROJECT -->
 
@@ -59,8 +34,10 @@ GOCRUD is a simple CRUD (Create, Read, Update, Delete) API developed in Golang. 
 
 ### Built With
 
-[![golang][golang-shield]][golang-url] [![mysql][mysql-shield]][mysql-url]
-[<img src="https://raw.githubusercontent.com/gofiber/docs/master/static/img/logo-dark.svg" alt="fiber" width="20%">][fiber-url] [<img src="https://gorm.io/gorm.svg" href="https://gorm.io" alt="gorm" width="20%">][gorm-url]
+- Go
+- Fiber
+- GORM
+- MySQL
 
 <!-- GETTING STARTED -->
 
