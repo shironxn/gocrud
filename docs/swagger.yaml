@@ -27,7 +27,6 @@ definitions:
     required:
     - content
     - title
-    - userID
     type: object
   domain.NoteResponse:
     properties:

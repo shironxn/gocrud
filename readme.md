@@ -30,6 +30,74 @@
 
 GOCRUD is a simple CRUD (Create, Read, Update, Delete) API developed in Golang. It provides basic functionalities for managing notes.
 
+### Structure Project
+
+```
+├── assets
+│   └── database-schema.png
+├── cmd
+│   └── main.go
+├── docker-compose.yml
+├── Dockerfile
+├── docs
+│   ├── docs.go
+│   ├── swagger.json
+│   └── swagger.yaml
+├── go.mod
+├── go.sum
+├── internal
+│   ├── adapter
+│   │   ├── http
+│   │   │   ├── handler
+│   │   │   │   ├── note.go
+│   │   │   │   ├── note_test.go
+│   │   │   │   ├── user.go
+│   │   │   │   └── user_test.go
+│   │   │   ├── middleware
+│   │   │   │   └── auth.go
+│   │   │   └── route
+│   │   │       ├── auth.go
+│   │   │       ├── note.go
+│   │   │       ├── user.go
+│   │   │       └── welcome.go
+│   │   └── repository
+│   │       ├── note.go
+│   │       └── user.go
+│   ├── config
+│   │   ├── config.go
+│   │   ├── fiber.go
+│   │   ├── gorm.go
+│   │   └── gorm_test.go
+│   ├── core
+│   │   ├── domain
+│   │   │   ├── claims.go
+│   │   │   ├── note.go
+│   │   │   ├── response.go
+│   │   │   └── user.go
+│   │   ├── port
+│   │   │   ├── middleware.go
+│   │   │   ├── note.go
+│   │   │   └── user.go
+│   │   └── service
+│   │       ├── note.go
+│   │       ├── note_test.go
+│   │       ├── user.go
+│   │       └── user_test.go
+│   ├── mocks
+│   │   ├── NoteRepository.go
+│   │   ├── NoteService.go
+│   │   ├── UserRepository.go
+│   │   └── UserService.go
+│   └── util
+│       ├── bcrypt.go
+│       ├── jwt.go
+│       └── validator.go
+├── Makefile
+└── readme.md
+```
+
+### Database Schema
+
 ![database-schema][database-schema]
 
 ### Built With

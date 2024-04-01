@@ -444,8 +444,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "content",
-                "title",
-                "userID"
+                "title"
             ],
             "properties": {
                 "content": {

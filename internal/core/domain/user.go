@@ -15,26 +15,26 @@ type User struct {
 }
 
 type UserDetails struct {
-	Token     string `json:"token"`
-	ExpiredAt string `json:"expired_at"`
+	Token     string
+	ExpiredAt string
 }
 
 type UserRequest struct {
-	ID       uint   `json:"id"`
-	Name     string `json:"name" form:"name" validate:"required,min=4,max=30"`
-	Email    string `json:"email" form:"email" validate:"required,email"`
-	Password string `json:"password" form:"password" validate:"required,min=8,max=100"`
+	ID       uint
+	Name     string `validate:"required,min=4,max=30"`
+	Email    string `validate:"required,email"`
+	Password string `validate:"required,min=8,max=100"`
 }
 
 type UserRegisterRequest struct {
-	Name     string `json:"name" form:"name" validate:"required,min=4,max=30"`
-	Email    string `json:"email" form:"email" validate:"required,email"`
-	Password string `json:"password" form:"password" validate:"required,min=8,max=100"`
+	Name     string `validate:"required,min=4,max=30"`
+	Email    string `validate:"required,email"`
+	Password string `validate:"required,min=8,max=100"`
 }
 
 type UserLoginRequest struct {
-	Email    string `json:"email" form:"email" validate:"required"`
-	Password string `json:"password" form:"password" validate:"required"`
+	Email    string `validate:"required,email"`
+	Password string `validate:"required"`
 }
 
 type UserResponse struct {
