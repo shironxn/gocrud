@@ -20,7 +20,7 @@
     A simple Golang CRUD API
   </p>
 
-[<img src="https://forthebadge.com/images/badges/built-with-love.svg" href="https://gorm.io" alt="gorm" width="50%">][built-with-heart-url]
+[<img src="https://forthebadge.com/images/badges/built-with-love.svg" href="https://gorm.io" alt="gorm" width="30%">][built-with-heart-url]
 
 </div>
 
