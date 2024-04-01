@@ -116,7 +116,7 @@ definitions:
       field:
         type: string
     type: object
-host: config.Config.Server.Host:config.Config.Server.Port
+host: localhost:3000
 info:
   contact: {}
   description: golang crud api
