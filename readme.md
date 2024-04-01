@@ -60,7 +60,7 @@ GOCRUD is a simple CRUD (Create, Read, Update, Delete) API developed in Golang. 
 3. Copy or rename .env.example to .env
 
    ```bash
-   cp .example.env .env
+   cp .env.example .env
    ```
 
 4. Check available make commands
