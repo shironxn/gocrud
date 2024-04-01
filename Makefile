@@ -45,7 +45,7 @@ build: ## Build the project
 	@go build -o $(BIN_DIR)/$(BIN) ./cmd
 
 .PHONY: run
-run: ## Run the project
+run: tidy build ## Run the project
 	@echo "Running the project..."
 	@$(BIN_DIR)/$(BIN)
 

@@ -20,7 +20,7 @@ func NewWelcomeRoute() WelcomeRoute {
 
 func (a *WelcomeRoute) Route(app *fiber.App) {
 	app.Use(logger.New())
-	app.Get("/docs/*", swagger.HandlerDefault)
+	app.Get("/api/v1/docs/*", swagger.HandlerDefault)
 
 	app.Get("/", func(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{

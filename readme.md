@@ -20,7 +20,7 @@
     A simple Golang CRUD API
   </p>
 
-[<img src="https://forthebadge.com/images/badges/built-with-love.svg" href="https://gorm.io" alt="gorm" width="20%">][built-with-heart-url]
+[<img src="https://forthebadge.com/images/badges/built-with-love.svg" href="https://gorm.io" alt="gorm" width="50%">][built-with-heart-url]
 
 </div>
 
@@ -43,38 +43,60 @@ GOCRUD is a simple CRUD (Create, Read, Update, Delete) API developed in Golang. 
 
 ## Getting Started
 
-To get a local copy up and running follow these simple steps.
-
 ### Installation
 
-1. Clone the repo
+1. Clone the repository
+
    ```bash
-   git clone https://github.com/your_username_/Project-Name.git
-   ```
-2. Install dependencies
-   ```bash
-   go mod tidy
+   git clone https://github.com/shironxn/gocrud.git
    ```
 
-<!-- USAGE EXAMPLES -->
+2. Navigate to the project directory
 
-## Usage
+   ```bash
+   cd gocrud
+   ```
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space.
+3. Copy or rename .env.example to .env
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+   ```bash
+   cp .example.env .env
+   ```
 
-<!-- ROADMAP -->
+4. Check available make commands
 
-## Roadmap
+   ```bash
+   make help
+   ```
 
-- [x] Add CRUD operations
-- [x] Implement authentication
-- [ ] Add pagination support
-- [ ] Implement rate limiting
+### Running Application
+
+Run without docker
+
+```bash
+make run
+```
+
+Run with docker
+
+```bash
+make docker-up
+```
+
+Run test
+
+```bash
+make test
+```
+
+<!-- API Docs -->
+
+## API Docs
+
+This API documentation is using [Swagger](https://swagger.io).
+You can see it at http://localhost:3000/api/v1/docs
 
 <!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
 [built-with-heart-url]: https://github.com/shironxn
 [contributors-shield]: https://img.shields.io/github/contributors/shironxn/gocrud.svg?style=for-the-badge
@@ -85,7 +107,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 [stars-url]: https://github.com/shironxn/gocrud/stargazers
 [issues-shield]: https://img.shields.io/github/issues/shironxn/gocrud.svg?style=for-the-badge
 [issues-url]: https://github.com/shironxn/gocrud/issues
-[database-schema]: ./assets/database-schema.jpg
+[database-schema]: ./assets/database-schema.png
 [golang-shield]: https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white
 [golang-url]: https://go.dev
 [fiber-url]: https://gofiber.io
