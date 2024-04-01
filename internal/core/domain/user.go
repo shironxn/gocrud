@@ -8,9 +8,10 @@ import (
 
 type User struct {
 	gorm.Model
-	Name     string `json:"name" form:"name" gorm:"uniqueIndex"`
-	Email    string `json:"email" form:"email" gorm:"uniqueIndex"`
-	Password string `json:"password" form:"password"`
+	Name     string `gorm:"not null;uniqueIndex"`
+	Email    string `gorm:"not null;uniqueIndex"`
+	Password string `gorm:"not null"`
+	Notes    []Note `gorm:"not null"`
 }
 
 type UserDetails struct {

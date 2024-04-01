@@ -7,12 +7,11 @@ import (
 )
 
 type Note struct {
-	gorm.Model `gorm:"not null"`
-	Title      string `gorm:"not null;unique"`
+	gorm.Model
+	Title      string `gorm:"not null"`
 	Content    string `gorm:"not null"`
 	Visibility string `gorm:"not null;type:enum('public','private');default:'private'"`
 	UserID     uint   `gorm:"not null"`
-	User       User   `gorm:"foreignKey:UserID;references:ID"`
 }
 
 type NoteRequest struct {

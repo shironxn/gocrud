@@ -19,7 +19,7 @@ import (
 // @version 1.0
 // @description golang crud api
 
-// @host localhost:8080
+// @host config.Config.Server.Host:config.Config.Server.Port
 // @BasePath /api/v1
 func main() {
 	cfg, err := config.NewConfig()

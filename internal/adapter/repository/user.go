@@ -46,5 +46,5 @@ func (u *UserRepository) Update(req domain.UserRequest, entity *domain.User) (*d
 }
 
 func (u *UserRepository) Delete(entity *domain.User) error {
-	return u.db.Delete(&entity).Error
+	return u.db.Select("Notes").Delete(&entity).Error
 }

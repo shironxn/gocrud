@@ -4,7 +4,7 @@ services:
   db:
     container_name: mysql
     image: mariadb:11.2.3
-    hostname: db
+    hostname: ${DB_HOST}
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASS}
       MYSQL_DATABASE: ${DB_NAME}

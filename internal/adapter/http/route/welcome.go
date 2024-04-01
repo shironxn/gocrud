@@ -4,6 +4,7 @@ import (
 	"gocrud/internal/core/domain"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 
 	_ "gocrud/docs"
 
@@ -18,6 +19,7 @@ func NewWelcomeRoute() WelcomeRoute {
 }
 
 func (a *WelcomeRoute) Route(app *fiber.App) {
+	app.Use(logger.New())
 	app.Get("/docs/*", swagger.HandlerDefault)
 
 	app.Get("/", func(ctx *fiber.Ctx) error {

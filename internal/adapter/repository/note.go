@@ -4,6 +4,7 @@ import (
 	"gocrud/internal/core/domain"
 	"gocrud/internal/core/port"
 
+	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
@@ -18,6 +19,16 @@ func NewNoteRepository(db *gorm.DB) port.NoteRepository {
 }
 
 func (n *NoteRepository) Create(req domain.NoteRequest) (*domain.Note, error) {
+	var user domain.User
+	err := n.db.Preload("Notes").Find(&user, req.UserID).Error
+	if err != nil {
+		return nil, err
+	}
+	for _, note := range user.Notes {
+		if note.Title == req.Title {
+			return nil, fiber.NewError(fiber.StatusBadRequest, gorm.ErrDuplicatedKey.Error())
+		}
+	}
 	entity := domain.Note{
 		Title:      req.Title,
 		Content:    req.Content,
@@ -29,7 +40,7 @@ func (n *NoteRepository) Create(req domain.NoteRequest) (*domain.Note, error) {
 
 func (n *NoteRepository) GetAll() ([]domain.Note, error) {
 	var entity []domain.Note
-	return entity, n.db.Find(&entity).Error
+	return entity, n.db.Find(&entity, "visibility = ?", "public").Error
 }
 
 func (n *NoteRepository) GetByID(id uint) (*domain.Note, error) {
