@@ -317,7 +317,7 @@ func TestUserHandler_Logout(t *testing.T) {
 			code: fiber.StatusOK,
 			cookie: &http.Cookie{
 				Name:  "token",
-				Value: "dummy-cookie",
+				Value: "dummy-token",
 			},
 			want: domain.SuccessResponse{
 				Message: "user successfully logged out",
@@ -889,6 +889,7 @@ func TestUserHandler_Delete(t *testing.T) {
 		fields  fields
 		args    args
 		code    int
+		cookie  *http.Cookie
 		want    interface{}
 		wantErr bool
 	}{
@@ -909,6 +910,10 @@ func TestUserHandler_Delete(t *testing.T) {
 				},
 			},
 			code: fiber.StatusOK,
+			cookie: &http.Cookie{
+				Name:  "token",
+				Value: "dummy-token",
+			},
 			want: domain.SuccessResponse{
 				Message: "successfully deleted user by id",
 			},
@@ -930,7 +935,8 @@ func TestUserHandler_Delete(t *testing.T) {
 					UserID: entity.ID,
 				},
 			},
-			code: fiber.StatusInternalServerError,
+			code:   http.StatusInternalServerError,
+			cookie: nil,
 			want: domain.ErrorResponse{
 				Message: "failed",
 			},
@@ -952,7 +958,8 @@ func TestUserHandler_Delete(t *testing.T) {
 					UserID: entity.ID,
 				},
 			},
-			code: fiber.StatusForbidden,
+			code:   http.StatusForbidden,
+			cookie: nil,
 			want: domain.ErrorResponse{
 				Message: "user does not have permission to perform this action",
 			},
@@ -975,6 +982,9 @@ func TestUserHandler_Delete(t *testing.T) {
 
 			req := httptest.NewRequest(fiber.MethodDelete, fmt.Sprintf("/api/v1/user/%v", tt.args.req.ID), nil)
 			req.Header.Set("Content-Type", "application/json")
+			if tt.cookie != nil {
+				req.AddCookie(tt.cookie)
+			}
 
 			res, err := app.Test(req)
 			assert.NoError(t, err)
@@ -989,6 +999,17 @@ func TestUserHandler_Delete(t *testing.T) {
 				var got domain.SuccessResponse
 				err = json.NewDecoder(res.Body).Decode(&got)
 				assert.NoError(t, err)
+
+				var tokenCookie *http.Cookie
+				for _, cookie := range res.Cookies() {
+					if cookie.Name == tt.cookie.Name {
+						tokenCookie = cookie
+						break
+					}
+				}
+
+				assert.NotNil(t, tokenCookie)
+				assert.Empty(t, tokenCookie.Value)
 				assert.Equal(t, tt.args.req.ID, entity.ID)
 				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
 			}
