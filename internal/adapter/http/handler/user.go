@@ -118,11 +118,18 @@ func (u *UserHandler) Logout(ctx *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "user is already logged out")
 	}
 
-	cookieExpire := time.Now().Add(-time.Hour * 24)
+	// cookieExpire := time.Now().Add(-time.Hour * 24)
+	// ctx.Cookie(&fiber.Cookie{
+	// 	Name:    "token",
+	// 	Value:   "",
+	// 	Expires: cookieExpire,
+	// })
+
 	ctx.Cookie(&fiber.Cookie{
-		Name:    "token",
-		Value:   "",
-		Expires: cookieExpire,
+		Name:     "token",
+		Expires:  time.Now().Add(-(time.Hour * 2)),
+		HTTPOnly: true,
+		SameSite: "lax",
 	})
 
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
@@ -282,6 +289,13 @@ func (u *UserHandler) Delete(ctx *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+
+	ctx.Cookie(&fiber.Cookie{
+		Name:     "token",
+		Expires:  time.Now().Add(-(time.Hour * 2)),
+		HTTPOnly: true,
+		SameSite: "lax",
+	})
 
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
 		Message: "successfully deleted user by id",
