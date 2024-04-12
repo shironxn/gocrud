@@ -1,0 +1,358 @@
+basePath: /api/v1
+definitions:
+  domain.ErrorValidationResponse:
+    properties:
+      errors:
+        items:
+          $ref: '#/definitions/domain.ValidationError'
+        type: array
+      message:
+        type: string
+    type: object
+  domain.Metadata:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total_page:
+        type: integer
+      total_records:
+        type: integer
+    type: object
+  domain.NotePaginationResponse:
+    properties:
+      metadata:
+        $ref: '#/definitions/domain.Metadata'
+      notes:
+        items:
+          $ref: '#/definitions/domain.NoteResponse'
+        type: array
+    type: object
+  domain.NoteRequest:
+    properties:
+      content:
+        type: string
+      id:
+        type: integer
+      title:
+        maxLength: 30
+        type: string
+      user_id:
+        type: integer
+      visibility:
+        enum:
+        - private
+        - public
+        type: string
+    type: object
+  domain.NoteResponse:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      visibility:
+        type: string
+    type: object
+  domain.SuccessResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+    type: object
+  domain.UserLoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  domain.UserRegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        maxLength: 30
+        minLength: 4
+        type: string
+      password:
+        maxLength: 100
+        minLength: 8
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  domain.UserResponse:
+    properties:
+      avatar_url:
+        type: string
+      bio:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  domain.ValidationError:
+    properties:
+      error:
+        type: string
+      field:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: golang crud api
+  title: gocrud
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Log in an existing user with the provided email and password
+      parameters:
+      - description: User login request object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UserLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully logged in
+          schema:
+            $ref: '#/definitions/domain.UserResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/domain.ErrorValidationResponse'
+      summary: User login
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      description: Log out the currently logged-in user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully logged out
+          schema:
+            $ref: '#/definitions/domain.SuccessResponse'
+      summary: User logout
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with the specified name, email, and password
+      parameters:
+      - description: User registration request object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UserRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully registered a new user
+          schema:
+            $ref: '#/definitions/domain.UserResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/domain.ErrorValidationResponse'
+      summary: Register a new user
+      tags:
+      - auth
+  /note:
+    post:
+      consumes:
+      - application/json
+      description: Create a new note with the specified title, content, and visibility
+      parameters:
+      - description: Note request object
+        in: body
+        name: note
+        required: true
+        schema:
+          $ref: '#/definitions/domain.NoteRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created a new note
+          schema:
+            $ref: '#/definitions/domain.NoteResponse'
+      summary: Create a new note
+      tags:
+      - note
+  /note/{id}:
+    delete:
+      description: Delete an existing note based on the provided ID
+      parameters:
+      - description: Note ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted a note by ID
+          schema:
+            $ref: '#/definitions/domain.SuccessResponse'
+      summary: Delete a note by ID
+      tags:
+      - note
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a note based on the provided ID
+      parameters:
+      - description: Note ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved a note by ID
+          schema:
+            $ref: '#/definitions/domain.NoteResponse'
+      summary: Get a note by ID
+      tags:
+      - note
+    put:
+      consumes:
+      - application/json
+      description: Update an existing note based on the provided ID
+      parameters:
+      - description: Note ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated note object
+        in: body
+        name: note
+        required: true
+        schema:
+          $ref: '#/definitions/domain.NoteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated a note by ID
+          schema:
+            $ref: '#/definitions/domain.NoteResponse'
+      summary: Update a note by ID
+      tags:
+      - note
+  /notes:
+    get:
+      description: Retrieve all available notes
+      parameters:
+      - description: Filter notes by title
+        in: query
+        name: domain.NoteRequest
+        type: string
+      - description: Filter notes by user ID
+        in: query
+        name: user_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved all notes
+          schema:
+            $ref: '#/definitions/domain.NotePaginationResponse'
+      summary: Get all notes
+      tags:
+      - note
+  /user:
+    get:
+      description: Retrieve data of all registered users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved all user data
+          schema:
+            items:
+              $ref: '#/definitions/domain.UserResponse'
+            type: array
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/domain.ErrorValidationResponse'
+      summary: Get all users
+      tags:
+      - user
+  /user/{id}:
+    delete:
+      description: Delete an existing user based on the provided ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted user by ID
+          schema:
+            $ref: '#/definitions/domain.SuccessResponse'
+      summary: Delete a user by ID
+      tags:
+      - user
+    get:
+      description: Retrieve data of a user based on the provided ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved user by ID
+          schema:
+            $ref: '#/definitions/domain.UserResponse'
+      summary: Get a user by ID
+      tags:
+      - user
+swagger: "2.0"
