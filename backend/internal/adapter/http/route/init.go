@@ -19,12 +19,12 @@ func NewInitRoute() InitRoute {
 }
 
 func (a *InitRoute) Route(app *fiber.App) {
-	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "*",
-		AllowHeaders:     "Origin, Content-Type, Accept, Authorization, Access-Control-Allow-Origin, Access-Control-Allow-Credentials",
-		AllowMethods:     "GET, POST, PUT, DELETE, OPTIONS",
-		AllowCredentials: true,
-	}))
+	app.Use(cors.New(
+		cors.Config{
+			AllowOrigins:     "http://localhost:3001",
+			AllowCredentials: true,
+		},
+	))
 	app.Use(logger.New())
 
 	app.Get("/api/v1/docs/*", swagger.HandlerDefault)

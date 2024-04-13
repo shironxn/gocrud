@@ -44,7 +44,7 @@ func (j JWT) GenerateToken(ctx *fiber.Ctx, user *domain.User) (*domain.UserDetai
 		Path:     "/",
 		HTTPOnly: true,
 		Expires:  cookieExpire,
-		// SameSite: "None",
+		// SameSite: fiber.CookieSameSiteNoneMode,
 	})
 
 	details := domain.UserDetails{

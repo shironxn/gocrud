@@ -36,9 +36,6 @@ export default function Register() {
     {
       url: "http://127.0.0.1:3000/api/v1/auth/register",
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
     },
     { manual: true }
   );
@@ -60,7 +57,16 @@ export default function Register() {
   }
   if (loading) return <p>Loading...</p>;
   if (error) {
-    console.log(error);
+    toast({
+      title: "Something error:",
+      description: (
+        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+          <code className="text-white">
+            {JSON.stringify(error.message, null, 2)}
+          </code>
+        </pre>
+      ),
+    });
   }
 
   return (

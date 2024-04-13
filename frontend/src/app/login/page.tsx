@@ -35,9 +35,6 @@ export default function Login() {
     {
       url: "http://127.0.0.1:3000/api/v1/auth/login",
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       withCredentials: true,
     },
     { manual: true }

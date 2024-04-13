@@ -54,7 +54,7 @@ func (n *NoteHandler) Create(ctx *fiber.Ctx) error {
 
 	result, err := n.service.Create(req)
 	if err != nil {
-		return err
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
 	return ctx.Status(fiber.StatusCreated).JSON(

@@ -26,7 +26,7 @@ func (d *DB) Connection() (*gorm.DB, error) {
 		d.cfg.Database.Name,
 	)
 
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{TranslateError: true})
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{TranslateError: false})
 	if err != nil {
 		return nil, err
 	}
