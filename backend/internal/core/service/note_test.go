@@ -74,11 +74,11 @@ func TestNoteService_Create(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &NoteService{
+			h := &NoteService{
 				repository: tt.fields.repository,
 			}
 
-			got, err := u.Create(tt.args.req)
+			got, err := h.Create(tt.args.req)
 
 			if tt.wantErr {
 				assert.Error(t, err)
@@ -149,11 +149,11 @@ func TestNoteService_GetAll(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &NoteService{
+			h := &NoteService{
 				repository: tt.fields.repository,
 			}
 
-			got, err := u.GetAll(tt.args.req, &tt.args.metadata)
+			got, err := h.GetAll(tt.args.req, &tt.args.metadata)
 
 			if tt.wantErr {
 				assert.Error(t, err)
@@ -216,11 +216,11 @@ func TestNoteService_GetByID(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &NoteService{
+			h := &NoteService{
 				repository: tt.fields.repository,
 			}
 
-			got, err := u.GetByID(tt.args.req, tt.args.claims)
+			got, err := h.GetByID(tt.args.req, tt.args.claims)
 
 			if tt.wantErr {
 				assert.Error(t, err)
@@ -319,11 +319,11 @@ func TestNoteService_Update(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &NoteService{
+			h := &NoteService{
 				repository: tt.fields.repository,
 			}
 
-			got, err := u.Update(tt.args.req, tt.args.claims)
+			got, err := h.Update(tt.args.req, tt.args.claims)
 
 			if tt.wantErr {
 				assert.Error(t, err)
@@ -423,11 +423,11 @@ func TestNoteService_Delete(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &NoteService{
+			h := &NoteService{
 				repository: tt.fields.repository,
 			}
 
-			err := u.Delete(tt.args.req, tt.args.claims)
+			err := h.Delete(tt.args.req, tt.args.claims)
 
 			if tt.wantErr {
 				assert.Error(t, err)

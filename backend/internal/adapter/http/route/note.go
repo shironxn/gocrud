@@ -18,13 +18,13 @@ func NewNoteRoute(handler port.NoteHandler, middleware port.Middleware) NoteRout
 	}
 }
 
-func (n *NoteRoute) Route(app *fiber.App) {
+func (h *NoteRoute) Route(app *fiber.App) {
 	api := app.Group("/api")
 
 	v1 := api.Group("/v1/notes")
-	v1.Post("/", n.middleware.Auth(), n.handler.Create)
-	v1.Get("/", n.handler.GetAll)
-	v1.Get("/:id", n.handler.GetByID)
-	v1.Put("/:id", n.middleware.Auth(), n.handler.Update)
-	v1.Delete("/:id", n.middleware.Auth(), n.handler.Delete)
+	v1.Post("/", h.middleware.Auth(), h.handler.Create)
+	v1.Get("/", h.handler.GetAll)
+	v1.Get("/:id", h.handler.GetByID)
+	v1.Put("/:id", h.middleware.Auth(), h.handler.Update)
+	v1.Delete("/:id", h.middleware.Auth(), h.handler.Delete)
 }

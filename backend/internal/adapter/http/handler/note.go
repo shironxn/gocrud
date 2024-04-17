@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"strconv"
 
+	"github.com/shironxn/gocrud/internal/config"
 	"github.com/shironxn/gocrud/internal/core/domain"
 	"github.com/shironxn/gocrud/internal/core/port"
 	"github.com/shironxn/gocrud/internal/util"
@@ -17,13 +18,15 @@ type NoteHandler struct {
 	service   port.NoteService
 	validator util.Validator
 	jwt       util.JWT
+	cfg       *config.Config
 }
 
-func NewNoteHandler(service port.NoteService, validator util.Validator, jwt util.JWT) port.NoteHandler {
+func NewNoteHandler(service port.NoteService, validator util.Validator, jwt util.JWT, cfg *config.Config) port.NoteHandler {
 	return &NoteHandler{
 		service:   service,
 		validator: validator,
 		jwt:       jwt,
+		cfg:       cfg,
 	}
 }
 
@@ -35,14 +38,14 @@ func NewNoteHandler(service port.NoteService, validator util.Validator, jwt util
 // @Param note body domain.NoteRequest true "Note request object"
 // @Success 201 {object} domain.NoteResponse "Successfully created a new note"
 // @Router /notes [post]
-func (n *NoteHandler) Create(ctx *fiber.Ctx) error {
+func (h *NoteHandler) Create(ctx *fiber.Ctx) error {
 	var req domain.NoteRequest
 
 	if err := ctx.BodyParser(&req); err != nil {
 		return err
 	}
 
-	if err := n.validator.Validate(req); err != nil {
+	if err := h.validator.Validate(req); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(err)
 	}
 
@@ -52,7 +55,7 @@ func (n *NoteHandler) Create(ctx *fiber.Ctx) error {
 	}
 	req.UserID = claims.UserID
 
-	result, err := n.service.Create(req)
+	result, err := h.service.Create(req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
@@ -82,7 +85,7 @@ func (n *NoteHandler) Create(ctx *fiber.Ctx) error {
 // @Param visibility query string false "Filter notes by visibility"
 // @Success 200 {object} domain.NotePaginationResponse "Successfully retrieved all notes"
 // @Router /notes [get]
-func (n *NoteHandler) GetAll(ctx *fiber.Ctx) error {
+func (h *NoteHandler) GetAll(ctx *fiber.Ctx) error {
 	var req domain.NoteQuery
 	var metadata domain.Metadata
 	var data []domain.NoteResponse
@@ -98,7 +101,7 @@ func (n *NoteHandler) GetAll(ctx *fiber.Ctx) error {
 	switch {
 	case req.Visibility == "private" || req.UserID != "" || req.Title != "":
 		cookie := ctx.Cookies("token")
-		claims, err := n.jwt.ValidateToken(cookie)
+		claims, err := h.jwt.ValidateToken(cookie, h.cfg.JWT.Access)
 		if err != nil {
 			req.Visibility = "public"
 			break
@@ -110,7 +113,7 @@ func (n *NoteHandler) GetAll(ctx *fiber.Ctx) error {
 		req.Visibility = "public"
 	}
 
-	result, err := n.service.GetAll(req, &metadata)
+	result, err := h.service.GetAll(req, &metadata)
 	if err != nil {
 		return err
 	}
@@ -144,7 +147,7 @@ func (n *NoteHandler) GetAll(ctx *fiber.Ctx) error {
 // @Param id path int true "Note ID"
 // @Success 200 {object} domain.NoteResponse "Successfully retrieved a note by ID"
 // @Router /notes/{id} [get]
-func (n *NoteHandler) GetByID(ctx *fiber.Ctx) error {
+func (h *NoteHandler) GetByID(ctx *fiber.Ctx) error {
 	var req domain.NoteRequest
 	var result *domain.Note
 
@@ -153,15 +156,15 @@ func (n *NoteHandler) GetByID(ctx *fiber.Ctx) error {
 	}
 
 	cookie := ctx.Cookies("token")
-	claims, err := n.jwt.ValidateToken(cookie)
+	claims, err := h.jwt.ValidateToken(cookie, h.cfg.JWT.Access)
 	if err != nil {
-		data, err := n.service.GetByID(req, nil)
+		data, err := h.service.GetByID(req.ID, nil)
 		if err != nil {
 			return err
 		}
 		result = data
 	} else {
-		data, err := n.service.GetByID(req, claims)
+		data, err := h.service.GetByID(req.ID, claims)
 		if err != nil {
 			return err
 		}
@@ -191,7 +194,7 @@ func (n *NoteHandler) GetByID(ctx *fiber.Ctx) error {
 // @Param note body domain.NoteRequest true "Updated note object"
 // @Success 200 {object} domain.NoteResponse "Successfully updated a note by ID"
 // @Router /notes/{id} [put]
-func (n *NoteHandler) Update(ctx *fiber.Ctx) error {
+func (h *NoteHandler) Update(ctx *fiber.Ctx) error {
 	var req domain.NoteRequest
 
 	if err := ctx.BodyParser(&req); err != nil {
@@ -212,11 +215,11 @@ func (n *NoteHandler) Update(ctx *fiber.Ctx) error {
 	}
 	req.UserID = claims.UserID
 
-	if err := n.validator.Validate(req); err != nil {
+	if err := h.validator.Validate(req); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(err)
 	}
 
-	result, err := n.service.Update(req, *claims)
+	result, err := h.service.Update(req, *claims)
 	if err != nil {
 		return err
 	}
@@ -242,7 +245,7 @@ func (n *NoteHandler) Update(ctx *fiber.Ctx) error {
 // @Param id path int true "Note ID"
 // @Success 200 {object} domain.SuccessResponse "Successfully deleted a note by ID"
 // @Router /notes/{id} [delete]
-func (n *NoteHandler) Delete(ctx *fiber.Ctx) error {
+func (h *NoteHandler) Delete(ctx *fiber.Ctx) error {
 	var req domain.NoteRequest
 
 	if err := ctx.ParamsParser(&req); err != nil {
@@ -253,7 +256,7 @@ func (n *NoteHandler) Delete(ctx *fiber.Ctx) error {
 	if !ok {
 		return fiber.NewError(fiber.StatusBadRequest, "failed to retrieve claims from context")
 	}
-	if err := n.service.Delete(req, *claims); err != nil {
+	if err := h.service.Delete(req.ID, *claims); err != nil {
 		return err
 	}
 

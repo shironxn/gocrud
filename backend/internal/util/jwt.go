@@ -1,7 +1,6 @@
 package util
 
 import (
-	"errors"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -21,60 +20,58 @@ func NewJWT(cfg *config.Config) JWT {
 	}
 }
 
-func (j JWT) GenerateToken(ctx *fiber.Ctx, user *domain.User) (*domain.UserDetails, error) {
-	jwtExpire := time.Now().Add(1 * time.Hour)
-
-	claims := domain.Claims{
-		UserID: user.ID,
+func (j JWT) GenerateAccessToken(userID uint) (*string, error) {
+	accessTokenClaims := domain.Claims{
+		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(jwtExpire),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(10 * time.Minute)),
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(j.cfg.JWTSecret))
+	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenClaims).SignedString([]byte(j.cfg.JWT.Access))
 	if err != nil {
 		return nil, err
 	}
 
-	cookieExpire := time.Now().Add(1 * time.Hour)
-	ctx.Cookie(&fiber.Cookie{
-		Name:     "token",
-		Value:    tokenString,
-		Path:     "/",
-		HTTPOnly: true,
-		Expires:  cookieExpire,
-		// SameSite: fiber.CookieSameSiteNoneMode,
-	})
-
-	details := domain.UserDetails{
-		Token:     tokenString,
-		ExpiredAt: cookieExpire.String(),
-	}
-
-	return &details, nil
+	return &accessToken, nil
 }
 
-func (j JWT) ValidateToken(token string) (*domain.Claims, error) {
+func (j JWT) GenerateRefreshToken(userID uint) (*string, error) {
+	refreshTokenClaims := domain.Claims{
+		UserID: userID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+		},
+	}
+
+	refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims).SignedString([]byte(j.cfg.JWT.Refresh))
+	if err != nil {
+		return nil, err
+	}
+
+	return &refreshToken, nil
+}
+
+func (j JWT) ValidateToken(token string, secret string) (*domain.Claims, error) {
 	tokenString, err := jwt.ParseWithClaims(token, &domain.Claims{}, func(t *jwt.Token) (interface{}, error) {
-		return []byte(j.cfg.JWTSecret), nil
+		return []byte(secret), nil
 	})
 
 	if err != nil {
-		return nil, err
+		return nil, fiber.NewError(fiber.StatusBadRequest, "invalid token")
 	}
 
 	if !tokenString.Valid {
-		return nil, errors.New("invalid token")
+		return nil, fiber.NewError(fiber.StatusBadRequest, "invalid token")
 	}
 
 	claims, ok := tokenString.Claims.(*domain.Claims)
 	if !ok {
-		return nil, errors.New("invalid token claims")
+		return nil, fiber.NewError(fiber.StatusBadRequest, "invalid token claims")
 	}
 
 	if claims.ExpiresAt.Unix() < time.Now().Unix() {
-		return nil, errors.New("token has expired")
+		return nil, fiber.NewError(fiber.StatusBadRequest, "token has expired")
 	}
 
 	return claims, nil

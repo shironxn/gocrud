@@ -30,7 +30,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	db.AutoMigrate(&domain.User{}, &domain.Note{})
+	db.AutoMigrate(&domain.User{}, &domain.Note{}, &domain.RefreshToken{})
 
 	validator, err := util.NewValidator()
 	if err != nil {
@@ -46,14 +46,18 @@ func main() {
 	userService := service.NewUserService(userRepository, bcrypt)
 	userHandler := handler.NewUserHandler(userService, *validator, jwt)
 
+	authRepository := repository.NewAuthRepository(db)
+	authService := service.NewAuthService(authRepository, bcrypt, jwt, *cfg)
+	authHandler := handler.NewAuthHandler(authService, jwt, *validator)
+
 	noteRepository := repository.NewNoteRepository(db, pagination)
 	noteService := service.NewNoteService(noteRepository)
-	noteHandler := handler.NewNoteHandler(noteService, *validator, jwt)
+	noteHandler := handler.NewNoteHandler(noteService, *validator, jwt, cfg)
 
-	authMiddleware := middleware.NewAuthMiddleware(jwt)
+	authMiddleware := middleware.NewAuthMiddleware(jwt, cfg)
 
 	initRoute := route.NewInitRoute()
-	authRoute := route.NewAuthRoute(userHandler, authMiddleware)
+	authRoute := route.NewAuthRoute(authHandler, authMiddleware)
 	userRoute := route.NewUserRoute(userHandler, authMiddleware)
 	noteRoute := route.NewNoteRoute(noteHandler, authMiddleware)
 

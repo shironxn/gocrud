@@ -137,7 +137,7 @@ func TestNoteHandler_Create(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			n := &NoteHandler{
+			h := &NoteHandler{
 				service:   tt.fields.service,
 				validator: tt.fields.validator,
 			}
@@ -147,7 +147,7 @@ func TestNoteHandler_Create(t *testing.T) {
 				ctx.Locals("claims", &tt.args.claims)
 				return ctx.Next()
 			})
-			app.Post("/api/v1/note", n.Create)
+			app.Post("/api/v1/note", h.Create)
 
 			requestBody, err := json.Marshal(tt.args.req)
 			assert.NoError(t, err)
@@ -248,12 +248,12 @@ func TestNoteHandler_GetAll(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			n := &NoteHandler{
+			h := &NoteHandler{
 				service: tt.fields.service,
 			}
 
 			app := config.NewFiber()
-			app.Get("/api/v1/note", n.GetAll)
+			app.Get("/api/v1/note", h.GetAll)
 
 			req := httptest.NewRequest(fiber.MethodGet, "/api/v1/note", nil)
 			req.Header.Set("Content-Type", "application/json")
@@ -352,7 +352,7 @@ func TestNoteHandler_GetByID(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			n := &NoteHandler{
+			h := &NoteHandler{
 				service: tt.fields.service,
 			}
 
@@ -361,7 +361,7 @@ func TestNoteHandler_GetByID(t *testing.T) {
 				ctx.Locals("claims", tt.args.claims)
 				return ctx.Next()
 			})
-			app.Get("/api/v1/note/:id", n.GetByID)
+			app.Get("/api/v1/note/:id", h.GetByID)
 
 			requestBody, err := json.Marshal(tt.args.req)
 			assert.NoError(t, err)
@@ -516,7 +516,7 @@ func TestNoteHandler_Update(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			n := &NoteHandler{
+			h := &NoteHandler{
 				service:   tt.fields.service,
 				validator: tt.fields.validator,
 			}
@@ -526,7 +526,7 @@ func TestNoteHandler_Update(t *testing.T) {
 				ctx.Locals("claims", &tt.args.claims)
 				return ctx.Next()
 			})
-			app.Put("/api/v1/note/:id", n.Update)
+			app.Put("/api/v1/note/:id", h.Update)
 
 			requestBody, err := json.Marshal(tt.args.req)
 			assert.NoError(t, err)
@@ -651,7 +651,7 @@ func TestNoteHandler_Delete(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			n := &NoteHandler{
+			h := &NoteHandler{
 				service: tt.fields.service,
 			}
 
@@ -660,7 +660,7 @@ func TestNoteHandler_Delete(t *testing.T) {
 				ctx.Locals("claims", &tt.args.claims)
 				return ctx.Next()
 			})
-			app.Delete("/api/v1/note/:id", n.Delete)
+			app.Delete("/api/v1/note/:id", h.Delete)
 
 			req := httptest.NewRequest(fiber.MethodDelete, fmt.Sprintf("/api/v1/note/%v", tt.args.req.ID), nil)
 			req.Header.Set("Content-Type", "application/json")

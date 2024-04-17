@@ -119,13 +119,13 @@ func TestUserHandler_Register(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &UserHandler{
+			h := &UserHandler{
 				service:   tt.fields.service,
 				validator: tt.fields.validator,
 			}
 
 			app := config.NewFiber()
-			app.Post("/api/v1/auth/register", u.Register)
+			app.Post("/api/v1/auth/register", h.Register)
 
 			requestBody, err := json.Marshal(tt.args.req)
 			assert.NoError(t, err)
@@ -269,14 +269,14 @@ func TestUserHandler_Login(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &UserHandler{
+			h := &UserHandler{
 				service:   tt.fields.service,
 				validator: tt.fields.validator,
 				jwt:       tt.fields.jwt,
 			}
 
 			app := config.NewFiber()
-			app.Post("/api/v1/auth/login", u.Login)
+			app.Post("/api/v1/auth/login", h.Login)
 
 			requestBody, err := json.Marshal(tt.args.req)
 			assert.NoError(t, err)
@@ -340,10 +340,10 @@ func TestUserHandler_Logout(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &UserHandler{}
+			h := &UserHandler{}
 
 			app := config.NewFiber()
-			app.Post("/api/v1/auth/logout", u.Logout)
+			app.Post("/api/v1/auth/logout", h.Logout)
 
 			req := httptest.NewRequest(fiber.MethodPost, "/api/v1/auth/logout", nil)
 			req.Header.Set("Content-Type", "application/json")
@@ -441,12 +441,12 @@ func TestUserHandler_GetAll(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &UserHandler{
+			h := &UserHandler{
 				service: tt.fields.service,
 			}
 
 			app := config.NewFiber()
-			app.Get("/api/v1/user", u.GetAll)
+			app.Get("/api/v1/user", h.GetAll)
 
 			req := httptest.NewRequest(fiber.MethodGet, "/api/v1/user", nil)
 			req.Header.Set("Content-Type", "application/json")
@@ -534,12 +534,12 @@ func TestUserHandler_GetByID(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &UserHandler{
+			h := &UserHandler{
 				service: tt.fields.service,
 			}
 
 			app := config.NewFiber()
-			app.Get("/api/v1/user/:id", u.GetByID)
+			app.Get("/api/v1/user/:id", h.GetByID)
 
 			req := httptest.NewRequest(fiber.MethodGet, fmt.Sprintf("/api/v1/user/%v", tt.args.req.ID), nil)
 			req.Header.Set("Content-Type", "application/json")
@@ -693,7 +693,7 @@ func TestUserHandler_Update(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &UserHandler{
+			h := &UserHandler{
 				service:   tt.fields.service,
 				validator: tt.fields.validator,
 			}
@@ -703,7 +703,7 @@ func TestUserHandler_Update(t *testing.T) {
 				ctx.Locals("claims", &tt.args.claims)
 				return ctx.Next()
 			})
-			app.Put("/api/v1/user/:id", u.Update)
+			app.Put("/api/v1/user/:id", h.Update)
 
 			requestBody, err := json.Marshal(tt.args.req)
 			assert.NoError(t, err)
@@ -840,7 +840,7 @@ func TestUserHandler_Delete(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &UserHandler{
+			h := &UserHandler{
 				service: tt.fields.service,
 			}
 
@@ -849,7 +849,7 @@ func TestUserHandler_Delete(t *testing.T) {
 				ctx.Locals("claims", &tt.args.claims)
 				return ctx.Next()
 			})
-			app.Delete("/api/v1/user/:id", u.Delete)
+			app.Delete("/api/v1/user/:id", h.Delete)
 
 			req := httptest.NewRequest(fiber.MethodDelete, fmt.Sprintf("/api/v1/user/%v", tt.args.req.ID), nil)
 			req.Header.Set("Content-Type", "application/json")

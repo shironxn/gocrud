@@ -19,7 +19,10 @@ type Config struct {
 		User string
 		Pass string
 	}
-	JWTSecret string
+	JWT struct {
+		Access  string
+		Refresh string
+	}
 }
 
 var (
@@ -69,7 +72,13 @@ func LoadConfig() error {
 			User: os.Getenv("DB_USER"),
 			Pass: os.Getenv("DB_PASS"),
 		},
-		JWTSecret: os.Getenv("JWT_SECRET"),
+		JWT: struct {
+			Access  string
+			Refresh string
+		}{
+			Access:  os.Getenv("JWT_ACCESS_SECRET"),
+			Refresh: os.Getenv("JWT_REFRESH_SECRET"),
+		},
 	}
 
 	return nil

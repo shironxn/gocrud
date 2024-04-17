@@ -8,17 +8,24 @@ import (
 
 type User struct {
 	gorm.Model
-	Name      string `gorm:"not null;uniqueIndex"`
-	Email     string `gorm:"not null;uniqueIndex"`
-	Bio       string
-	AvatarURL string
-	Password  string `gorm:"not null"`
-	Notes     []Note `gorm:"not null"`
+	Name         string `gorm:"not null;uniqueIndex"`
+	Email        string `gorm:"not null;uniqueIndex"`
+	Bio          string
+	AvatarURL    string
+	Password     string `gorm:"not null"`
+	RefreshToken RefreshToken
+	Notes        []Note `gorm:"not null"`
 }
 
-type UserDetails struct {
-	Token     string `json:"token"`
-	ExpiredAt string `json:"expired_at"`
+type RefreshToken struct {
+	UserID uint `gorm:"primarykey"`
+	Token  string
+}
+
+type UserToken struct {
+	AccessToken  string  `json:"access_token,omitempty"`
+	RefreshToken string  `json:"refresh_token,omitempty"`
+	Claims       *Claims `json:"claims,omitempty"`
 }
 
 type UserRegisterRequest struct {
@@ -52,6 +59,7 @@ type UserResponse struct {
 	AvatarURL string    `json:"avatar_url,omitempty"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+	UserToken UserToken `json:"tokens,omitempty"`
 }
 
 type UserPaginationResponse struct {

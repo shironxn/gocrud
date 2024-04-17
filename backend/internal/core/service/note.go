@@ -17,17 +17,17 @@ func NewNoteService(repository port.NoteRepository) port.NoteService {
 	}
 }
 
-func (n *NoteService) Create(req domain.NoteRequest) (*domain.Note, error) {
-	return n.repository.Create(req)
+func (h *NoteService) Create(req domain.NoteRequest) (*domain.Note, error) {
+	return h.repository.Create(req)
 }
 
-func (n *NoteService) GetAll(req domain.NoteQuery, metadata *domain.Metadata) ([]domain.Note, error) {
-	data, err := n.repository.GetAll(req, metadata)
+func (h *NoteService) GetAll(req domain.NoteQuery, metadata *domain.Metadata) ([]domain.Note, error) {
+	data, err := h.repository.GetAll(req, metadata)
 	return data, err
 }
 
-func (n *NoteService) GetByID(req domain.NoteRequest, claims *domain.Claims) (*domain.Note, error) {
-	data, err := n.repository.GetByID(req)
+func (h *NoteService) GetByID(id uint, claims *domain.Claims) (*domain.Note, error) {
+	data, err := h.repository.GetByID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -39,8 +39,8 @@ func (n *NoteService) GetByID(req domain.NoteRequest, claims *domain.Claims) (*d
 	return data, nil
 }
 
-func (n *NoteService) Update(req domain.NoteRequest, claims domain.Claims) (*domain.Note, error) {
-	note, err := n.repository.GetByID(req)
+func (h *NoteService) Update(req domain.NoteRequest, claims domain.Claims) (*domain.Note, error) {
+	note, err := h.repository.GetByID(req.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -49,12 +49,11 @@ func (n *NoteService) Update(req domain.NoteRequest, claims domain.Claims) (*dom
 		return nil, fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")
 	}
 
-	return n.repository.Update(req, note)
-
+	return h.repository.Update(req, note)
 }
 
-func (n *NoteService) Delete(req domain.NoteRequest, claims domain.Claims) error {
-	note, err := n.repository.GetByID(req)
+func (h *NoteService) Delete(id uint, claims domain.Claims) error {
+	note, err := h.repository.GetByID(id)
 	if err != nil {
 		return err
 	}
@@ -63,5 +62,5 @@ func (n *NoteService) Delete(req domain.NoteRequest, claims domain.Claims) error
 		return fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")
 	}
 
-	return n.repository.Delete(note)
+	return h.repository.Delete(note)
 }

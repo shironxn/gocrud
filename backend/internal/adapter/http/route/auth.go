@@ -7,11 +7,11 @@ import (
 )
 
 type AuthRoute struct {
-	handler    port.UserHandler
+	handler    port.AuthHandler
 	middleware port.Middleware
 }
 
-func NewAuthRoute(handler port.UserHandler, middleware port.Middleware) AuthRoute {
+func NewAuthRoute(handler port.AuthHandler, middleware port.Middleware) AuthRoute {
 	return AuthRoute{
 		handler:    handler,
 		middleware: middleware,
@@ -25,4 +25,5 @@ func (a *AuthRoute) Route(app *fiber.App) {
 	v1.Post("/register", a.handler.Register)
 	v1.Post("/login", a.handler.Login)
 	v1.Post("/logout", a.middleware.Auth(), a.handler.Logout)
+	v1.Post("/refresh", a.handler.Refresh)
 }

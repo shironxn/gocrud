@@ -20,40 +20,16 @@ func NewUserService(repository port.UserRepository, bcrypt util.Bcrypt) port.Use
 	}
 }
 
-func (u *UserService) Create(req domain.UserRegisterRequest) (*domain.User, error) {
-	hashedPassword, err := u.bcrypt.HashPassword(req.Password)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Password = string(hashedPassword)
-
-	return u.repository.Create(req)
+func (h *UserService) GetAll(req domain.UserQuery, metdata *domain.Metadata) ([]domain.User, error) {
+	return h.repository.GetAll(req, metdata)
 }
 
-func (u *UserService) Login(req domain.UserLoginRequest) (*domain.User, error) {
-	data, err := u.repository.GetByEmail(domain.UserRequest{Email: req.Email})
-	if err != nil {
-		return nil, err
-	}
-
-	if err := u.bcrypt.ComparePassword(req.Password, []byte(data.Password)); err != nil {
-		return nil, fiber.NewError(fiber.StatusUnauthorized, "invalid password")
-	}
-
-	return data, nil
+func (h *UserService) GetByID(id uint) (*domain.User, error) {
+	return h.repository.GetByID(id)
 }
 
-func (u *UserService) GetAll(req domain.UserQuery, metdata *domain.Metadata) ([]domain.User, error) {
-	return u.repository.GetAll(req, metdata)
-}
-
-func (u *UserService) GetByID(req domain.UserRequest) (*domain.User, error) {
-	return u.repository.GetByID(req)
-}
-
-func (u *UserService) Update(req domain.UserRequest, claims domain.Claims) (*domain.User, error) {
-	user, err := u.repository.GetByID(req)
+func (h *UserService) Update(req domain.UserRequest, claims domain.Claims) (*domain.User, error) {
+	user, err := h.repository.GetByID(req.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -63,18 +39,18 @@ func (u *UserService) Update(req domain.UserRequest, claims domain.Claims) (*dom
 	}
 
 	if req.Password != "" {
-		hashedPassword, err := u.bcrypt.HashPassword(req.Password)
+		hashedPassword, err := h.bcrypt.HashPassword(req.Password)
 		if err != nil {
 			return nil, err
 		}
 		req.Password = string(hashedPassword)
 	}
 
-	return u.repository.Update(req, user)
+	return h.repository.Update(req, user)
 }
 
-func (u *UserService) Delete(req domain.UserRequest, claims domain.Claims) error {
-	user, err := u.repository.GetByID(req)
+func (h *UserService) Delete(req domain.UserRequest, claims domain.Claims) error {
+	user, err := h.repository.GetByID(req.ID)
 	if err != nil {
 		return err
 	}
@@ -83,5 +59,5 @@ func (u *UserService) Delete(req domain.UserRequest, claims domain.Claims) error
 		return fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")
 	}
 
-	return u.repository.Delete(user)
+	return h.repository.Delete(user)
 }

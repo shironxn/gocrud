@@ -2,9 +2,7 @@ package repository
 
 import (
 	"errors"
-	"strings"
 
-	"github.com/go-sql-driver/mysql"
 	"github.com/shironxn/gocrud/internal/core/domain"
 	"github.com/shironxn/gocrud/internal/core/port"
 	"github.com/shironxn/gocrud/internal/util"
@@ -25,33 +23,12 @@ func NewUserRepository(db *gorm.DB, pagination util.Pagination) port.UserReposit
 	}
 }
 
-func (u *UserRepository) Create(req domain.UserRegisterRequest) (*domain.User, error) {
-	entity := domain.User{
-		Name:     req.Name,
-		Email:    req.Email,
-		Password: req.Password,
-	}
-	if err := u.db.Create(&entity).Error; err != nil {
-		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
-			if strings.Contains(mysqlErr.Message, "name") {
-				return nil, fiber.NewError(fiber.StatusBadRequest, "user with the same name already exists")
-			}
-			if strings.Contains(mysqlErr.Message, "email") {
-				return nil, fiber.NewError(fiber.StatusBadRequest, "user with the same email already exists")
-			}
-		}
-		return nil, err
-	}
-	return &entity, nil
-}
-
-func (u *UserRepository) GetAll(req domain.UserQuery, metadata *domain.Metadata) ([]domain.User, error) {
+func (r *UserRepository) GetAll(req domain.UserQuery, metadata *domain.Metadata) ([]domain.User, error) {
 	var entities []domain.User
-	if err := u.db.Model(&domain.User{}).
+	if err := r.db.Model(&domain.User{}).
 		Where(&req).
 		Count(&metadata.TotalRecords).
-		Scopes(u.pagination.Paginate(metadata)).
+		Scopes(r.pagination.Paginate(metadata)).
 		Find(&entities).
 		Error; err != nil {
 		return nil, err
@@ -59,9 +36,9 @@ func (u *UserRepository) GetAll(req domain.UserQuery, metadata *domain.Metadata)
 	return entities, nil
 }
 
-func (u *UserRepository) GetByID(req domain.UserRequest) (*domain.User, error) {
+func (r *UserRepository) GetByID(id uint) (*domain.User, error) {
 	var entity domain.User
-	if err := u.db.First(&entity, req.ID).Error; err != nil {
+	if err := r.db.First(&entity, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fiber.NewError(fiber.StatusNotFound, "user not found")
 		}
@@ -70,19 +47,8 @@ func (u *UserRepository) GetByID(req domain.UserRequest) (*domain.User, error) {
 	return &entity, nil
 }
 
-func (u *UserRepository) GetByEmail(req domain.UserRequest) (*domain.User, error) {
-	var entity domain.User
-	if err := u.db.Where("email = ?", req.Email).First(&entity).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fiber.NewError(fiber.StatusNotFound, "user not found")
-		}
-		return nil, err
-	}
-	return &entity, nil
-}
-
-func (u *UserRepository) Update(req domain.UserRequest, entity *domain.User) (*domain.User, error) {
-	if err := u.db.Model(entity).Updates(req).Error; err != nil {
+func (r *UserRepository) Update(req domain.UserRequest, entity *domain.User) (*domain.User, error) {
+	if err := r.db.Model(entity).Updates(req).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fiber.NewError(fiber.StatusNotFound, "user not found")
 		}
@@ -91,8 +57,8 @@ func (u *UserRepository) Update(req domain.UserRequest, entity *domain.User) (*d
 	return entity, nil
 }
 
-func (u *UserRepository) Delete(entity *domain.User) error {
-	if err := u.db.Delete(entity).Error; err != nil {
+func (r *UserRepository) Delete(entity *domain.User) error {
+	if err := r.db.Delete(entity).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return fiber.NewError(fiber.StatusNotFound, "user not found")
 		}

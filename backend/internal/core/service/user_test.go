@@ -79,12 +79,12 @@ func TestUserService_Create(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &UserService{
+			h := &UserService{
 				repository: tt.fields.repository,
 				bcrypt:     tt.fields.bcrypt,
 			}
 
-			got, err := u.Create(tt.args.req)
+			got, err := h.Create(tt.args.req)
 
 			if tt.wantErr {
 				assert.Error(t, err)
@@ -171,12 +171,12 @@ func TestUserService_Login(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &UserService{
+			h := &UserService{
 				repository: tt.fields.repository,
 				bcrypt:     tt.fields.bcrypt,
 			}
 
-			got, err := u.Login(tt.args.req)
+			got, err := h.Login(tt.args.req)
 
 			if tt.wantErr {
 				assert.Error(t, err)
@@ -243,11 +243,11 @@ func TestUserService_GetAll(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &UserService{
+			h := &UserService{
 				repository: tt.fields.repository,
 			}
 
-			got, err := u.GetAll(tt.args.req, &tt.args.metadata)
+			got, err := h.GetAll(tt.args.req, &tt.args.metadata)
 
 			if tt.wantErr {
 				assert.Error(t, err)
@@ -309,11 +309,11 @@ func TestUserService_GetByID(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &UserService{
+			h := &UserService{
 				repository: tt.fields.repository,
 			}
 
-			got, err := u.GetByID(tt.args.req)
+			got, err := h.GetByID(tt.args.req)
 
 			if tt.wantErr {
 				assert.Error(t, err)
@@ -417,12 +417,12 @@ func TestUserService_Update(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &UserService{
+			h := &UserService{
 				repository: tt.fields.repository,
 				bcrypt:     tt.fields.bcrypt,
 			}
 
-			got, err := u.Update(tt.args.req, tt.args.claims)
+			got, err := h.Update(tt.args.req, tt.args.claims)
 
 			if tt.wantErr {
 				assert.Error(t, err)
@@ -522,11 +522,11 @@ func TestUserService_Delete(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &UserService{
+			h := &UserService{
 				repository: tt.fields.repository,
 			}
 
-			err := u.Delete(tt.args.req, tt.args.claims)
+			err := h.Delete(tt.args.req, tt.args.claims)
 
 			if tt.wantErr {
 				assert.Error(t, err)
