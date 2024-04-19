@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/shironxn/gocrud/internal/config"
 	"github.com/shironxn/gocrud/internal/core/domain"
 	"github.com/shironxn/gocrud/internal/core/port"
@@ -12,10 +13,10 @@ type AuthService struct {
 	repository port.AuthRepository
 	bcrypt     util.Bcrypt
 	jwt        util.JWT
-	cfg        config.Config
+	cfg        *config.Config
 }
 
-func NewAuthService(repository port.AuthRepository, bcrypt util.Bcrypt, jwt util.JWT, cfg config.Config) port.AuthService {
+func NewAuthService(repository port.AuthRepository, bcrypt util.Bcrypt, jwt util.JWT, cfg *config.Config) port.AuthService {
 	return &AuthService{
 		repository: repository,
 		bcrypt:     bcrypt,
@@ -80,6 +81,8 @@ func (s *AuthService) Refresh(token string) (*string, *domain.Claims, error) {
 	if err != nil {
 		return nil, nil, err
 	}
+
+	log.Info("refr esh anjayyy")
 
 	refresh, err := s.repository.GetRefreshToken(claims.UserID)
 	if err != nil {

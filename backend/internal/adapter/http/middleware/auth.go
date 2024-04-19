@@ -9,22 +9,22 @@ import (
 )
 
 type AuthMiddleware struct {
-	jwt util.JWT
-	cfg *config.Config
+	jwt    util.JWT
+	config *config.Config
 }
 
-func NewAuthMiddleware(jwt util.JWT, cfg *config.Config) port.Middleware {
+func NewAuthMiddleware(jwt util.JWT, config *config.Config) port.Middleware {
 	return &AuthMiddleware{
-		jwt: jwt,
-		cfg: cfg,
+		jwt:    jwt,
+		config: config,
 	}
 }
 
-func (a *AuthMiddleware) Auth() fiber.Handler {
+func (m *AuthMiddleware) Auth() fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		cookie := ctx.Cookies("access-token")
 
-		claims, err := a.jwt.ValidateToken(cookie, a.cfg.JWT.Access)
+		claims, err := m.jwt.ValidateToken(cookie, m.config.JWT.Access)
 		if err != nil {
 			return fiber.NewError(fiber.StatusUnauthorized, "unauthorized access")
 		}

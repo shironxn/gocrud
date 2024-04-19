@@ -6,10 +6,10 @@ import (
 )
 
 type Pagination struct {
-	validator Validator
+	validator *Validator
 }
 
-func NewPagination(validator Validator) Pagination {
+func NewPagination(validator *Validator) Pagination {
 	return Pagination{
 		validator: validator,
 	}
@@ -25,6 +25,10 @@ func (p *Pagination) Paginate(metadata *domain.Metadata) func(db *gorm.DB) *gorm
 		}
 
 		metadata.TotalPage = int(metadata.TotalRecords) / metadata.Limit
+		if metadata.TotalPage < 1 {
+			metadata.TotalPage = 1
+		}
+
 		switch {
 		case metadata.Page > metadata.TotalPage:
 			metadata.Page = metadata.TotalPage

@@ -18,7 +18,7 @@ import (
 // @title gocrud
 // @version 1.0
 // @description golang crud api
-// @host localhost:3000
+// @host {host}:{port}
 // @BasePath /api/v1
 func main() {
 	cfg, err := config.NewConfig()
@@ -40,19 +40,19 @@ func main() {
 	app := config.NewFiber()
 	bcrypt := util.NewBcrypt()
 	jwt := util.NewJWT(cfg)
-	pagination := util.NewPagination(*validator)
+	pagination := util.NewPagination(validator)
 
 	userRepository := repository.NewUserRepository(db, pagination)
 	userService := service.NewUserService(userRepository, bcrypt)
-	userHandler := handler.NewUserHandler(userService, *validator, jwt)
+	userHandler := handler.NewUserHandler(userService, validator, jwt)
 
 	authRepository := repository.NewAuthRepository(db)
-	authService := service.NewAuthService(authRepository, bcrypt, jwt, *cfg)
-	authHandler := handler.NewAuthHandler(authService, jwt, *validator)
+	authService := service.NewAuthService(authRepository, bcrypt, jwt, cfg)
+	authHandler := handler.NewAuthHandler(authService, jwt, validator, cfg)
 
 	noteRepository := repository.NewNoteRepository(db, pagination)
 	noteService := service.NewNoteService(noteRepository)
-	noteHandler := handler.NewNoteHandler(noteService, *validator, jwt, cfg)
+	noteHandler := handler.NewNoteHandler(noteService, validator, jwt, cfg)
 
 	authMiddleware := middleware.NewAuthMiddleware(jwt, cfg)
 

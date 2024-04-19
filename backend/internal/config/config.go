@@ -26,18 +26,18 @@ type Config struct {
 }
 
 var (
-	cfg *Config
+	config *Config
 )
 
 func NewConfig() (*Config, error) {
 	if err := LoadConfig(); err != nil {
 		return nil, err
 	}
-	return cfg, nil
+	return config, nil
 }
 
 func LoadConfig() error {
-	if cfg != nil {
+	if config != nil {
 		return nil
 	}
 
@@ -51,7 +51,7 @@ func LoadConfig() error {
 		}
 	}
 
-	cfg = &Config{
+	config = &Config{
 		Server: struct {
 			Host string
 			Port string

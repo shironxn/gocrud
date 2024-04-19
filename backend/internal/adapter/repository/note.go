@@ -37,7 +37,7 @@ func (r *NoteRepository) Create(req domain.NoteRequest) (*domain.Note, error) {
 		Visibility: req.Visibility,
 		UserID:     req.UserID,
 	}
-	if err := r.db.Create(&entity).Error; err != nil {
+	if err := r.db.Create(&entity).Preload("Author").Find(&entity).Error; err != nil {
 		return nil, err
 	}
 	return &entity, nil
@@ -47,6 +47,7 @@ func (r *NoteRepository) GetAll(req domain.NoteQuery, metadata *domain.Metadata)
 	var entity []domain.Note
 	if err := r.db.
 		Model(&domain.Note{}).
+		Preload("Author").
 		Where(&req).
 		Count(&metadata.TotalRecords).
 		Scopes(r.pagination.Paginate(metadata)).

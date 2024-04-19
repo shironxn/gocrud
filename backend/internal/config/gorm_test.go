@@ -10,10 +10,10 @@ import (
 
 func TestDB_Connection(t *testing.T) {
 	type fields struct {
-		cfg *Config
+		config *Config
 	}
 
-	cfg, err := NewConfig()
+	config, err := NewConfig()
 	require.NoError(t, err)
 
 	tests := []struct {
@@ -25,7 +25,7 @@ func TestDB_Connection(t *testing.T) {
 		{
 			name: "success",
 			fields: fields{
-				cfg: cfg,
+				config: config,
 			},
 			want:    &gorm.DB{},
 			wantErr: false,
@@ -33,7 +33,7 @@ func TestDB_Connection(t *testing.T) {
 		{
 			name: "error",
 			fields: fields{
-				cfg: &Config{},
+				config: &Config{},
 			},
 			want:    nil,
 			wantErr: true,
@@ -42,7 +42,7 @@ func TestDB_Connection(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := &DB{
-				cfg: tt.fields.cfg,
+				config: tt.fields.config,
 			}
 			got, err := d.Connection()
 

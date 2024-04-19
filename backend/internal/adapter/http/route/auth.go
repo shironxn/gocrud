@@ -18,12 +18,12 @@ func NewAuthRoute(handler port.AuthHandler, middleware port.Middleware) AuthRout
 	}
 }
 
-func (a *AuthRoute) Route(app *fiber.App) {
+func (r *AuthRoute) Route(app *fiber.App) {
 	api := app.Group("/api")
 
 	v1 := api.Group("/v1/auth")
-	v1.Post("/register", a.handler.Register)
-	v1.Post("/login", a.handler.Login)
-	v1.Post("/logout", a.middleware.Auth(), a.handler.Logout)
-	v1.Post("/refresh", a.handler.Refresh)
+	v1.Post("/register", r.handler.Register)
+	v1.Post("/login", r.handler.Login)
+	v1.Post("/logout", r.middleware.Auth(), r.handler.Logout)
+	v1.Post("/refresh", r.handler.Refresh)
 }

@@ -18,7 +18,7 @@ func NewInitRoute() InitRoute {
 	return InitRoute{}
 }
 
-func (a *InitRoute) Route(app *fiber.App) {
+func (r *InitRoute) Route(app *fiber.App) {
 	app.Use(cors.New(
 		cors.Config{
 			AllowOrigins:     "http://localhost:3001",

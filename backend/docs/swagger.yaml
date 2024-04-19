@@ -1,5 +1,10 @@
 basePath: /api/v1
 definitions:
+  domain.Claims:
+    properties:
+      user_id:
+        type: integer
+    type: object
   domain.ErrorValidationResponse:
     properties:
       errors:
@@ -13,12 +18,33 @@ definitions:
     properties:
       limit:
         type: integer
+      order:
+        enum:
+        - asc
+        - desc
+        type: string
       page:
         type: integer
+      sort:
+        enum:
+        - id
+        - user_id
+        - name
+        - title
+        - created_at
+        - updated_at
+        type: string
       total_page:
         type: integer
       total_records:
         type: integer
+    type: object
+  domain.NoteAuthor:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
     type: object
   domain.NotePaginationResponse:
     properties:
@@ -48,6 +74,8 @@ definitions:
     type: object
   domain.NoteResponse:
     properties:
+      author:
+        $ref: '#/definitions/domain.NoteAuthor'
       content:
         type: string
       created_at:
@@ -58,8 +86,6 @@ definitions:
         type: string
       updated_at:
         type: string
-      user_id:
-        type: integer
       visibility:
         type: string
     type: object
@@ -79,6 +105,15 @@ definitions:
     - email
     - password
     type: object
+  domain.UserPaginationResponse:
+    properties:
+      metadata:
+        $ref: '#/definitions/domain.Metadata'
+      users:
+        items:
+          $ref: '#/definitions/domain.UserResponse'
+        type: array
+    type: object
   domain.UserRegisterRequest:
     properties:
       email:
@@ -96,6 +131,26 @@ definitions:
     - name
     - password
     type: object
+  domain.UserRequest:
+    properties:
+      avatar_url:
+        type: string
+      bio:
+        maxLength: 50
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        maxLength: 30
+        minLength: 4
+        type: string
+      password:
+        maxLength: 100
+        minLength: 8
+        type: string
+    type: object
   domain.UserResponse:
     properties:
       avatar_url:
@@ -108,7 +163,18 @@ definitions:
         type: integer
       name:
         type: string
+      tokens:
+        $ref: '#/definitions/domain.UserToken'
       updated_at:
+        type: string
+    type: object
+  domain.UserToken:
+    properties:
+      access_token:
+        type: string
+      claims:
+        $ref: '#/definitions/domain.Claims'
+      refresh_token:
         type: string
     type: object
   domain.ValidationError:
@@ -118,7 +184,7 @@ definitions:
       field:
         type: string
     type: object
-host: localhost:3000
+host: '{host}:{port}'
 info:
   contact: {}
   description: golang crud api
@@ -144,10 +210,6 @@ paths:
           description: Successfully logged in
           schema:
             $ref: '#/definitions/domain.UserResponse'
-        "400":
-          description: Validation error
-          schema:
-            $ref: '#/definitions/domain.ErrorValidationResponse'
       summary: User login
       tags:
       - auth
@@ -162,6 +224,19 @@ paths:
           schema:
             $ref: '#/definitions/domain.SuccessResponse'
       summary: User logout
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      description: Refresh the access token using the refresh token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully refreshed token
+          schema:
+            $ref: '#/definitions/domain.SuccessResponse'
+      summary: Refresh access token
       tags:
       - auth
   /auth/register:
@@ -183,14 +258,47 @@ paths:
           description: Successfully registered a new user
           schema:
             $ref: '#/definitions/domain.UserResponse'
-        "400":
-          description: Validation error
-          schema:
-            $ref: '#/definitions/domain.ErrorValidationResponse'
       summary: Register a new user
       tags:
       - auth
-  /note:
+  /notes:
+    get:
+      description: Retrieve all available notes
+      parameters:
+      - description: Filter notes by title
+        in: query
+        name: title
+        type: string
+      - description: Filter notes by author
+        in: query
+        name: author
+        type: string
+      - description: Filter notes by user ID
+        in: query
+        name: user_id
+        type: string
+      - description: Filter notes by visibility
+        in: query
+        name: visibility
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved all notes
+          schema:
+            $ref: '#/definitions/domain.NotePaginationResponse'
+      summary: Get all notes
+      tags:
+      - note
     post:
       consumes:
       - application/json
@@ -212,7 +320,7 @@ paths:
       summary: Create a new note
       tags:
       - note
-  /note/{id}:
+  /notes/{id}:
     delete:
       description: Delete an existing note based on the provided ID
       parameters:
@@ -240,6 +348,14 @@ paths:
         in: path
         name: id
         required: true
+        type: integer
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
         type: integer
       produces:
       - application/json
@@ -277,31 +393,26 @@ paths:
       summary: Update a note by ID
       tags:
       - note
-  /notes:
-    get:
-      description: Retrieve all available notes
-      parameters:
-      - description: Filter notes by title
-        in: query
-        name: domain.NoteRequest
-        type: string
-      - description: Filter notes by user ID
-        in: query
-        name: user_id
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully retrieved all notes
-          schema:
-            $ref: '#/definitions/domain.NotePaginationResponse'
-      summary: Get all notes
-      tags:
-      - note
-  /user:
+  /users:
     get:
       description: Retrieve data of all registered users
+      parameters:
+      - description: Filter users by ID
+        in: query
+        name: id
+        type: integer
+      - description: Filter users by name
+        in: query
+        name: name
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -309,16 +420,12 @@ paths:
           description: Successfully retrieved all user data
           schema:
             items:
-              $ref: '#/definitions/domain.UserResponse'
+              $ref: '#/definitions/domain.UserPaginationResponse'
             type: array
-        "400":
-          description: Validation error
-          schema:
-            $ref: '#/definitions/domain.ErrorValidationResponse'
       summary: Get all users
       tags:
       - user
-  /user/{id}:
+  /users/{id}:
     delete:
       description: Delete an existing user based on the provided ID
       parameters:
@@ -345,6 +452,14 @@ paths:
         name: id
         required: true
         type: integer
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -353,6 +468,36 @@ paths:
           schema:
             $ref: '#/definitions/domain.UserResponse'
       summary: Get a user by ID
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      description: Update data of an existing user based on the provided ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated user data object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated user by ID
+          schema:
+            $ref: '#/definitions/domain.UserResponse'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/domain.ErrorValidationResponse'
+      summary: Update user data by ID
       tags:
       - user
 swagger: "2.0"

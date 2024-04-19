@@ -45,12 +45,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/domain.UserResponse"
                         }
-                    },
-                    "400": {
-                        "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorValidationResponse"
-                        }
                     }
                 }
             }
@@ -68,6 +62,26 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "Successfully logged out",
+                        "schema": {
+                            "$ref": "#/definitions/domain.SuccessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "description": "Refresh the access token using the refresh token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Refresh access token",
+                "responses": {
+                    "200": {
+                        "description": "Successfully refreshed token",
                         "schema": {
                             "$ref": "#/definitions/domain.SuccessResponse"
                         }
@@ -105,17 +119,67 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/domain.UserResponse"
                         }
-                    },
-                    "400": {
-                        "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorValidationResponse"
-                        }
                     }
                 }
             }
         },
-        "/note": {
+        "/notes": {
+            "get": {
+                "description": "Retrieve all available notes",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "note"
+                ],
+                "summary": "Get all notes",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter notes by title",
+                        "name": "title",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter notes by author",
+                        "name": "author",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter notes by user ID",
+                        "name": "user_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter notes by visibility",
+                        "name": "visibility",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved all notes",
+                        "schema": {
+                            "$ref": "#/definitions/domain.NotePaginationResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create a new note with the specified title, content, and visibility",
                 "consumes": [
@@ -149,7 +213,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/note/{id}": {
+        "/notes/{id}": {
             "get": {
                 "description": "Retrieve a note based on the provided ID",
                 "consumes": [
@@ -169,6 +233,18 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -247,41 +323,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/notes": {
-            "get": {
-                "description": "Retrieve all available notes",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "note"
-                ],
-                "summary": "Get all notes",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Filter notes by title",
-                        "name": "domain.NoteRequest",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter notes by user ID",
-                        "name": "user_id",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully retrieved all notes",
-                        "schema": {
-                            "$ref": "#/definitions/domain.NotePaginationResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/user": {
+        "/users": {
             "get": {
                 "description": "Retrieve data of all registered users",
                 "produces": [
@@ -291,26 +333,46 @@ const docTemplate = `{
                     "user"
                 ],
                 "summary": "Get all users",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Filter users by ID",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter users by name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successfully retrieved all user data",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.UserResponse"
+                                "$ref": "#/definitions/domain.UserPaginationResponse"
                             }
-                        }
-                    },
-                    "400": {
-                        "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorValidationResponse"
                         }
                     }
                 }
             }
         },
-        "/user/{id}": {
+        "/users/{id}": {
             "get": {
                 "description": "Retrieve data of a user based on the provided ID",
                 "produces": [
@@ -327,6 +389,18 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -334,6 +408,51 @@ const docTemplate = `{
                         "description": "Successfully retrieved user by ID",
                         "schema": {
                             "$ref": "#/definitions/domain.UserResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update data of an existing user based on the provided ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Update user data by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated user data object",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.UserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated user by ID",
+                        "schema": {
+                            "$ref": "#/definitions/domain.UserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/domain.ErrorValidationResponse"
                         }
                     }
                 }
@@ -368,6 +487,14 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "domain.Claims": {
+            "type": "object",
+            "properties": {
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "domain.ErrorValidationResponse": {
             "type": "object",
             "properties": {
@@ -388,14 +515,43 @@ const docTemplate = `{
                 "limit": {
                     "type": "integer"
                 },
+                "order": {
+                    "type": "string",
+                    "enum": [
+                        "asc",
+                        "desc"
+                    ]
+                },
                 "page": {
                     "type": "integer"
+                },
+                "sort": {
+                    "type": "string",
+                    "enum": [
+                        "id",
+                        "user_id",
+                        "name",
+                        "title",
+                        "created_at",
+                        "updated_at"
+                    ]
                 },
                 "total_page": {
                     "type": "integer"
                 },
                 "total_records": {
                     "type": "integer"
+                }
+            }
+        },
+        "domain.NoteAuthor": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
@@ -441,6 +597,9 @@ const docTemplate = `{
         "domain.NoteResponse": {
             "type": "object",
             "properties": {
+                "author": {
+                    "$ref": "#/definitions/domain.NoteAuthor"
+                },
                 "content": {
                     "type": "string"
                 },
@@ -455,9 +614,6 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
                 },
                 "visibility": {
                     "type": "string"
@@ -488,6 +644,20 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.UserPaginationResponse": {
+            "type": "object",
+            "properties": {
+                "metadata": {
+                    "$ref": "#/definitions/domain.Metadata"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.UserResponse"
+                    }
+                }
+            }
+        },
         "domain.UserRegisterRequest": {
             "type": "object",
             "required": [
@@ -498,6 +668,34 @@ const docTemplate = `{
             "properties": {
                 "email": {
                     "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 30,
+                    "minLength": 4
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 8
+                }
+            }
+        },
+        "domain.UserRequest": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "bio": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string",
@@ -529,7 +727,24 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "tokens": {
+                    "$ref": "#/definitions/domain.UserToken"
+                },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.UserToken": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "claims": {
+                    "$ref": "#/definitions/domain.Claims"
+                },
+                "refresh_token": {
                     "type": "string"
                 }
             }
@@ -551,7 +766,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:3000",
+	Host:             "{host}:{port}",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "gocrud",

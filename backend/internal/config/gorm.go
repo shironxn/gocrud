@@ -8,22 +8,22 @@ import (
 )
 
 type DB struct {
-	cfg *Config
+	config *Config
 }
 
-func NewGorm(cfg *Config) *DB {
+func NewGorm(config *Config) *DB {
 	return &DB{
-		cfg: cfg,
+		config: config,
 	}
 }
 
 func (d *DB) Connection() (*gorm.DB, error) {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		d.cfg.Database.User,
-		d.cfg.Database.Pass,
-		d.cfg.Database.Host,
-		d.cfg.Database.Port,
-		d.cfg.Database.Name,
+		d.config.Database.User,
+		d.config.Database.Pass,
+		d.config.Database.Host,
+		d.config.Database.Port,
+		d.config.Database.Name,
 	)
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{TranslateError: false})

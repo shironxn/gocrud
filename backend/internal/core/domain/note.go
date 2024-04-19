@@ -12,6 +12,7 @@ type Note struct {
 	Content    string `gorm:"not null"`
 	Visibility string `gorm:"not null;type:enum('public','private');default:'private'"`
 	UserID     uint   `gorm:"not null"`
+	Author     User   `gorm:"foreignKey:UserID"`
 }
 
 type NoteRequest struct {
@@ -28,14 +29,19 @@ type NoteQuery struct {
 	UserID     string `query:"user_id"`
 }
 
+type NoteAuthor struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
+}
+
 type NoteResponse struct {
-	ID         uint      `json:"id"`
-	Title      string    `json:"title"`
-	Content    string    `json:"content"`
-	Visibility string    `json:"visibility"`
-	UserID     uint      `json:"user_id,omitempty"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	ID         uint       `json:"id"`
+	Title      string     `json:"title"`
+	Content    string     `json:"content"`
+	Visibility string     `json:"visibility"`
+	Author     NoteAuthor `json:"author"`
+	CreatedAt  time.Time  `json:"created_at"`
+	UpdatedAt  time.Time  `json:"updated_at"`
 }
 
 type NotePaginationResponse struct {

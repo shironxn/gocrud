@@ -16,12 +16,12 @@ import (
 
 type NoteHandler struct {
 	service   port.NoteService
-	validator util.Validator
+	validator *util.Validator
 	jwt       util.JWT
 	cfg       *config.Config
 }
 
-func NewNoteHandler(service port.NoteService, validator util.Validator, jwt util.JWT, cfg *config.Config) port.NoteHandler {
+func NewNoteHandler(service port.NoteService, validator *util.Validator, jwt util.JWT, cfg *config.Config) port.NoteHandler {
 	return &NoteHandler{
 		service:   service,
 		validator: validator,
@@ -68,9 +68,12 @@ func (h *NoteHandler) Create(ctx *fiber.Ctx) error {
 				Title:      result.Title,
 				Content:    result.Content,
 				Visibility: result.Visibility,
-				UserID:     result.UserID,
-				UpdatedAt:  result.UpdatedAt,
-				CreatedAt:  result.CreatedAt,
+				Author: domain.NoteAuthor{
+					ID:   result.Author.ID,
+					Name: result.Author.Name,
+				},
+				UpdatedAt: result.UpdatedAt,
+				CreatedAt: result.CreatedAt,
 			},
 		},
 	)
@@ -81,8 +84,11 @@ func (h *NoteHandler) Create(ctx *fiber.Ctx) error {
 // @Tags note
 // @Produce json
 // @Param title query string false "Filter notes by title"
+// @Param author query string false "Filter notes by author"
 // @Param user_id query string false "Filter notes by user ID"
 // @Param visibility query string false "Filter notes by visibility"
+// @Param page query int false "Page number"
+// @Param limit query int false "Number of items per page"
 // @Success 200 {object} domain.NotePaginationResponse "Successfully retrieved all notes"
 // @Router /notes [get]
 func (h *NoteHandler) GetAll(ctx *fiber.Ctx) error {
@@ -98,18 +104,12 @@ func (h *NoteHandler) GetAll(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	switch {
-	case req.Visibility == "private" || req.UserID != "" || req.Title != "":
-		cookie := ctx.Cookies("token")
-		claims, err := h.jwt.ValidateToken(cookie, h.cfg.JWT.Access)
-		if err != nil {
-			req.Visibility = "public"
-			break
-		}
-		if req.UserID == claims.ID {
-			req.UserID = strconv.Itoa(int(claims.UserID))
-		}
-	default:
+	cookie := ctx.Cookies("access-token")
+	claims, _ := h.jwt.ValidateToken(cookie, h.cfg.JWT.Access)
+	if claims != nil && req.Visibility == "private" {
+		req.UserID = strconv.Itoa(int(claims.UserID))
+		req.Visibility = "private"
+	} else {
 		req.Visibility = "public"
 	}
 
@@ -124,9 +124,12 @@ func (h *NoteHandler) GetAll(ctx *fiber.Ctx) error {
 			Title:      note.Title,
 			Content:    note.Content,
 			Visibility: note.Visibility,
-			UserID:     note.UserID,
-			CreatedAt:  note.CreatedAt,
-			UpdatedAt:  note.UpdatedAt,
+			Author: domain.NoteAuthor{
+				ID:   note.Author.ID,
+				Name: note.Author.Name,
+			},
+			CreatedAt: note.CreatedAt,
+			UpdatedAt: note.UpdatedAt,
 		})
 	}
 
@@ -145,6 +148,8 @@ func (h *NoteHandler) GetAll(ctx *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param id path int true "Note ID"
+// @Param page query int false "Page number"
+// @Param limit query int false "Number of items per page"
 // @Success 200 {object} domain.NoteResponse "Successfully retrieved a note by ID"
 // @Router /notes/{id} [get]
 func (h *NoteHandler) GetByID(ctx *fiber.Ctx) error {
@@ -155,7 +160,7 @@ func (h *NoteHandler) GetByID(ctx *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	cookie := ctx.Cookies("token")
+	cookie := ctx.Cookies("access-token")
 	claims, err := h.jwt.ValidateToken(cookie, h.cfg.JWT.Access)
 	if err != nil {
 		data, err := h.service.GetByID(req.ID, nil)
@@ -178,9 +183,12 @@ func (h *NoteHandler) GetByID(ctx *fiber.Ctx) error {
 			Title:      result.Title,
 			Content:    result.Content,
 			Visibility: result.Visibility,
-			UserID:     result.UserID,
-			UpdatedAt:  result.UpdatedAt,
-			CreatedAt:  result.CreatedAt,
+			Author: domain.NoteAuthor{
+				ID:   result.Author.ID,
+				Name: result.Author.Name,
+			},
+			UpdatedAt: result.UpdatedAt,
+			CreatedAt: result.CreatedAt,
 		},
 	})
 }
@@ -231,9 +239,12 @@ func (h *NoteHandler) Update(ctx *fiber.Ctx) error {
 			Title:      result.Title,
 			Content:    result.Content,
 			Visibility: result.Visibility,
-			UserID:     result.UserID,
-			UpdatedAt:  result.UpdatedAt,
-			CreatedAt:  result.CreatedAt,
+			Author: domain.NoteAuthor{
+				ID:   result.Author.ID,
+				Name: result.Author.Name,
+			},
+			UpdatedAt: result.UpdatedAt,
+			CreatedAt: result.CreatedAt,
 		},
 	})
 }

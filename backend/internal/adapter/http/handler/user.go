@@ -13,11 +13,11 @@ import (
 
 type UserHandler struct {
 	service   port.UserService
-	validator util.Validator
+	validator *util.Validator
 	jwt       util.JWT
 }
 
-func NewUserHandler(service port.UserService, validator util.Validator, jwt util.JWT) port.UserHandler {
+func NewUserHandler(service port.UserService, validator *util.Validator, jwt util.JWT) port.UserHandler {
 	return &UserHandler{
 		service:   service,
 		validator: validator,
@@ -25,21 +25,14 @@ func NewUserHandler(service port.UserService, validator util.Validator, jwt util
 	}
 }
 
-// @Summary Register a new user
-// @Description Register a new user with the specified name, email, and password
-// @Tags auth
-// @Accept json
-// @Produce json
-// @Param user body domain.UserRegisterRequest true "User registration request object"
-// @Success 201 {object} domain.UserResponse "Successfully registered a new user"
-// @Router /auth/register [post]
-
 // @Summary Get all users
 // @Description Retrieve data of all registered users
 // @Tags user
 // @Produce json
 // @Param id query int false "Filter users by ID"
 // @Param name query string false "Filter users by name"
+// @Param page query int false "Page number"
+// @Param limit query int false "Number of items per page"
 // @Success 200 {object} []domain.UserPaginationResponse "Successfully retrieved all user data"
 // @Router /users [get]
 func (h *UserHandler) GetAll(ctx *fiber.Ctx) error {
@@ -65,6 +58,8 @@ func (h *UserHandler) GetAll(ctx *fiber.Ctx) error {
 			domain.UserResponse{
 				ID:        user.ID,
 				Name:      user.Name,
+				Bio:       user.Bio,
+				AvatarURL: user.AvatarURL,
 				CreatedAt: user.CreatedAt,
 				UpdatedAt: user.UpdatedAt,
 			})
@@ -84,8 +79,10 @@ func (h *UserHandler) GetAll(ctx *fiber.Ctx) error {
 // @Tags user
 // @Produce json
 // @Param id path int true "User ID"
+// @Param page query int false "Page number"
+// @Param limit query int false "Number of items per page"
 // @Success 200 {object} domain.UserResponse "Successfully retrieved user by ID"
-// @Router /user/{id} [get]
+// @Router /users/{id} [get]
 func (h *UserHandler) GetByID(ctx *fiber.Ctx) error {
 	var req domain.UserRequest
 
@@ -103,6 +100,8 @@ func (h *UserHandler) GetByID(ctx *fiber.Ctx) error {
 		Data: domain.UserResponse{
 			ID:        result.ID,
 			Name:      result.Name,
+			Bio:       result.Bio,
+			AvatarURL: result.AvatarURL,
 			CreatedAt: result.CreatedAt,
 			UpdatedAt: result.UpdatedAt,
 		},
@@ -118,8 +117,7 @@ func (h *UserHandler) GetByID(ctx *fiber.Ctx) error {
 // @Param user body domain.UserRequest true "Updated user data object"
 // @Success 200 {object} domain.UserResponse "Successfully updated user by ID"
 // @Failure 400 {object} domain.ErrorValidationResponse "Validation error"
-// @Router /user/{id} [put]
-
+// @Router /users/{id} [put]
 func (h *UserHandler) Update(ctx *fiber.Ctx) error {
 	var req domain.UserRequest
 
@@ -154,6 +152,8 @@ func (h *UserHandler) Update(ctx *fiber.Ctx) error {
 		Data: domain.UserResponse{
 			ID:        result.ID,
 			Name:      result.Name,
+			Bio:       result.Bio,
+			AvatarURL: result.AvatarURL,
 			CreatedAt: result.CreatedAt,
 			UpdatedAt: result.UpdatedAt,
 		},
@@ -166,7 +166,7 @@ func (h *UserHandler) Update(ctx *fiber.Ctx) error {
 // @Produce json
 // @Param id path int true "User ID"
 // @Success 200 {object} domain.SuccessResponse "Successfully deleted user by ID"
-// @Router /user/{id} [delete]
+// @Router /users/{id} [delete]
 func (h *UserHandler) Delete(ctx *fiber.Ctx) error {
 	var req domain.UserRequest
 
@@ -185,7 +185,14 @@ func (h *UserHandler) Delete(ctx *fiber.Ctx) error {
 	}
 
 	ctx.Cookie(&fiber.Cookie{
-		Name:     "token",
+		Name:     "access-token",
+		Expires:  time.Now().Add(-(time.Hour * 2)),
+		HTTPOnly: true,
+		SameSite: "lax",
+	})
+
+	ctx.Cookie(&fiber.Cookie{
+		Name:     "refresh-token",
 		Expires:  time.Now().Add(-(time.Hour * 2)),
 		HTTPOnly: true,
 		SameSite: "lax",

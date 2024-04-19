@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/shironxn/gocrud/internal/config"
 	"github.com/shironxn/gocrud/internal/core/domain"
 	"github.com/shironxn/gocrud/internal/core/port"
 	"github.com/shironxn/gocrud/internal/util"
@@ -12,21 +13,33 @@ import (
 type AuthHandler struct {
 	service   port.AuthService
 	jwt       util.JWT
-	validator util.Validator
+	validator *util.Validator
+	cfg       *config.Config
 }
 
-func NewAuthHandler(service port.AuthService, jwt util.JWT, validator util.Validator) port.AuthHandler {
+func NewAuthHandler(service port.AuthService, jwt util.JWT, validator *util.Validator, cfg *config.Config) port.AuthHandler {
 	return &AuthHandler{
 		service:   service,
 		jwt:       jwt,
 		validator: validator,
+		cfg:       cfg,
 	}
 }
 
+// @Summary Register a new user
+// @Description Register a new user with the specified name, email, and password
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param user body domain.UserRegisterRequest true "User registration request object"
+// @Success 201 {object} domain.UserResponse "Successfully registered a new user"
+// @Router /auth/register [post]
 func (h *AuthHandler) Register(ctx *fiber.Ctx) error {
 	var req domain.UserRegisterRequest
 
-	if cookie := ctx.Cookies("token"); cookie != "" {
+	cookie := ctx.Cookies("refresh-token")
+	claims, _ := h.jwt.ValidateToken(cookie, h.cfg.JWT.Refresh)
+	if claims != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "user is already registered")
 	}
 
@@ -65,7 +78,9 @@ func (h *AuthHandler) Register(ctx *fiber.Ctx) error {
 func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
 	var req domain.UserLoginRequest
 
-	if cookie := ctx.Cookies("token"); cookie != "" {
+	cookie := ctx.Cookies("refresh-token")
+	claims, _ := h.jwt.ValidateToken(cookie, h.cfg.JWT.Refresh)
+	if claims != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "user is already logged in")
 	}
 
@@ -88,7 +103,6 @@ func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
 		Path:     "/",
 		HTTPOnly: true,
 		Expires:  time.Now().Add(24 * time.Hour),
-		// SameSite: fiber.CookieSameSiteNoneMode,
 	})
 
 	ctx.Cookie(&fiber.Cookie{
@@ -97,7 +111,6 @@ func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
 		Path:     "/",
 		HTTPOnly: true,
 		Expires:  time.Now().Add(10 * time.Minute),
-		// SameSite: fiber.CookieSameSiteNoneMode,
 	})
 
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
@@ -107,7 +120,7 @@ func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
 			Name:      result.Name,
 			CreatedAt: result.CreatedAt,
 			UpdatedAt: result.UpdatedAt,
-			UserToken: *tokens,
+			UserToken: tokens,
 		}},
 	)
 }
@@ -120,10 +133,6 @@ func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
 // @Router /auth/logout [post]
 func (h *AuthHandler) Logout(ctx *fiber.Ctx) error {
 	var req domain.User
-
-	// if cookie := ctx.Cookies("token"); cookie == "" {
-	// 	return fiber.NewError(fiber.StatusBadRequest, "user is already logged out")
-	// }
 
 	ctx.Cookie(&fiber.Cookie{
 		Name:     "refresh-token",
@@ -154,8 +163,15 @@ func (h *AuthHandler) Logout(ctx *fiber.Ctx) error {
 	})
 }
 
+// @Summary Refresh access token
+// @Description Refresh the access token using the refresh token
+// @Tags auth
+// @Produce json
+// @Success 200 {object} domain.SuccessResponse "Successfully refreshed token"
+// @Router /auth/refresh [post]
 func (h *AuthHandler) Refresh(ctx *fiber.Ctx) error {
 	cookie := ctx.Cookies("refresh-token")
+
 	result, claims, err := h.service.Refresh(cookie)
 	if err != nil {
 		return err

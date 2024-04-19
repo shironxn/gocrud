@@ -49,17 +49,18 @@ type UserRequest struct {
 }
 
 type UserQuery struct {
-	Name string `query:"name"`
+	Name    string `query:"name"`
+	Details bool   `query:"details"`
 }
 
 type UserResponse struct {
-	ID        uint      `json:"id"`
-	Name      string    `json:"name"`
-	Bio       string    `json:"bio,omitempty"`
-	AvatarURL string    `json:"avatar_url,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	UserToken UserToken `json:"tokens,omitempty"`
+	ID        uint       `json:"id"`
+	Name      string     `json:"name"`
+	Bio       string     `json:"bio,omitempty"`
+	AvatarURL string     `json:"avatar_url,omitempty"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	UserToken *UserToken `json:"tokens,omitempty"`
 }
 
 type UserPaginationResponse struct {

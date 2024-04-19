@@ -18,12 +18,12 @@ func NewUserRoute(handler port.UserHandler, middleware port.Middleware) UserRout
 	}
 }
 
-func (h *UserRoute) Route(app *fiber.App) {
+func (r *UserRoute) Route(app *fiber.App) {
 	api := app.Group("/api")
 
 	v1 := api.Group("/v1/users")
-	v1.Get("/", h.handler.GetAll)
-	v1.Get("/:id", h.handler.GetByID)
-	v1.Put("/:id", h.middleware.Auth(), h.handler.Update)
-	v1.Delete(":id", h.middleware.Auth(), h.handler.Delete)
+	v1.Get("/", r.handler.GetAll)
+	v1.Get("/:id", r.handler.GetByID)
+	v1.Put("/:id", r.middleware.Auth(), r.handler.Update)
+	v1.Delete(":id", r.middleware.Auth(), r.handler.Delete)
 }
