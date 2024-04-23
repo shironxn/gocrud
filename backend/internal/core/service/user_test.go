@@ -24,172 +24,6 @@ var userEntity = &domain.User{
 	Notes:     []domain.Note{},
 }
 
-func TestUserService_Create(t *testing.T) {
-	type fields struct {
-		repository port.UserRepository
-		bcrypt     util.Bcrypt
-	}
-
-	type args struct {
-		req domain.UserRegisterRequest
-	}
-
-	mockUserRepository := mocks.NewUserRepository(t)
-	bcrypt := util.NewBcrypt()
-
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    interface{}
-		wantErr bool
-	}{
-		{
-			name: "success",
-			fields: fields{
-				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().Create(mock.AnythingOfType("domain.UserRegisterRequest")).Return(userEntity, nil).Once()
-					return mockUserRepository
-				}(),
-				bcrypt: bcrypt,
-			},
-			args: args{
-				req: domain.UserRegisterRequest{
-					Name:     userEntity.Name,
-					Email:    userEntity.Email,
-					Password: "password123",
-				},
-			},
-			want:    userEntity,
-			wantErr: false,
-		},
-		{
-			name: "failure",
-			fields: fields{
-				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().Create(mock.AnythingOfType("domain.UserRegisterRequest")).Return(nil, errors.New("failed")).Once()
-					return mockUserRepository
-				}(),
-				bcrypt: bcrypt,
-			},
-			want:    errors.New("failed"),
-			wantErr: true,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			h := &UserService{
-				repository: tt.fields.repository,
-				bcrypt:     tt.fields.bcrypt,
-			}
-
-			got, err := h.Create(tt.args.req)
-
-			if tt.wantErr {
-				assert.Error(t, err)
-				assert.EqualError(t, err, tt.want.(error).Error())
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.args.req.Name, userEntity.Name)
-				assert.Equal(t, tt.args.req.Email, userEntity.Email)
-				assert.Equal(t, tt.want, got)
-			}
-		})
-	}
-}
-
-func TestUserService_Login(t *testing.T) {
-	type fields struct {
-		repository port.UserRepository
-		bcrypt     util.Bcrypt
-	}
-
-	type args struct {
-		req domain.UserLoginRequest
-	}
-
-	mockUserRepository := mocks.NewUserRepository(t)
-	bcrypt := util.NewBcrypt()
-
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    interface{}
-		wantErr bool
-	}{
-		{
-			name: "success",
-			fields: fields{
-				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByEmail(mock.AnythingOfType("domain.UserRequest")).Return(userEntity, nil).Once()
-					return mockUserRepository
-				}(),
-				bcrypt: bcrypt,
-			},
-			args: args{
-				req: domain.UserLoginRequest{
-					Email:    userEntity.Email,
-					Password: "password123",
-				},
-			},
-			want:    userEntity,
-			wantErr: false,
-		},
-		{
-			name: "failure",
-			fields: fields{
-				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByEmail(mock.AnythingOfType("domain.UserRequest")).Return(nil, errors.New("failed")).Once()
-					return mockUserRepository
-				}(),
-				bcrypt: bcrypt,
-			},
-			want:    errors.New("failed"),
-			wantErr: true,
-		},
-		{
-			name: "invalid password",
-			fields: fields{
-				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByEmail(mock.AnythingOfType("domain.UserRequest")).Return(userEntity, nil).Once()
-					return mockUserRepository
-				}(),
-				bcrypt: bcrypt,
-			},
-			args: args{
-				req: domain.UserLoginRequest{
-					Email:    userEntity.Email,
-					Password: "invalid",
-				},
-			},
-			want:    errors.New("invalid password"),
-			wantErr: true,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			h := &UserService{
-				repository: tt.fields.repository,
-				bcrypt:     tt.fields.bcrypt,
-			}
-
-			got, err := h.Login(tt.args.req)
-
-			if tt.wantErr {
-				assert.Error(t, err)
-				assert.EqualError(t, err, tt.want.(error).Error())
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.args.req.Email, userEntity.Email)
-				assert.Equal(t, tt.want, got)
-			}
-		})
-	}
-}
-
 func TestUserService_GetAll(t *testing.T) {
 	type fields struct {
 		repository port.UserRepository
@@ -282,7 +116,7 @@ func TestUserService_GetByID(t *testing.T) {
 			name: "success",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("domain.UserRequest")).Return(userEntity, nil).Times(2).Once()
+					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(userEntity, nil).Times(2).Once()
 					return mockUserRepository
 				}(),
 			},
@@ -298,7 +132,7 @@ func TestUserService_GetByID(t *testing.T) {
 			name: "failure",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("domain.UserRequest")).Return(nil, errors.New("failed"))
+					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(nil, errors.New("failed"))
 					return mockUserRepository
 				}(),
 			},
@@ -313,7 +147,7 @@ func TestUserService_GetByID(t *testing.T) {
 				repository: tt.fields.repository,
 			}
 
-			got, err := h.GetByID(tt.args.req)
+			got, err := h.GetByID(tt.args.req.ID)
 
 			if tt.wantErr {
 				assert.Error(t, err)
@@ -353,7 +187,7 @@ func TestUserService_Update(t *testing.T) {
 			name: "success",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("domain.UserRequest")).Return(userEntity, nil).Once()
+					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(userEntity, nil).Once()
 					mockUserRepository.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("*domain.User")).Return(userEntity, nil).Once()
 					return mockUserRepository
 				}(),
@@ -377,7 +211,7 @@ func TestUserService_Update(t *testing.T) {
 			name: "failure",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("domain.UserRequest")).Return(userEntity, nil).Once()
+					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(userEntity, nil).Once()
 					mockUserRepository.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("*domain.User")).Return(nil, errors.New("failed")).Once()
 					return mockUserRepository
 				}(),
@@ -398,7 +232,7 @@ func TestUserService_Update(t *testing.T) {
 			name: "permission denied",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("domain.UserRequest")).Return(userEntity, nil).Once()
+					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(userEntity, nil).Once()
 					return mockUserRepository
 				}(),
 			},
@@ -463,7 +297,7 @@ func TestUserService_Delete(t *testing.T) {
 			name: "success",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("domain.UserRequest")).Return(userEntity, nil).Once()
+					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(userEntity, nil).Once()
 					mockUserRepository.EXPECT().Delete(mock.AnythingOfType("*domain.User")).Return(nil).Once()
 					return mockUserRepository
 				}(),
@@ -483,7 +317,7 @@ func TestUserService_Delete(t *testing.T) {
 			name: "failure",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("domain.UserRequest")).Return(userEntity, nil).Once()
+					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(userEntity, nil).Once()
 					mockUserRepository.EXPECT().Delete(mock.AnythingOfType("*domain.User")).Return(errors.New("failed")).Once()
 					return mockUserRepository
 				}(),
@@ -503,7 +337,7 @@ func TestUserService_Delete(t *testing.T) {
 			name: "permission denied",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("domain.UserRequest")).Return(userEntity, nil).Once()
+					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(userEntity, nil).Once()
 					return mockUserRepository
 				}(),
 			},

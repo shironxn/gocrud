@@ -21,7 +21,7 @@ func NewAuthRepository(db *gorm.DB) port.AuthRepository {
 	}
 }
 
-func (r *AuthRepository) Register(req domain.UserRegisterRequest) (*domain.User, error) {
+func (r *AuthRepository) Register(req domain.AuthRegisterRequest) (*domain.User, error) {
 	entity := domain.User{
 		Name:     req.Name,
 		Email:    req.Email,

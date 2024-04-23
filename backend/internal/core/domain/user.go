@@ -14,12 +14,7 @@ type User struct {
 	AvatarURL    string
 	Password     string `gorm:"not null"`
 	RefreshToken RefreshToken
-	Notes        []Note `gorm:"not null"`
-}
-
-type RefreshToken struct {
-	UserID uint `gorm:"primarykey"`
-	Token  string
+	Notes        []Note
 }
 
 type UserToken struct {
@@ -28,22 +23,11 @@ type UserToken struct {
 	Claims       *Claims `json:"claims,omitempty"`
 }
 
-type UserRegisterRequest struct {
-	Name     string `json:"name" validate:"required,min=4,max=30"`
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=8,max=100"`
-}
-
-type UserLoginRequest struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required"`
-}
-
 type UserRequest struct {
 	ID        uint   `json:"id"`
 	Name      string `json:"name" validate:"omitempty,min=4,max=30"`
 	Email     string `json:"email" validate:"omitempty,email"`
-	Bio       string `json:"bio" validate:"max=50"`
+	Bio       string `json:"bio" validate:"omitempty,max=50"`
 	AvatarURL string `json:"avatar_url" validate:"omitempty,url,image"`
 	Password  string `json:"password" validate:"omitempty,min=8,max=100"`
 }

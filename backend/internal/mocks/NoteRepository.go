@@ -183,9 +183,9 @@ func (_c *NoteRepository_GetAll_Call) RunAndReturn(run func(domain.NoteQuery, *d
 	return _c
 }
 
-// GetByID provides a mock function with given fields: req
-func (_m *NoteRepository) GetByID(req domain.NoteRequest) (*domain.Note, error) {
-	ret := _m.Called(req)
+// GetByID provides a mock function with given fields: id
+func (_m *NoteRepository) GetByID(id uint) (*domain.Note, error) {
+	ret := _m.Called(id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByID")
@@ -193,19 +193,19 @@ func (_m *NoteRepository) GetByID(req domain.NoteRequest) (*domain.Note, error) 
 
 	var r0 *domain.Note
 	var r1 error
-	if rf, ok := ret.Get(0).(func(domain.NoteRequest) (*domain.Note, error)); ok {
-		return rf(req)
+	if rf, ok := ret.Get(0).(func(uint) (*domain.Note, error)); ok {
+		return rf(id)
 	}
-	if rf, ok := ret.Get(0).(func(domain.NoteRequest) *domain.Note); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(uint) *domain.Note); ok {
+		r0 = rf(id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*domain.Note)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(domain.NoteRequest) error); ok {
-		r1 = rf(req)
+	if rf, ok := ret.Get(1).(func(uint) error); ok {
+		r1 = rf(id)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -219,14 +219,14 @@ type NoteRepository_GetByID_Call struct {
 }
 
 // GetByID is a helper method to define mock.On call
-//   - req domain.NoteRequest
-func (_e *NoteRepository_Expecter) GetByID(req interface{}) *NoteRepository_GetByID_Call {
-	return &NoteRepository_GetByID_Call{Call: _e.mock.On("GetByID", req)}
+//   - id uint
+func (_e *NoteRepository_Expecter) GetByID(id interface{}) *NoteRepository_GetByID_Call {
+	return &NoteRepository_GetByID_Call{Call: _e.mock.On("GetByID", id)}
 }
 
-func (_c *NoteRepository_GetByID_Call) Run(run func(req domain.NoteRequest)) *NoteRepository_GetByID_Call {
+func (_c *NoteRepository_GetByID_Call) Run(run func(id uint)) *NoteRepository_GetByID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(domain.NoteRequest))
+		run(args[0].(uint))
 	})
 	return _c
 }
@@ -236,7 +236,7 @@ func (_c *NoteRepository_GetByID_Call) Return(_a0 *domain.Note, _a1 error) *Note
 	return _c
 }
 
-func (_c *NoteRepository_GetByID_Call) RunAndReturn(run func(domain.NoteRequest) (*domain.Note, error)) *NoteRepository_GetByID_Call {
+func (_c *NoteRepository_GetByID_Call) RunAndReturn(run func(uint) (*domain.Note, error)) *NoteRepository_GetByID_Call {
 	_c.Call.Return(run)
 	return _c
 }

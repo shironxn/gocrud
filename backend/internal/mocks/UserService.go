@@ -20,64 +20,6 @@ func (_m *UserService) EXPECT() *UserService_Expecter {
 	return &UserService_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: req
-func (_m *UserService) Create(req domain.UserRegisterRequest) (*domain.User, error) {
-	ret := _m.Called(req)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Create")
-	}
-
-	var r0 *domain.User
-	var r1 error
-	if rf, ok := ret.Get(0).(func(domain.UserRegisterRequest) (*domain.User, error)); ok {
-		return rf(req)
-	}
-	if rf, ok := ret.Get(0).(func(domain.UserRegisterRequest) *domain.User); ok {
-		r0 = rf(req)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*domain.User)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(domain.UserRegisterRequest) error); ok {
-		r1 = rf(req)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// UserService_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
-type UserService_Create_Call struct {
-	*mock.Call
-}
-
-// Create is a helper method to define mock.On call
-//   - req domain.UserRegisterRequest
-func (_e *UserService_Expecter) Create(req interface{}) *UserService_Create_Call {
-	return &UserService_Create_Call{Call: _e.mock.On("Create", req)}
-}
-
-func (_c *UserService_Create_Call) Run(run func(req domain.UserRegisterRequest)) *UserService_Create_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(domain.UserRegisterRequest))
-	})
-	return _c
-}
-
-func (_c *UserService_Create_Call) Return(_a0 *domain.User, _a1 error) *UserService_Create_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *UserService_Create_Call) RunAndReturn(run func(domain.UserRegisterRequest) (*domain.User, error)) *UserService_Create_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // Delete provides a mock function with given fields: req, claims
 func (_m *UserService) Delete(req domain.UserRequest, claims domain.Claims) error {
 	ret := _m.Called(req, claims)
@@ -184,9 +126,9 @@ func (_c *UserService_GetAll_Call) RunAndReturn(run func(domain.UserQuery, *doma
 	return _c
 }
 
-// GetByID provides a mock function with given fields: req
-func (_m *UserService) GetByID(req domain.UserRequest) (*domain.User, error) {
-	ret := _m.Called(req)
+// GetByID provides a mock function with given fields: id
+func (_m *UserService) GetByID(id uint) (*domain.User, error) {
+	ret := _m.Called(id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByID")
@@ -194,19 +136,19 @@ func (_m *UserService) GetByID(req domain.UserRequest) (*domain.User, error) {
 
 	var r0 *domain.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(domain.UserRequest) (*domain.User, error)); ok {
-		return rf(req)
+	if rf, ok := ret.Get(0).(func(uint) (*domain.User, error)); ok {
+		return rf(id)
 	}
-	if rf, ok := ret.Get(0).(func(domain.UserRequest) *domain.User); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(uint) *domain.User); ok {
+		r0 = rf(id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*domain.User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(domain.UserRequest) error); ok {
-		r1 = rf(req)
+	if rf, ok := ret.Get(1).(func(uint) error); ok {
+		r1 = rf(id)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -220,14 +162,14 @@ type UserService_GetByID_Call struct {
 }
 
 // GetByID is a helper method to define mock.On call
-//   - req domain.UserRequest
-func (_e *UserService_Expecter) GetByID(req interface{}) *UserService_GetByID_Call {
-	return &UserService_GetByID_Call{Call: _e.mock.On("GetByID", req)}
+//   - id uint
+func (_e *UserService_Expecter) GetByID(id interface{}) *UserService_GetByID_Call {
+	return &UserService_GetByID_Call{Call: _e.mock.On("GetByID", id)}
 }
 
-func (_c *UserService_GetByID_Call) Run(run func(req domain.UserRequest)) *UserService_GetByID_Call {
+func (_c *UserService_GetByID_Call) Run(run func(id uint)) *UserService_GetByID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(domain.UserRequest))
+		run(args[0].(uint))
 	})
 	return _c
 }
@@ -237,65 +179,7 @@ func (_c *UserService_GetByID_Call) Return(_a0 *domain.User, _a1 error) *UserSer
 	return _c
 }
 
-func (_c *UserService_GetByID_Call) RunAndReturn(run func(domain.UserRequest) (*domain.User, error)) *UserService_GetByID_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Login provides a mock function with given fields: req
-func (_m *UserService) Login(req domain.UserLoginRequest) (*domain.User, error) {
-	ret := _m.Called(req)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Login")
-	}
-
-	var r0 *domain.User
-	var r1 error
-	if rf, ok := ret.Get(0).(func(domain.UserLoginRequest) (*domain.User, error)); ok {
-		return rf(req)
-	}
-	if rf, ok := ret.Get(0).(func(domain.UserLoginRequest) *domain.User); ok {
-		r0 = rf(req)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*domain.User)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(domain.UserLoginRequest) error); ok {
-		r1 = rf(req)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// UserService_Login_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Login'
-type UserService_Login_Call struct {
-	*mock.Call
-}
-
-// Login is a helper method to define mock.On call
-//   - req domain.UserLoginRequest
-func (_e *UserService_Expecter) Login(req interface{}) *UserService_Login_Call {
-	return &UserService_Login_Call{Call: _e.mock.On("Login", req)}
-}
-
-func (_c *UserService_Login_Call) Run(run func(req domain.UserLoginRequest)) *UserService_Login_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(domain.UserLoginRequest))
-	})
-	return _c
-}
-
-func (_c *UserService_Login_Call) Return(_a0 *domain.User, _a1 error) *UserService_Login_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *UserService_Login_Call) RunAndReturn(run func(domain.UserLoginRequest) (*domain.User, error)) *UserService_Login_Call {
+func (_c *UserService_GetByID_Call) RunAndReturn(run func(uint) (*domain.User, error)) *UserService_GetByID_Call {
 	_c.Call.Return(run)
 	return _c
 }

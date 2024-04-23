@@ -11,6 +11,7 @@ type Config struct {
 	Server struct {
 		Host string
 		Port string
+		Mode string
 	}
 	Database struct {
 		Host string
@@ -55,9 +56,11 @@ func LoadConfig() error {
 		Server: struct {
 			Host string
 			Port string
+			Mode string
 		}{
 			Host: os.Getenv("APP_HOST"),
 			Port: os.Getenv("APP_PORT"),
+			Mode: os.Getenv("APP_MODE"),
 		},
 		Database: struct {
 			Host string

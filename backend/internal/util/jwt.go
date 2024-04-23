@@ -20,36 +20,26 @@ func NewJWT(cfg *config.Config) JWT {
 	}
 }
 
-func (j JWT) GenerateAccessToken(userID uint) (*string, error) {
-	accessTokenClaims := domain.Claims{
+func (j JWT) GenerateAccessToken(userID uint) (string, error) {
+	claims := domain.Claims{
 		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(10 * time.Minute)),
 		},
 	}
 
-	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenClaims).SignedString([]byte(j.cfg.JWT.Access))
-	if err != nil {
-		return nil, err
-	}
-
-	return &accessToken, nil
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(j.cfg.JWT.Access))
 }
 
-func (j JWT) GenerateRefreshToken(userID uint) (*string, error) {
-	refreshTokenClaims := domain.Claims{
+func (j JWT) GenerateRefreshToken(userID uint) (string, error) {
+	claims := domain.Claims{
 		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 		},
 	}
 
-	refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims).SignedString([]byte(j.cfg.JWT.Refresh))
-	if err != nil {
-		return nil, err
-	}
-
-	return &refreshToken, nil
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(j.cfg.JWT.Refresh))
 }
 
 func (j JWT) ValidateToken(token string, secret string) (*domain.Claims, error) {

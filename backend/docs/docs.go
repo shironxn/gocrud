@@ -35,7 +35,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.UserLoginRequest"
+                            "$ref": "#/definitions/domain.AuthLoginRequest"
                         }
                     }
                 ],
@@ -109,7 +109,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.UserRegisterRequest"
+                            "$ref": "#/definitions/domain.AuthRegisterRequest"
                         }
                     }
                 ],
@@ -156,6 +156,18 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Filter notes by visibility",
                         "name": "visibility",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sorting (e.g., +title, -created_at)",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order (e.g., asc, desc)",
+                        "name": "order",
                         "in": "query"
                     },
                     {
@@ -347,6 +359,24 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "type": "boolean",
+                        "description": "Get users details",
+                        "name": "details",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sorting (e.g., +name, -created_at)",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order (e.g., asc, desc)",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "Page number",
                         "name": "page",
@@ -487,6 +517,44 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "domain.AuthLoginRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.AuthRegisterRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 30,
+                    "minLength": 4
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 8
+                }
+            }
+        },
         "domain.Claims": {
             "type": "object",
             "properties": {
@@ -629,21 +697,6 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.UserLoginRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
         "domain.UserPaginationResponse": {
             "type": "object",
             "properties": {
@@ -655,29 +708,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/domain.UserResponse"
                     }
-                }
-            }
-        },
-        "domain.UserRegisterRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "name",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 30,
-                    "minLength": 4
-                },
-                "password": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 8
                 }
             }
         },
@@ -766,7 +796,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "{host}:{port}",
+	Host:             "419a-103-10-66-17.ngrok-free.app",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "gocrud",

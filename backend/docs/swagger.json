@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "{host}:{port}",
+    "host": "419a-103-10-66-17.ngrok-free.app",
     "basePath": "/api/v1",
     "paths": {
         "/auth/login": {
@@ -29,7 +29,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.UserLoginRequest"
+                            "$ref": "#/definitions/domain.AuthLoginRequest"
                         }
                     }
                 ],
@@ -103,7 +103,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.UserRegisterRequest"
+                            "$ref": "#/definitions/domain.AuthRegisterRequest"
                         }
                     }
                 ],
@@ -150,6 +150,18 @@
                         "type": "string",
                         "description": "Filter notes by visibility",
                         "name": "visibility",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sorting (e.g., +title, -created_at)",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order (e.g., asc, desc)",
+                        "name": "order",
                         "in": "query"
                     },
                     {
@@ -341,6 +353,24 @@
                         "in": "query"
                     },
                     {
+                        "type": "boolean",
+                        "description": "Get users details",
+                        "name": "details",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sorting (e.g., +name, -created_at)",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order (e.g., asc, desc)",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "Page number",
                         "name": "page",
@@ -481,6 +511,44 @@
         }
     },
     "definitions": {
+        "domain.AuthLoginRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.AuthRegisterRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 30,
+                    "minLength": 4
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 8
+                }
+            }
+        },
         "domain.Claims": {
             "type": "object",
             "properties": {
@@ -623,21 +691,6 @@
                 }
             }
         },
-        "domain.UserLoginRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
         "domain.UserPaginationResponse": {
             "type": "object",
             "properties": {
@@ -649,29 +702,6 @@
                     "items": {
                         "$ref": "#/definitions/domain.UserResponse"
                     }
-                }
-            }
-        },
-        "domain.UserRegisterRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "name",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 30,
-                    "minLength": 4
-                },
-                "password": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 8
                 }
             }
         },

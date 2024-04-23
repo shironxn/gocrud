@@ -18,7 +18,7 @@ import (
 // @title gocrud
 // @version 1.0
 // @description golang crud api
-// @host {host}:{port}
+// @host 419a-103-10-66-17.ngrok-free.app
 // @BasePath /api/v1
 func main() {
 	cfg, err := config.NewConfig()
@@ -54,7 +54,7 @@ func main() {
 	noteService := service.NewNoteService(noteRepository)
 	noteHandler := handler.NewNoteHandler(noteService, validator, jwt, cfg)
 
-	authMiddleware := middleware.NewAuthMiddleware(jwt, cfg)
+	authMiddleware := middleware.NewAuthMiddleware(authService, jwt, cfg)
 
 	initRoute := route.NewInitRoute()
 	authRoute := route.NewAuthRoute(authHandler, authMiddleware)

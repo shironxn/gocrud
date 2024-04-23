@@ -1,9 +1,0 @@
-basePath: /api/v1
-host: localhost:3000
-info:
-  contact: {}
-  description: golang crud api
-  title: gocrud
-  version: "1.0"
-paths: {}
-swagger: "2.0"

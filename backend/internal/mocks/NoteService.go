@@ -78,17 +78,17 @@ func (_c *NoteService_Create_Call) RunAndReturn(run func(domain.NoteRequest) (*d
 	return _c
 }
 
-// Delete provides a mock function with given fields: req, claims
-func (_m *NoteService) Delete(req domain.NoteRequest, claims domain.Claims) error {
-	ret := _m.Called(req, claims)
+// Delete provides a mock function with given fields: id, claims
+func (_m *NoteService) Delete(id uint, claims domain.Claims) error {
+	ret := _m.Called(id, claims)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(domain.NoteRequest, domain.Claims) error); ok {
-		r0 = rf(req, claims)
+	if rf, ok := ret.Get(0).(func(uint, domain.Claims) error); ok {
+		r0 = rf(id, claims)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -102,15 +102,15 @@ type NoteService_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
-//   - req domain.NoteRequest
+//   - id uint
 //   - claims domain.Claims
-func (_e *NoteService_Expecter) Delete(req interface{}, claims interface{}) *NoteService_Delete_Call {
-	return &NoteService_Delete_Call{Call: _e.mock.On("Delete", req, claims)}
+func (_e *NoteService_Expecter) Delete(id interface{}, claims interface{}) *NoteService_Delete_Call {
+	return &NoteService_Delete_Call{Call: _e.mock.On("Delete", id, claims)}
 }
 
-func (_c *NoteService_Delete_Call) Run(run func(req domain.NoteRequest, claims domain.Claims)) *NoteService_Delete_Call {
+func (_c *NoteService_Delete_Call) Run(run func(id uint, claims domain.Claims)) *NoteService_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(domain.NoteRequest), args[1].(domain.Claims))
+		run(args[0].(uint), args[1].(domain.Claims))
 	})
 	return _c
 }
@@ -120,7 +120,7 @@ func (_c *NoteService_Delete_Call) Return(_a0 error) *NoteService_Delete_Call {
 	return _c
 }
 
-func (_c *NoteService_Delete_Call) RunAndReturn(run func(domain.NoteRequest, domain.Claims) error) *NoteService_Delete_Call {
+func (_c *NoteService_Delete_Call) RunAndReturn(run func(uint, domain.Claims) error) *NoteService_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -184,9 +184,9 @@ func (_c *NoteService_GetAll_Call) RunAndReturn(run func(domain.NoteQuery, *doma
 	return _c
 }
 
-// GetByID provides a mock function with given fields: req, claims
-func (_m *NoteService) GetByID(req domain.NoteRequest, claims *domain.Claims) (*domain.Note, error) {
-	ret := _m.Called(req, claims)
+// GetByID provides a mock function with given fields: id, claims
+func (_m *NoteService) GetByID(id uint, claims *domain.Claims) (*domain.Note, error) {
+	ret := _m.Called(id, claims)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByID")
@@ -194,19 +194,19 @@ func (_m *NoteService) GetByID(req domain.NoteRequest, claims *domain.Claims) (*
 
 	var r0 *domain.Note
 	var r1 error
-	if rf, ok := ret.Get(0).(func(domain.NoteRequest, *domain.Claims) (*domain.Note, error)); ok {
-		return rf(req, claims)
+	if rf, ok := ret.Get(0).(func(uint, *domain.Claims) (*domain.Note, error)); ok {
+		return rf(id, claims)
 	}
-	if rf, ok := ret.Get(0).(func(domain.NoteRequest, *domain.Claims) *domain.Note); ok {
-		r0 = rf(req, claims)
+	if rf, ok := ret.Get(0).(func(uint, *domain.Claims) *domain.Note); ok {
+		r0 = rf(id, claims)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*domain.Note)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(domain.NoteRequest, *domain.Claims) error); ok {
-		r1 = rf(req, claims)
+	if rf, ok := ret.Get(1).(func(uint, *domain.Claims) error); ok {
+		r1 = rf(id, claims)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -220,15 +220,15 @@ type NoteService_GetByID_Call struct {
 }
 
 // GetByID is a helper method to define mock.On call
-//   - req domain.NoteRequest
+//   - id uint
 //   - claims *domain.Claims
-func (_e *NoteService_Expecter) GetByID(req interface{}, claims interface{}) *NoteService_GetByID_Call {
-	return &NoteService_GetByID_Call{Call: _e.mock.On("GetByID", req, claims)}
+func (_e *NoteService_Expecter) GetByID(id interface{}, claims interface{}) *NoteService_GetByID_Call {
+	return &NoteService_GetByID_Call{Call: _e.mock.On("GetByID", id, claims)}
 }
 
-func (_c *NoteService_GetByID_Call) Run(run func(req domain.NoteRequest, claims *domain.Claims)) *NoteService_GetByID_Call {
+func (_c *NoteService_GetByID_Call) Run(run func(id uint, claims *domain.Claims)) *NoteService_GetByID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(domain.NoteRequest), args[1].(*domain.Claims))
+		run(args[0].(uint), args[1].(*domain.Claims))
 	})
 	return _c
 }
@@ -238,7 +238,7 @@ func (_c *NoteService_GetByID_Call) Return(_a0 *domain.Note, _a1 error) *NoteSer
 	return _c
 }
 
-func (_c *NoteService_GetByID_Call) RunAndReturn(run func(domain.NoteRequest, *domain.Claims) (*domain.Note, error)) *NoteService_GetByID_Call {
+func (_c *NoteService_GetByID_Call) RunAndReturn(run func(uint, *domain.Claims) (*domain.Note, error)) *NoteService_GetByID_Call {
 	_c.Call.Return(run)
 	return _c
 }

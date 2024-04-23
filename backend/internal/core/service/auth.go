@@ -2,7 +2,6 @@ package service
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/shironxn/gocrud/internal/config"
 	"github.com/shironxn/gocrud/internal/core/domain"
 	"github.com/shironxn/gocrud/internal/core/port"
@@ -25,7 +24,7 @@ func NewAuthService(repository port.AuthRepository, bcrypt util.Bcrypt, jwt util
 	}
 }
 
-func (s *AuthService) Register(req domain.UserRegisterRequest) (*domain.User, error) {
+func (s *AuthService) Register(req domain.AuthRegisterRequest) (*domain.User, error) {
 	hashedPassword, err := s.bcrypt.HashPassword(req.Password)
 	if err != nil {
 		return nil, err
@@ -36,7 +35,7 @@ func (s *AuthService) Register(req domain.UserRegisterRequest) (*domain.User, er
 	return s.repository.Register(req)
 }
 
-func (s *AuthService) Login(req domain.UserLoginRequest) (*domain.User, *domain.UserToken, error) {
+func (s *AuthService) Login(req domain.AuthLoginRequest) (*domain.User, *domain.UserToken, error) {
 	user, err := s.repository.GetByEmail(req.Email)
 	if err != nil {
 		return nil, nil, err
@@ -56,13 +55,13 @@ func (s *AuthService) Login(req domain.UserLoginRequest) (*domain.User, *domain.
 		return nil, nil, err
 	}
 
-	if err := s.repository.StoreRefreshToken(user.ID, *refreshToken); err != nil {
+	if err := s.repository.StoreRefreshToken(user.ID, refreshToken); err != nil {
 		return nil, nil, err
 	}
 
 	return user, &domain.UserToken{
-		AccessToken:  *accessToken,
-		RefreshToken: *refreshToken,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 		Claims:       nil,
 	}, nil
 }
@@ -82,8 +81,6 @@ func (s *AuthService) Refresh(token string) (*string, *domain.Claims, error) {
 		return nil, nil, err
 	}
 
-	log.Info("refr esh anjayyy")
-
 	refresh, err := s.repository.GetRefreshToken(claims.UserID)
 	if err != nil {
 		return nil, nil, err
@@ -98,5 +95,5 @@ func (s *AuthService) Refresh(token string) (*string, *domain.Claims, error) {
 		return nil, nil, err
 	}
 
-	return accessToken, claims, nil
+	return &accessToken, claims, nil
 }

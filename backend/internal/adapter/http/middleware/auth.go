@@ -1,36 +1,66 @@
 package middleware
 
 import (
+	"time"
+
 	"github.com/shironxn/gocrud/internal/config"
 	"github.com/shironxn/gocrud/internal/core/port"
 	"github.com/shironxn/gocrud/internal/util"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 )
 
 type AuthMiddleware struct {
-	jwt    util.JWT
-	config *config.Config
+	service port.AuthService
+	jwt     util.JWT
+	cfg     *config.Config
 }
 
-func NewAuthMiddleware(jwt util.JWT, config *config.Config) port.Middleware {
+func NewAuthMiddleware(service port.AuthService, jwt util.JWT, cfg *config.Config) port.Middleware {
 	return &AuthMiddleware{
-		jwt:    jwt,
-		config: config,
+		service: service,
+		jwt:     jwt,
+		cfg:     cfg,
 	}
 }
 
 func (m *AuthMiddleware) Auth() fiber.Handler {
-	return func(ctx *fiber.Ctx) error {
-		cookie := ctx.Cookies("access-token")
+	return func(c *fiber.Ctx) error {
+		accessToken := c.Cookies("access-token")
+		refreshToken := c.Cookies("refresh-token")
 
-		claims, err := m.jwt.ValidateToken(cookie, m.config.JWT.Access)
+		claims, err := m.jwt.ValidateToken(accessToken, m.cfg.JWT.Access)
 		if err != nil {
-			return fiber.NewError(fiber.StatusUnauthorized, "unauthorized access")
+			if refreshToken == "" {
+				return fiber.NewError(fiber.StatusUnauthorized, "unauthorized access")
+			}
+
+			newAccessToken, claims, err := m.service.Refresh(refreshToken)
+			if err != nil {
+				return fiber.NewError(fiber.StatusUnauthorized, "unauthorized access")
+			}
+			log.Info(newAccessToken)
+			c.Cookie(&fiber.Cookie{
+				Name:     "access-token",
+				Value:    *newAccessToken,
+				Path:     "/",
+				HTTPOnly: true,
+				Expires:  time.Now().Add(10 * time.Minute),
+				SameSite: func(mode string) string {
+					if mode != "DEV" {
+						return fiber.CookieSameSiteNoneMode
+					}
+					return fiber.CookieSameSiteLaxMode
+				}(m.cfg.Server.Mode),
+			})
+			c.Locals("claims", claims)
+
+			return c.Next()
 		}
 
-		ctx.Locals("claims", claims)
+		c.Locals("claims", claims)
 
-		return ctx.Next()
+		return c.Next()
 	}
 }

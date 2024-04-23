@@ -32,10 +32,12 @@ func (r *NoteRepository) Create(req domain.NoteRequest) (*domain.Note, error) {
 		return nil, fiber.NewError(fiber.StatusBadRequest, "note with the same title already exists")
 	}
 	entity := domain.Note{
-		Title:      req.Title,
-		Content:    req.Content,
-		Visibility: req.Visibility,
-		UserID:     req.UserID,
+		Title:       req.Title,
+		Description: req.Description,
+		CoverURL:    req.CoverURL,
+		Content:     req.Content,
+		Visibility:  req.Visibility,
+		UserID:      req.UserID,
 	}
 	if err := r.db.Create(&entity).Preload("Author").Find(&entity).Error; err != nil {
 		return nil, err
@@ -77,7 +79,7 @@ func (r *NoteRepository) Update(req domain.NoteRequest, entity *domain.Note) (*d
 	} else {
 		return nil, fiber.NewError(fiber.StatusBadRequest, "note with the same title already exists")
 	}
-	if err := r.db.Model(&entity).Updates(req).Error; err != nil {
+	if err := r.db.Model(&entity).Updates(req).Preload("Author").Find(&entity).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fiber.NewError(fiber.StatusNotFound, "note not found")
 		}

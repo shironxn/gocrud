@@ -31,6 +31,9 @@ func NewUserHandler(service port.UserService, validator *util.Validator, jwt uti
 // @Produce json
 // @Param id query int false "Filter users by ID"
 // @Param name query string false "Filter users by name"
+// @Param details query bool false "Get users details"
+// @Param sort query string false "Sorting (e.g., +name, -created_at)"
+// @Param order query string false "Sort order (e.g., asc, desc)"
 // @Param page query int false "Page number"
 // @Param limit query int false "Number of items per page"
 // @Success 200 {object} []domain.UserPaginationResponse "Successfully retrieved all user data"
@@ -70,6 +73,27 @@ func (h *UserHandler) GetAll(ctx *fiber.Ctx) error {
 		Data: domain.UserPaginationResponse{
 			Users:    data,
 			Metadata: metadata,
+		},
+	})
+}
+
+func (h *UserHandler) GetMe(ctx *fiber.Ctx) error {
+	claims := ctx.Locals("claims").(*domain.Claims)
+
+	result, err := h.service.GetByID(claims.UserID)
+	if err != nil {
+		return err
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
+		Message: "successfully retrieved user by id",
+		Data: domain.UserResponse{
+			ID:        result.ID,
+			Name:      result.Name,
+			Bio:       result.Bio,
+			AvatarURL: result.AvatarURL,
+			CreatedAt: result.CreatedAt,
+			UpdatedAt: result.UpdatedAt,
 		},
 	})
 }

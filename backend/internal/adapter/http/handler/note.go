@@ -64,13 +64,16 @@ func (h *NoteHandler) Create(ctx *fiber.Ctx) error {
 		domain.SuccessResponse{
 			Message: "successfully created note",
 			Data: domain.NoteResponse{
-				ID:         result.ID,
-				Title:      result.Title,
-				Content:    result.Content,
-				Visibility: result.Visibility,
+				ID:          result.ID,
+				Title:       result.Title,
+				Description: result.Description,
+				CoverURL:    result.CoverURL,
+				Content:     result.Content,
+				Visibility:  result.Visibility,
 				Author: domain.NoteAuthor{
-					ID:   result.Author.ID,
-					Name: result.Author.Name,
+					ID:        result.Author.ID,
+					Name:      result.Author.Name,
+					AvatarURL: result.Author.AvatarURL,
 				},
 				UpdatedAt: result.UpdatedAt,
 				CreatedAt: result.CreatedAt,
@@ -87,6 +90,8 @@ func (h *NoteHandler) Create(ctx *fiber.Ctx) error {
 // @Param author query string false "Filter notes by author"
 // @Param user_id query string false "Filter notes by user ID"
 // @Param visibility query string false "Filter notes by visibility"
+// @Param sort query string false "Sorting (e.g., +title, -created_at)"
+// @Param order query string false "Sort order (e.g., asc, desc)"
 // @Param page query int false "Page number"
 // @Param limit query int false "Number of items per page"
 // @Success 200 {object} domain.NotePaginationResponse "Successfully retrieved all notes"
@@ -120,13 +125,16 @@ func (h *NoteHandler) GetAll(ctx *fiber.Ctx) error {
 
 	for _, note := range result {
 		data = append(data, domain.NoteResponse{
-			ID:         note.ID,
-			Title:      note.Title,
-			Content:    note.Content,
-			Visibility: note.Visibility,
+			ID:          note.ID,
+			Title:       note.Title,
+			Description: note.Description,
+			CoverURL:    note.CoverURL,
+			Content:     note.Content,
+			Visibility:  note.Visibility,
 			Author: domain.NoteAuthor{
-				ID:   note.Author.ID,
-				Name: note.Author.Name,
+				ID:        note.Author.ID,
+				Name:      note.Author.Name,
+				AvatarURL: note.Author.AvatarURL,
 			},
 			CreatedAt: note.CreatedAt,
 			UpdatedAt: note.UpdatedAt,
@@ -179,13 +187,16 @@ func (h *NoteHandler) GetByID(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
 		Message: "successfully retrieved note by id",
 		Data: domain.NoteResponse{
-			ID:         result.ID,
-			Title:      result.Title,
-			Content:    result.Content,
-			Visibility: result.Visibility,
+			ID:          result.ID,
+			Title:       result.Title,
+			Description: result.Description,
+			CoverURL:    result.CoverURL,
+			Content:     result.Content,
+			Visibility:  result.Visibility,
 			Author: domain.NoteAuthor{
-				ID:   result.Author.ID,
-				Name: result.Author.Name,
+				ID:        result.Author.ID,
+				Name:      result.Author.Name,
+				AvatarURL: result.Author.AvatarURL,
 			},
 			UpdatedAt: result.UpdatedAt,
 			CreatedAt: result.CreatedAt,
@@ -235,13 +246,16 @@ func (h *NoteHandler) Update(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
 		Message: "successfully updated note by id",
 		Data: domain.NoteResponse{
-			ID:         result.ID,
-			Title:      result.Title,
-			Content:    result.Content,
-			Visibility: result.Visibility,
+			ID:          result.ID,
+			Title:       result.Title,
+			Description: result.Description,
+			CoverURL:    result.CoverURL,
+			Content:     result.Content,
+			Visibility:  result.Visibility,
 			Author: domain.NoteAuthor{
-				ID:   result.Author.ID,
-				Name: result.Author.Name,
+				ID:        result.Author.ID,
+				Name:      result.Author.Name,
+				AvatarURL: result.Author.AvatarURL,
 			},
 			UpdatedAt: result.UpdatedAt,
 			CreatedAt: result.CreatedAt,

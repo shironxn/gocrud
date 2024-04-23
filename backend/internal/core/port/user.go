@@ -22,6 +22,7 @@ type UserService interface {
 
 type UserHandler interface {
 	GetAll(ctx *fiber.Ctx) error
+	GetMe(ctx *fiber.Ctx) error
 	GetByID(ctx *fiber.Ctx) error
 	Update(ctx *fiber.Ctx) error
 	Delete(ctx *fiber.Ctx) error

@@ -1,28 +1,20 @@
 "use client";
 
-import { Input } from "./ui/input";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuIndicator,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
-  NavigationMenuViewport,
-  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import {
   UserRound,
   Github,
@@ -30,8 +22,25 @@ import {
   LogOut,
   SquareArrowOutUpRight,
   Search,
+  Moon,
+  Sun,
 } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
+import { useTheme } from "next-themes";
+import useAxios from "axios-hooks";
+import { toast } from "./ui/use-toast";
+import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { NoteCreateDialog } from "./note-dialog";
 
 const menu: { title: string; href: string; icon: JSX.Element }[] = [
   {
@@ -56,13 +65,63 @@ const menu: { title: string; href: string; icon: JSX.Element }[] = [
   },
 ];
 
-export default function Navbar() {
+const Navbar = () => {
+  const { setTheme } = useTheme();
+  const router = useRouter();
+
+  const [{ data: userData, error: userError }, refetchUser] = useAxios(
+    {
+      url: "/users/me",
+      method: "GET",
+      baseURL: process.env.NEXT_PUBLIC_API_URL,
+      withCredentials: true,
+    },
+    { useCache: false }
+  );
+
+  const [
+    { data: logoutData, loading: logoutLoading, error: logoutError },
+    executeLogout,
+  ] = useAxios(
+    {
+      url: "/auth/logout",
+      method: "POST",
+      baseURL: process.env.NEXT_PUBLIC_API_URL,
+      withCredentials: true,
+    },
+    { manual: true }
+  );
+
+  useEffect(() => {
+    if (logoutError) {
+      toast({
+        title: "Uh oh! Something went wrong.",
+        description:
+          logoutError.response?.data.message || "An unknown error occurred",
+      });
+    }
+  }, [logoutError]);
+
+  useEffect(() => {
+    if (logoutData) {
+      toast({
+        title: "Success",
+        description: logoutData?.message,
+      });
+      refetchUser();
+    }
+  }, [logoutData]);
+
+  const onClick = () => {
+    executeLogout();
+  };
+
   return (
     <div className="shadow-md p-4 flex justify-between items-center">
       <div>
         <Link href={"/"}>
           <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">
-            NotesLand
+            BlankNotes
           </h1>
         </Link>
       </div>
@@ -70,49 +129,83 @@ export default function Navbar() {
         <NavigationMenu>
           <NavigationMenuList className="flex gap-2">
             <NavigationMenuItem>
-              <div className="flex h-10 items-center rounded-md border border-input bg-white pl-3 text-sm ring-offset-background focus-within:ring-1 focus-within:ring-ring focus-within:ring-offset-2">
+              <div className="flex h-10 items-center rounded-md border border-input pl-3 text-sm ring-offset-background focus-within:ring-1 focus-within:ring-ring focus-within:ring-offset-2">
                 <Search className="absolute pointer-events-none h-5" />
                 <input
-                  className="w-full p-2 pl-8 placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full bg-transparent p-2 pl-8 placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   placeholder="Search"
                 />
               </div>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Button className="w-24">Create</Button>
+              {userData && !userError && <NoteCreateDialog />}
             </NavigationMenuItem>
             <NavigationMenuItem>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Avatar className="cursor-pointe">
-                    <AvatarImage src="https://github.com/shadcn.png" />
-                    <AvatarFallback>CN</AvatarFallback>
-                  </Avatar>
+                  <Button variant="outline" size="icon">
+                    <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                    <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                    <span className="sr-only">Toggle theme</span>
+                  </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="mr-5 mt-5 w-56">
-                  <DropdownMenuItem disabled className="font-bold">
-                    shironxn
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setTheme("light")}>
+                    Light
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  {menu.map((item, i) => (
-                    <Link href={item.href} target="_blank" key={i}>
-                      <DropdownMenuItem>
-                        {item.icon}
-                        {item.title}
-                      </DropdownMenuItem>
-                    </Link>
-                  ))}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <LogOut className="h-4 w-4" />
-                    Log out
+                  <DropdownMenuItem onClick={() => setTheme("dark")}>
+                    Dark
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("system")}>
+                    System
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </NavigationMenuItem>
+            {userData && !userError ? (
+              <NavigationMenuItem>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Avatar className="cursor-pointe">
+                      <AvatarImage src={userData?.data?.avatar_url} />
+                      <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="mr-5 mt-5 w-56">
+                    <DropdownMenuItem disabled className="font-bold">
+                      {userData?.data?.name}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    {menu.map((item, i) => (
+                      <Link href={item.href} target="_blank" key={i}>
+                        <DropdownMenuItem className="gap-x-3">
+                          <div>{item.icon}</div>
+                          <div>{item.title}</div>
+                        </DropdownMenuItem>
+                      </Link>
+                    ))}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={onClick}
+                      disabled={logoutLoading}
+                      className="gap-x-3"
+                    >
+                      <LogOut />
+                      <div>Log out</div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </NavigationMenuItem>
+            ) : (
+              <Link href={"/login"}>
+                <Button className="w-24">Login</Button>
+              </Link>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
       </div>
     </div>
   );
-}
+};
+
+export { Navbar };

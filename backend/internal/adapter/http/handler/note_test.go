@@ -27,7 +27,6 @@ var noteEntity = &domain.Note{
 	Title:      "golang",
 	Content:    "is the best",
 	Visibility: "public",
-	UserID:     1,
 }
 
 var metadataEntity = domain.Metadata{
@@ -42,7 +41,7 @@ var metadataEntity = domain.Metadata{
 func TestNoteHandler_Create(t *testing.T) {
 	type fields struct {
 		service   port.NoteService
-		validator util.Validator
+		validator *util.Validator
 	}
 
 	type args struct {
@@ -68,7 +67,7 @@ func TestNoteHandler_Create(t *testing.T) {
 					mockNoteService.EXPECT().Create(mock.AnythingOfType("domain.NoteRequest")).Return(noteEntity, nil).Once()
 					return mockNoteService
 				}(),
-				validator: *validator,
+				validator: validator,
 			},
 			args: args{
 				req: domain.NoteRequest{
@@ -76,9 +75,7 @@ func TestNoteHandler_Create(t *testing.T) {
 					Content:    noteEntity.Content,
 					Visibility: noteEntity.Visibility,
 				},
-				claims: domain.Claims{
-					UserID: noteEntity.ID,
-				},
+				claims: domain.Claims{},
 			},
 			code: fiber.StatusCreated,
 			want: domain.SuccessResponse{
@@ -88,7 +85,6 @@ func TestNoteHandler_Create(t *testing.T) {
 					Title:      noteEntity.Title,
 					Content:    noteEntity.Content,
 					Visibility: noteEntity.Visibility,
-					UserID:     noteEntity.UserID,
 				},
 			},
 			wantErr: false,
@@ -100,7 +96,7 @@ func TestNoteHandler_Create(t *testing.T) {
 					mockNoteService.EXPECT().Create(mock.AnythingOfType("domain.NoteRequest")).Return(nil, errors.New("failed")).Once()
 					return mockNoteService
 				}(),
-				validator: *validator,
+				validator: validator,
 			},
 			args: args{
 				req: domain.NoteRequest{
@@ -108,9 +104,7 @@ func TestNoteHandler_Create(t *testing.T) {
 					Content:    noteEntity.Content,
 					Visibility: noteEntity.Visibility,
 				},
-				claims: domain.Claims{
-					UserID: noteEntity.ID,
-				},
+				claims: domain.Claims{},
 			},
 			code: fiber.StatusInternalServerError,
 			want: domain.ErrorResponse{
@@ -125,7 +119,7 @@ func TestNoteHandler_Create(t *testing.T) {
 					mockNoteService.EXPECT().Create(mock.AnythingOfType("domain.NoteRequest")).Return(nil, fiber.NewError(fiber.StatusBadRequest, "validation error")).Once()
 					return mockNoteService
 				}(),
-				validator: *validator,
+				validator: validator,
 			},
 			code: fiber.StatusBadRequest,
 			want: domain.ErrorResponse{
@@ -220,7 +214,6 @@ func TestNoteHandler_GetAll(t *testing.T) {
 								Title:      note.Title,
 								Content:    note.Content,
 								Visibility: note.Visibility,
-								UserID:     note.UserID,
 							})
 						}
 						return data
@@ -309,9 +302,7 @@ func TestNoteHandler_GetByID(t *testing.T) {
 				req: domain.NoteRequest{
 					ID: noteEntity.ID,
 				},
-				claims: &domain.Claims{
-					UserID: noteEntity.UserID,
-				},
+				claims: &domain.Claims{},
 			},
 			code: fiber.StatusOK,
 			want: domain.SuccessResponse{
@@ -321,7 +312,6 @@ func TestNoteHandler_GetByID(t *testing.T) {
 					Title:      noteEntity.Title,
 					Content:    noteEntity.Content,
 					Visibility: noteEntity.Visibility,
-					UserID:     noteEntity.UserID,
 				},
 			},
 			wantErr: false,
@@ -338,9 +328,7 @@ func TestNoteHandler_GetByID(t *testing.T) {
 				req: domain.NoteRequest{
 					ID: noteEntity.ID,
 				},
-				claims: &domain.Claims{
-					UserID: noteEntity.UserID,
-				},
+				claims: &domain.Claims{},
 			},
 			code: fiber.StatusInternalServerError,
 			want: domain.ErrorResponse{
@@ -396,7 +384,7 @@ func TestNoteHandler_GetByID(t *testing.T) {
 func TestNoteHandler_Update(t *testing.T) {
 	type fields struct {
 		service   port.NoteService
-		validator util.Validator
+		validator *util.Validator
 	}
 
 	type args struct {
@@ -422,7 +410,7 @@ func TestNoteHandler_Update(t *testing.T) {
 					mockNoteService.EXPECT().Update(mock.AnythingOfType("domain.NoteRequest"), mock.AnythingOfType("domain.Claims")).Return(noteEntity, nil).Once()
 					return mockNoteService
 				}(),
-				validator: *validator,
+				validator: validator,
 			},
 			args: args{
 				req: domain.NoteRequest{
@@ -431,9 +419,7 @@ func TestNoteHandler_Update(t *testing.T) {
 					Content:    noteEntity.Content,
 					Visibility: noteEntity.Visibility,
 				},
-				claims: domain.Claims{
-					UserID: noteEntity.UserID,
-				},
+				claims: domain.Claims{},
 			},
 			code: fiber.StatusOK,
 			want: domain.SuccessResponse{
@@ -443,7 +429,6 @@ func TestNoteHandler_Update(t *testing.T) {
 					Title:      noteEntity.Title,
 					Content:    noteEntity.Content,
 					Visibility: noteEntity.Visibility,
-					UserID:     noteEntity.UserID,
 				},
 			},
 			wantErr: false,
@@ -455,7 +440,7 @@ func TestNoteHandler_Update(t *testing.T) {
 					mockNoteService.EXPECT().Update(mock.AnythingOfType("domain.NoteRequest"), mock.AnythingOfType("domain.Claims")).Return(nil, errors.New("failed")).Once()
 					return mockNoteService
 				}(),
-				validator: *validator,
+				validator: validator,
 			},
 			args: args{
 				req: domain.NoteRequest{
@@ -464,9 +449,7 @@ func TestNoteHandler_Update(t *testing.T) {
 					Content:    noteEntity.Content,
 					Visibility: noteEntity.Visibility,
 				},
-				claims: domain.Claims{
-					UserID: noteEntity.ID,
-				},
+				claims: domain.Claims{},
 			},
 			code: fiber.StatusInternalServerError,
 			want: domain.ErrorResponse{
@@ -481,7 +464,7 @@ func TestNoteHandler_Update(t *testing.T) {
 					mockNoteService.EXPECT().Update(mock.AnythingOfType("domain.NoteRequest"), mock.AnythingOfType("domain.Claims")).Return(nil, fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")).Once()
 					return mockNoteService
 				}(),
-				validator: *validator,
+				validator: validator,
 			},
 			args: args{
 				req: domain.NoteRequest{
@@ -490,9 +473,7 @@ func TestNoteHandler_Update(t *testing.T) {
 					Content:    noteEntity.Content,
 					Visibility: noteEntity.Visibility,
 				},
-				claims: domain.Claims{
-					UserID: noteEntity.ID,
-				},
+				claims: domain.Claims{},
 			},
 			code: fiber.StatusForbidden,
 			want: domain.ErrorResponse{
@@ -504,7 +485,7 @@ func TestNoteHandler_Update(t *testing.T) {
 			name: "validation error",
 			fields: fields{
 				service:   mockNoteService,
-				validator: *validator,
+				validator: validator,
 			},
 			code: fiber.StatusBadRequest,
 			want: domain.ErrorResponse{
@@ -593,9 +574,7 @@ func TestNoteHandler_Delete(t *testing.T) {
 				req: domain.NoteRequest{
 					ID: noteEntity.ID,
 				},
-				claims: domain.Claims{
-					UserID: noteEntity.UserID,
-				},
+				claims: domain.Claims{},
 			},
 			code: fiber.StatusOK,
 			want: domain.SuccessResponse{
@@ -615,9 +594,7 @@ func TestNoteHandler_Delete(t *testing.T) {
 				req: domain.NoteRequest{
 					ID: noteEntity.ID,
 				},
-				claims: domain.Claims{
-					UserID: noteEntity.ID,
-				},
+				claims: domain.Claims{},
 			},
 			code: fiber.StatusInternalServerError,
 			want: domain.ErrorResponse{
@@ -637,9 +614,7 @@ func TestNoteHandler_Delete(t *testing.T) {
 				req: domain.NoteRequest{
 					ID: noteEntity.ID,
 				},
-				claims: domain.Claims{
-					UserID: noteEntity.ID,
-				},
+				claims: domain.Claims{},
 			},
 			code: fiber.StatusForbidden,
 			want: domain.ErrorResponse{

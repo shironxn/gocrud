@@ -31,11 +31,11 @@ func NewAuthHandler(service port.AuthService, jwt util.JWT, validator *util.Vali
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param user body domain.UserRegisterRequest true "User registration request object"
+// @Param user body domain.AuthRegisterRequest true "User registration request object"
 // @Success 201 {object} domain.UserResponse "Successfully registered a new user"
 // @Router /auth/register [post]
 func (h *AuthHandler) Register(ctx *fiber.Ctx) error {
-	var req domain.UserRegisterRequest
+	var req domain.AuthRegisterRequest
 
 	cookie := ctx.Cookies("refresh-token")
 	claims, _ := h.jwt.ValidateToken(cookie, h.cfg.JWT.Refresh)
@@ -72,11 +72,11 @@ func (h *AuthHandler) Register(ctx *fiber.Ctx) error {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param user body domain.UserLoginRequest true "User login request object"
+// @Param user body domain.AuthLoginRequest true "User login request object"
 // @Success 200 {object} domain.UserResponse "Successfully logged in"
 // @Router /auth/login [post]
 func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
-	var req domain.UserLoginRequest
+	var req domain.AuthLoginRequest
 
 	cookie := ctx.Cookies("refresh-token")
 	claims, _ := h.jwt.ValidateToken(cookie, h.cfg.JWT.Refresh)
@@ -103,6 +103,12 @@ func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
 		Path:     "/",
 		HTTPOnly: true,
 		Expires:  time.Now().Add(24 * time.Hour),
+		SameSite: func(mode string) string {
+			if mode != "DEV" {
+				return fiber.CookieSameSiteNoneMode
+			}
+			return fiber.CookieSameSiteLaxMode
+		}(h.cfg.Server.Mode),
 	})
 
 	ctx.Cookie(&fiber.Cookie{
@@ -111,6 +117,12 @@ func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
 		Path:     "/",
 		HTTPOnly: true,
 		Expires:  time.Now().Add(10 * time.Minute),
+		SameSite: func(mode string) string {
+			if mode != "DEV" {
+				return fiber.CookieSameSiteNoneMode
+			}
+			return fiber.CookieSameSiteLaxMode
+		}(h.cfg.Server.Mode),
 	})
 
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
@@ -183,6 +195,12 @@ func (h *AuthHandler) Refresh(ctx *fiber.Ctx) error {
 		Path:     "/",
 		HTTPOnly: true,
 		Expires:  time.Now().Add(10 * time.Minute),
+		SameSite: func(mode string) string {
+			if mode != "DEV" {
+				return fiber.CookieSameSiteNoneMode
+			}
+			return fiber.CookieSameSiteLaxMode
+		}(h.cfg.Server.Mode),
 	})
 
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{

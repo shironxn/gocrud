@@ -8,19 +8,23 @@ import (
 
 type Note struct {
 	gorm.Model
-	Title      string `gorm:"not null"`
-	Content    string `gorm:"not null"`
-	Visibility string `gorm:"not null;type:enum('public','private');default:'private'"`
-	UserID     uint   `gorm:"not null"`
-	Author     User   `gorm:"foreignKey:UserID"`
+	Title       string `gorm:"not null"`
+	Description string `gorm:"not null"`
+	CoverURL    string `gorm:"not null"`
+	Content     string `gorm:"not null"`
+	Visibility  string `gorm:"not null;type:enum('public','private');default:'private'"`
+	UserID      uint   `gorm:"not null"`
+	Author      User   `gorm:"foreignKey:UserID"`
 }
 
 type NoteRequest struct {
-	ID         uint   `json:"id"`
-	Title      string `json:"title" validate:"max=30"`
-	Content    string `json:"content"`
-	Visibility string `json:"visibility" validate:"omitempty,oneof=private public"`
-	UserID     uint   `json:"user_id"`
+	ID          uint   `json:"id"`
+	Title       string `json:"title" validate:"required,max=25"`
+	Description string `json:"description" validate:"required,max=50"`
+	CoverURL    string `json:"cover_url" validate:"required,url,image"`
+	Content     string `json:"content" validate:"required"`
+	Visibility  string `json:"visibility" validate:"required,oneof=private public"`
+	UserID      uint   `json:"user_id"`
 }
 
 type NoteQuery struct {
@@ -30,18 +34,21 @@ type NoteQuery struct {
 }
 
 type NoteAuthor struct {
-	ID   uint   `json:"id"`
-	Name string `json:"name"`
+	ID        uint   `json:"id"`
+	Name      string `json:"name"`
+	AvatarURL string `json:"avatar_url"`
 }
 
 type NoteResponse struct {
-	ID         uint       `json:"id"`
-	Title      string     `json:"title"`
-	Content    string     `json:"content"`
-	Visibility string     `json:"visibility"`
-	Author     NoteAuthor `json:"author"`
-	CreatedAt  time.Time  `json:"created_at"`
-	UpdatedAt  time.Time  `json:"updated_at"`
+	ID          uint       `json:"id"`
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	CoverURL    string     `json:"cover_url"`
+	Content     string     `json:"content"`
+	Visibility  string     `json:"visibility"`
+	Author      NoteAuthor `json:"author"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
 }
 
 type NotePaginationResponse struct {

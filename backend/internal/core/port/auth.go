@@ -6,7 +6,7 @@ import (
 )
 
 type AuthRepository interface {
-	Register(req domain.UserRegisterRequest) (*domain.User, error)
+	Register(req domain.AuthRegisterRequest) (*domain.User, error)
 	GetByEmail(email string) (*domain.User, error)
 	GetRefreshToken(userID uint) (*domain.RefreshToken, error)
 	StoreRefreshToken(userID uint, token string) error
@@ -14,8 +14,8 @@ type AuthRepository interface {
 }
 
 type AuthService interface {
-	Register(req domain.UserRegisterRequest) (*domain.User, error)
-	Login(req domain.UserLoginRequest) (*domain.User, *domain.UserToken, error)
+	Register(req domain.AuthRegisterRequest) (*domain.User, error)
+	Login(req domain.AuthLoginRequest) (*domain.User, *domain.UserToken, error)
 	Logout(userID uint) error
 	Refresh(token string) (*string, *domain.Claims, error)
 }

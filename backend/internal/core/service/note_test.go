@@ -189,7 +189,7 @@ func TestNoteService_GetByID(t *testing.T) {
 			name: "success",
 			fields: fields{
 				repository: func() port.NoteRepository {
-					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("domain.NoteRequest")).Return(noteEntity, nil).Once()
+					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(noteEntity, nil).Once()
 					return mockNoteRepository
 				}(),
 			},
@@ -205,7 +205,7 @@ func TestNoteService_GetByID(t *testing.T) {
 			name: "failure",
 			fields: fields{
 				repository: func() port.NoteRepository {
-					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("domain.NoteRequest")).Return(nil, errors.New("failed")).Once()
+					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(nil, errors.New("failed")).Once()
 					return mockNoteRepository
 				}(),
 			},
@@ -220,7 +220,7 @@ func TestNoteService_GetByID(t *testing.T) {
 				repository: tt.fields.repository,
 			}
 
-			got, err := h.GetByID(tt.args.req, tt.args.claims)
+			got, err := h.GetByID(tt.args.req.ID, tt.args.claims)
 
 			if tt.wantErr {
 				assert.Error(t, err)
@@ -257,7 +257,7 @@ func TestNoteService_Update(t *testing.T) {
 			name: "success",
 			fields: fields{
 				repository: func() port.NoteRepository {
-					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("domain.NoteRequest")).Return(noteEntity, nil).Once()
+					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(noteEntity, nil).Once()
 					mockNoteRepository.EXPECT().Update(mock.AnythingOfType("domain.NoteRequest"), mock.AnythingOfType("*domain.Note")).Return(noteEntity, nil).Once()
 					return mockNoteRepository
 				}(),
@@ -280,7 +280,7 @@ func TestNoteService_Update(t *testing.T) {
 			name: "failure",
 			fields: fields{
 				repository: func() port.NoteRepository {
-					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("domain.NoteRequest")).Return(noteEntity, nil).Once()
+					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(noteEntity, nil).Once()
 					mockNoteRepository.EXPECT().Update(mock.AnythingOfType("domain.NoteRequest"), mock.AnythingOfType("*domain.Note")).Return(nil, errors.New("failed")).Once()
 					return mockNoteRepository
 				}(),
@@ -300,7 +300,7 @@ func TestNoteService_Update(t *testing.T) {
 			name: "permission denied",
 			fields: fields{
 				repository: func() port.NoteRepository {
-					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("domain.NoteRequest")).Return(noteEntity, nil).Once()
+					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(noteEntity, nil).Once()
 					return mockNoteRepository
 				}(),
 			},
@@ -364,7 +364,7 @@ func TestNoteService_Delete(t *testing.T) {
 			name: "success",
 			fields: fields{
 				repository: func() port.NoteRepository {
-					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("domain.NoteRequest")).Return(noteEntity, nil).Once()
+					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(noteEntity, nil).Once()
 					mockNoteRepository.EXPECT().Delete(mock.AnythingOfType("*domain.Note")).Return(nil).Once()
 					return mockNoteRepository
 				}(),
@@ -384,7 +384,7 @@ func TestNoteService_Delete(t *testing.T) {
 			name: "failure",
 			fields: fields{
 				repository: func() port.NoteRepository {
-					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("domain.NoteRequest")).Return(noteEntity, nil).Once()
+					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(noteEntity, nil).Once()
 					mockNoteRepository.EXPECT().Delete(mock.AnythingOfType("*domain.Note")).Return(errors.New("failed")).Once()
 					return mockNoteRepository
 				}(),
@@ -404,7 +404,7 @@ func TestNoteService_Delete(t *testing.T) {
 			name: "permission denied",
 			fields: fields{
 				repository: func() port.NoteRepository {
-					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("domain.NoteRequest")).Return(noteEntity, nil).Once()
+					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(noteEntity, nil).Once()
 					return mockNoteRepository
 				}(),
 			},
@@ -427,7 +427,7 @@ func TestNoteService_Delete(t *testing.T) {
 				repository: tt.fields.repository,
 			}
 
-			err := h.Delete(tt.args.req, tt.args.claims)
+			err := h.Delete(tt.args.req.ID, tt.args.claims)
 
 			if tt.wantErr {
 				assert.Error(t, err)
