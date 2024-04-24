@@ -34,6 +34,12 @@ export const noteRequestSchema = z.object({
   visibility: z.enum(["public", "private"]),
 });
 
+export const noteQuerySchema = z.object({
+  title: z.string(),
+  visibility: z.enum(["public", "private"]),
+  user_id: z.number(),
+});
+
 export const notePaginationSchema = z.object({
   notes: z.array(noteSchema),
   metadata: metadataSchema,
@@ -41,4 +47,5 @@ export const notePaginationSchema = z.object({
 
 export type Note = z.infer<typeof noteSchema>;
 export type NoteRequest = z.infer<typeof noteRequestSchema>;
+export type NoteQuery = z.infer<typeof noteQuerySchema>;
 export type NotePagination = z.infer<typeof notePaginationSchema>;

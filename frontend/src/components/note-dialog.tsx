@@ -110,7 +110,10 @@ const NoteCreateDialog = () => {
         title: "Success",
         description: data?.message,
       });
-      router.refresh();
+      const fields: string[] = Object.keys(form.getValues());
+      fields.forEach((field: string) => {
+        form.setValue(field as NameOptions, "");
+      });
     }
   }, [data]);
 

@@ -29,18 +29,9 @@ import React, { useEffect } from "react";
 import { useTheme } from "next-themes";
 import useAxios from "axios-hooks";
 import { toast } from "./ui/use-toast";
-import { useRouter } from "next/navigation";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
+import { usePathname, useRouter } from "next/navigation";
 import { NoteCreateDialog } from "./note-dialog";
+import { useSearchParams } from "next/navigation";
 
 const menu: { title: string; href: string; icon: JSX.Element }[] = [
   {
@@ -67,7 +58,9 @@ const menu: { title: string; href: string; icon: JSX.Element }[] = [
 
 const Navbar = () => {
   const { setTheme } = useTheme();
-  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
 
   const [{ data: userData, error: userError }, refetchUser] = useAxios(
     {
@@ -116,6 +109,17 @@ const Navbar = () => {
     executeLogout();
   };
 
+  const handleSearch = (term: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.delete("page");
+    if (term) {
+      params.set("query", term);
+    } else {
+      params.delete("query");
+    }
+    replace(`${pathname}?${params.toString()}`);
+  };
+
   return (
     <div className="shadow-md p-4 flex justify-between items-center">
       <div>
@@ -134,6 +138,10 @@ const Navbar = () => {
                 <input
                   className="w-full bg-transparent p-2 pl-8 placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   placeholder="Search"
+                  onChange={(e) => {
+                    handleSearch(e.target.value);
+                  }}
+                  defaultValue={searchParams.get("query")?.toString()}
                 />
               </div>
             </NavigationMenuItem>

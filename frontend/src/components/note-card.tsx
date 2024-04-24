@@ -23,14 +23,12 @@ import Image from "next/image";
 import { Note } from "@/lib/schema/note";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
-import useAxios from "axios-hooks";
-import { toast } from "./ui/use-toast";
 
 import { Skeleton } from "./ui/skeleton";
 
-const LoadingCard = () => {
+export const LoadingCard = () => {
   return Array.from({ length: 6 }).map((_, i: number) => (
-    <Card>
+    <Card key={i}>
       <CardHeader>
         <div className="w-full">
           <AspectRatio ratio={5 / 1}>
@@ -57,31 +55,17 @@ const LoadingCard = () => {
   ));
 };
 
-export function NoteCard() {
-  const [{ data, loading, error }] = useAxios({
-    url: "/notes?limit=100&order=desc",
-    method: "GET",
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
-  });
-
-  if (error) {
-    toast({
-      title: "Uh oh! Something went wrong.",
-      description: error.response?.data.message || "An unknown error occurred",
-    });
-  }
-
+export function NoteCard({ data }: { data: any }) {
   return (
     <>
-      {loading && LoadingCard()}
       {data &&
         data.data?.notes?.map((item: Note, i: number) => (
-          <Card>
+          <Card key={i}>
             <CardHeader>
               <div className="w-full">
                 <AspectRatio ratio={5 / 1}>
                   <Image
-                    src={item.cover_url}
+                    src={item.cover_url || "/cover.jpg"}
                     alt="Image"
                     className="object-cover rounded-t-md"
                     fill
@@ -132,7 +116,7 @@ export function NoteCard() {
                     <div className="w-full">
                       <AspectRatio ratio={4 / 2}>
                         <Image
-                          src={item.cover_url}
+                          src={item.cover_url || "/cover.jpg"}
                           alt="Image"
                           className="object-cover"
                           fill
