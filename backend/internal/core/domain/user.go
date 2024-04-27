@@ -25,7 +25,7 @@ type UserToken struct {
 
 type UserRequest struct {
 	ID        uint   `json:"id"`
-	Name      string `json:"name" validate:"omitempty,min=4,max=30"`
+	Name      string `json:"name" validate:"omitempty,min=4,max=20"`
 	Email     string `json:"email" validate:"omitempty,email"`
 	Bio       string `json:"bio" validate:"omitempty,max=50"`
 	AvatarURL string `json:"avatar_url" validate:"omitempty,url,image"`

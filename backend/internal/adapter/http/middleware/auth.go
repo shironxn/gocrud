@@ -8,7 +8,6 @@ import (
 	"github.com/shironxn/gocrud/internal/util"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/log"
 )
 
 type AuthMiddleware struct {
@@ -40,19 +39,19 @@ func (m *AuthMiddleware) Auth() fiber.Handler {
 			if err != nil {
 				return fiber.NewError(fiber.StatusUnauthorized, "unauthorized access")
 			}
-			log.Info(newAccessToken)
+
 			c.Cookie(&fiber.Cookie{
 				Name:     "access-token",
 				Value:    *newAccessToken,
 				Path:     "/",
 				HTTPOnly: true,
 				Expires:  time.Now().Add(10 * time.Minute),
-				SameSite: func(mode string) string {
-					if mode != "DEV" {
-						return fiber.CookieSameSiteNoneMode
+				SameSite: func(dev string) string {
+					if dev == "true" {
+						return fiber.CookieSameSiteLaxMode
 					}
-					return fiber.CookieSameSiteLaxMode
-				}(m.cfg.Server.Mode),
+					return fiber.CookieSameSiteNoneMode
+				}(m.cfg.Server.Dev),
 			})
 			c.Locals("claims", claims)
 

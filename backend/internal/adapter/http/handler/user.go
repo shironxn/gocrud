@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"reflect"
 	"time"
 
 	"github.com/shironxn/gocrud/internal/core/domain"
@@ -147,10 +146,6 @@ func (h *UserHandler) Update(ctx *fiber.Ctx) error {
 
 	if err := ctx.BodyParser(&req); err != nil {
 		return err
-	}
-
-	if reflect.DeepEqual(req, domain.UserRequest{}) {
-		return fiber.NewError(fiber.StatusBadRequest, "at least one field must be filled")
 	}
 
 	if err := ctx.ParamsParser(&req); err != nil {

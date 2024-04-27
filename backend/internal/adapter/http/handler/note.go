@@ -1,9 +1,6 @@
 package handler
 
 import (
-	"reflect"
-	"strconv"
-
 	"github.com/shironxn/gocrud/internal/config"
 	"github.com/shironxn/gocrud/internal/core/domain"
 	"github.com/shironxn/gocrud/internal/core/port"
@@ -12,6 +9,7 @@ import (
 	_ "github.com/shironxn/gocrud/docs"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 )
 
 type NoteHandler struct {
@@ -69,7 +67,7 @@ func (h *NoteHandler) Create(ctx *fiber.Ctx) error {
 				Description: result.Description,
 				CoverURL:    result.CoverURL,
 				Content:     result.Content,
-				Visibility:  result.Visibility,
+				Visibility:  string(result.Visibility),
 				Author: domain.NoteAuthor{
 					ID:        result.Author.ID,
 					Name:      result.Author.Name,
@@ -111,12 +109,23 @@ func (h *NoteHandler) GetAll(ctx *fiber.Ctx) error {
 
 	cookie := ctx.Cookies("access-token")
 	claims, _ := h.jwt.ValidateToken(cookie, h.cfg.JWT.Access)
-	if claims != nil && req.Visibility == "private" {
-		req.UserID = strconv.Itoa(int(claims.UserID))
-		req.Visibility = "private"
+	if claims != nil {
+		switch {
+		case req.Visibility == "private":
+			req.UserID = int(claims.UserID)
+		case req.UserID != 0:
+			log.Info(req.UserID)
+			req.UserID = int(claims.UserID)
+		default:
+			req.Visibility = "public"
+		}
 	} else {
 		req.Visibility = "public"
 	}
+
+	// if req.UserID != nil {
+	// 	req.UserID = uint(req.UserID.(uint))
+	// }
 
 	result, err := h.service.GetAll(req, &metadata)
 	if err != nil {
@@ -130,7 +139,7 @@ func (h *NoteHandler) GetAll(ctx *fiber.Ctx) error {
 			Description: note.Description,
 			CoverURL:    note.CoverURL,
 			Content:     note.Content,
-			Visibility:  note.Visibility,
+			Visibility:  string(note.Visibility),
 			Author: domain.NoteAuthor{
 				ID:        note.Author.ID,
 				Name:      note.Author.Name,
@@ -192,7 +201,7 @@ func (h *NoteHandler) GetByID(ctx *fiber.Ctx) error {
 			Description: result.Description,
 			CoverURL:    result.CoverURL,
 			Content:     result.Content,
-			Visibility:  result.Visibility,
+			Visibility:  string(result.Visibility),
 			Author: domain.NoteAuthor{
 				ID:        result.Author.ID,
 				Name:      result.Author.Name,
@@ -210,18 +219,14 @@ func (h *NoteHandler) GetByID(ctx *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param id path int true "Note ID"
-// @Param note body domain.NoteRequest true "Updated note object"
+// @Param note body domain.NoteUpdate true "Updated note object"
 // @Success 200 {object} domain.NoteResponse "Successfully updated a note by ID"
 // @Router /notes/{id} [put]
 func (h *NoteHandler) Update(ctx *fiber.Ctx) error {
-	var req domain.NoteRequest
+	var req domain.NoteUpdate
 
 	if err := ctx.BodyParser(&req); err != nil {
 		return err
-	}
-
-	if reflect.DeepEqual(req, domain.NoteRequest{}) {
-		return fiber.NewError(fiber.StatusBadRequest, "at least one field must be filled")
 	}
 
 	if err := ctx.ParamsParser(&req); err != nil {
@@ -251,7 +256,7 @@ func (h *NoteHandler) Update(ctx *fiber.Ctx) error {
 			Description: result.Description,
 			CoverURL:    result.CoverURL,
 			Content:     result.Content,
-			Visibility:  result.Visibility,
+			Visibility:  string(result.Visibility),
 			Author: domain.NoteAuthor{
 				ID:        result.Author.ID,
 				Name:      result.Author.Name,

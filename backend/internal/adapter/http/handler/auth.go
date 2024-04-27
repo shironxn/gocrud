@@ -103,12 +103,12 @@ func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
 		Path:     "/",
 		HTTPOnly: true,
 		Expires:  time.Now().Add(24 * time.Hour),
-		SameSite: func(mode string) string {
-			if mode != "DEV" {
-				return fiber.CookieSameSiteNoneMode
+		SameSite: func(dev string) string {
+			if dev == "true" {
+				return fiber.CookieSameSiteLaxMode
 			}
-			return fiber.CookieSameSiteLaxMode
-		}(h.cfg.Server.Mode),
+			return fiber.CookieSameSiteNoneMode
+		}(h.cfg.Server.Dev),
 	})
 
 	ctx.Cookie(&fiber.Cookie{
@@ -117,12 +117,12 @@ func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
 		Path:     "/",
 		HTTPOnly: true,
 		Expires:  time.Now().Add(10 * time.Minute),
-		SameSite: func(mode string) string {
-			if mode != "DEV" {
-				return fiber.CookieSameSiteNoneMode
+		SameSite: func(dev string) string {
+			if dev == "true" {
+				return fiber.CookieSameSiteLaxMode
 			}
-			return fiber.CookieSameSiteLaxMode
-		}(h.cfg.Server.Mode),
+			return fiber.CookieSameSiteNoneMode
+		}(h.cfg.Server.Dev),
 	})
 
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
@@ -195,12 +195,12 @@ func (h *AuthHandler) Refresh(ctx *fiber.Ctx) error {
 		Path:     "/",
 		HTTPOnly: true,
 		Expires:  time.Now().Add(10 * time.Minute),
-		SameSite: func(mode string) string {
-			if mode != "DEV" {
-				return fiber.CookieSameSiteNoneMode
+		SameSite: func(dev string) string {
+			if dev == "true" {
+				return fiber.CookieSameSiteLaxMode
 			}
-			return fiber.CookieSameSiteLaxMode
-		}(h.cfg.Server.Mode),
+			return fiber.CookieSameSiteNoneMode
+		}(h.cfg.Server.Dev),
 	})
 
 	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{

@@ -17,21 +17,32 @@ export const noteSchema = z.object({
     avatar_url: z
       .string()
       .url()
-      .endsWith(".jpg" || ".png"),
+      .endsWith(".jpg" || ".png")
+      .optional()
+      .or(z.literal("")),
   }),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
 });
 
-export const noteRequestSchema = z.object({
+export const noteCreateSchema = z.object({
   title: z.string().min(1).max(25),
   description: z.string().min(1).max(50),
+  cover_url: z.string().url().endsWith(".jpg").or(z.string().endsWith(".png")),
+  content: z.string().min(1),
+  visibility: z.enum(["public", "private"]),
+});
+
+export const noteUpdateSchema = z.object({
+  title: z.string().min(1).max(25).optional(),
+  description: z.string().min(1).max(50).optional(),
   cover_url: z
     .string()
     .url()
-    .endsWith(".jpg" || ".png"),
-  content: z.string().min(1),
-  visibility: z.enum(["public", "private"]),
+    .endsWith(".jpg" || ".png")
+    .optional(),
+  content: z.string().min(1).optional(),
+  visibility: z.enum(["public", "private"]).optional(),
 });
 
 export const noteQuerySchema = z.object({
@@ -46,6 +57,7 @@ export const notePaginationSchema = z.object({
 });
 
 export type Note = z.infer<typeof noteSchema>;
-export type NoteRequest = z.infer<typeof noteRequestSchema>;
+export type NoteCreate = z.infer<typeof noteCreateSchema>;
+export type NoteUpdate = z.infer<typeof noteUpdateSchema>;
 export type NoteQuery = z.infer<typeof noteQuerySchema>;
 export type NotePagination = z.infer<typeof notePaginationSchema>;

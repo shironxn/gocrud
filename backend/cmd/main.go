@@ -56,7 +56,7 @@ func main() {
 
 	authMiddleware := middleware.NewAuthMiddleware(authService, jwt, cfg)
 
-	initRoute := route.NewInitRoute()
+	initRoute := route.NewInitRoute(cfg)
 	authRoute := route.NewAuthRoute(authHandler, authMiddleware)
 	userRoute := route.NewUserRoute(userHandler, authMiddleware)
 	noteRoute := route.NewNoteRoute(noteHandler, authMiddleware)

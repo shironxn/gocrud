@@ -2,7 +2,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import Image from "next/image";
 import { LoginForm } from "@/components/auth-form";
 
-export default async function Page() {
+export default function Page() {
   return (
     <div className="flex justify-center items-center min-h-screen">
       <div className="max-w-6xl flex flex-col space-y-5 p-5 md:flex-row w-full md:space-x-10">

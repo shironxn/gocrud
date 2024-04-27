@@ -36,7 +36,7 @@ func (r *NoteRepository) Create(req domain.NoteRequest) (*domain.Note, error) {
 		Description: req.Description,
 		CoverURL:    req.CoverURL,
 		Content:     req.Content,
-		Visibility:  req.Visibility,
+		Visibility:  domain.Visibility(req.Visibility),
 		UserID:      req.UserID,
 	}
 	if err := r.db.Create(&entity).Preload("Author").Find(&entity).Error; err != nil {
@@ -71,7 +71,7 @@ func (r *NoteRepository) GetByID(id uint) (*domain.Note, error) {
 	return &entity, nil
 }
 
-func (r *NoteRepository) Update(req domain.NoteRequest, entity *domain.Note) (*domain.Note, error) {
+func (r *NoteRepository) Update(req domain.NoteUpdate, entity *domain.Note) (*domain.Note, error) {
 	if err := r.db.Where("user_id = ? AND title = ? AND id != ?", req.UserID, req.Title, entity.ID).First(&domain.Note{}).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, err

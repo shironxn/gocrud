@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Navbar } from "@/components/navbar";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { LoadingCard, NoteCard } from "@/components/note-card";
-import { NotePagination } from "@/components/pagination";
+import { NotePagination } from "@/components/note-pagination";
 import useAxios from "axios-hooks";
 import { toast } from "@/components/ui/use-toast";
 
@@ -12,17 +12,18 @@ export default function Page({
   searchParams,
 }: {
   searchParams?: {
-    query?: string;
+    search?: string;
     page?: string;
   };
 }) {
-  const query = searchParams?.query || "";
+  const search = searchParams?.search || "";
   const currentPage = Number(searchParams?.page) || 1;
 
   const [{ data, loading, error }] = useAxios({
-    url: `/notes?title=${query}&page=${currentPage}&limit=6&order=desc`,
+    url: `/notes?visibility="public"&title=${search}&page=${currentPage}&limit=6&order=desc`,
     method: "GET",
     baseURL: process.env.NEXT_PUBLIC_API_URL,
+    withCredentials: true,
   });
 
   if (error) {
@@ -40,10 +41,10 @@ export default function Page({
           <Image src="/header.jpg" alt="Image" className="object-cover" fill />
         </AspectRatio>
       </div>
-      {data?.data.notes && (
+      {data?.data.notes ? (
         <div className="container mx-auto py-8 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {!loading ? <NoteCard data={data} /> : <LoadingCard />}
+            {data && <NoteCard data={data.data.notes} />}
           </div>
           {Number(data.data?.metadata?.total_page) > 1 && (
             <NotePagination
@@ -52,6 +53,8 @@ export default function Page({
             />
           )}
         </div>
+      ) : (
+        <LoadingCard />
       )}
     </div>
   );

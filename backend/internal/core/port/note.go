@@ -10,7 +10,7 @@ type NoteRepository interface {
 	Create(req domain.NoteRequest) (*domain.Note, error)
 	GetAll(req domain.NoteQuery, metdata *domain.Metadata) ([]domain.Note, error)
 	GetByID(id uint) (*domain.Note, error)
-	Update(req domain.NoteRequest, entity *domain.Note) (*domain.Note, error)
+	Update(req domain.NoteUpdate, entity *domain.Note) (*domain.Note, error)
 	Delete(entity *domain.Note) error
 }
 
@@ -18,7 +18,7 @@ type NoteService interface {
 	Create(req domain.NoteRequest) (*domain.Note, error)
 	GetAll(req domain.NoteQuery, metadata *domain.Metadata) ([]domain.Note, error)
 	GetByID(id uint, claims *domain.Claims) (*domain.Note, error)
-	Update(req domain.NoteRequest, claims domain.Claims) (*domain.Note, error)
+	Update(req domain.NoteUpdate, claims domain.Claims) (*domain.Note, error)
 	Delete(id uint, claims domain.Claims) error
 }
 

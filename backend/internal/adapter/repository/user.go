@@ -54,6 +54,14 @@ func (r *UserRepository) GetByID(id uint) (*domain.User, error) {
 }
 
 func (r *UserRepository) Update(req domain.UserRequest, entity *domain.User) (*domain.User, error) {
+	if req.Bio == "" {
+		r.db.Model(entity).Update("bio", "")
+	}
+
+	if req.AvatarURL == "" {
+		r.db.Model(entity).Update("avatar_url", "")
+	}
+
 	if err := r.db.Model(entity).Updates(req).Error; err != nil {
 		var mysqlErr *mysql.MySQLError
 		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {

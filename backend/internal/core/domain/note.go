@@ -6,15 +6,22 @@ import (
 	"gorm.io/gorm"
 )
 
+type Visibility string
+
+const (
+	Public  Visibility = "public"
+	Private Visibility = "private"
+)
+
 type Note struct {
 	gorm.Model
-	Title       string `gorm:"not null"`
-	Description string `gorm:"not null"`
-	CoverURL    string `gorm:"not null"`
-	Content     string `gorm:"not null"`
-	Visibility  string `gorm:"not null;type:enum('public','private');default:'private'"`
-	UserID      uint   `gorm:"not null"`
-	Author      User   `gorm:"foreignKey:UserID"`
+	Title       string     `gorm:"not null"`
+	Description string     `gorm:"not null"`
+	CoverURL    string     `gorm:"not null"`
+	Content     string     `gorm:"not null"`
+	Visibility  Visibility `gorm:"not null;default:'private'" sql:"type:visibility"`
+	UserID      uint       `gorm:"not null"`
+	Author      User       `gorm:"foreignKey:UserID"`
 }
 
 type NoteRequest struct {
@@ -27,10 +34,20 @@ type NoteRequest struct {
 	UserID      uint   `json:"user_id"`
 }
 
+type NoteUpdate struct {
+	ID          uint   `json:"id"`
+	Title       string `json:"title" validate:"omitempty,max=25"`
+	Description string `json:"description" validate:"omitempty,max=50"`
+	CoverURL    string `json:"cover_url" validate:"omitempty,url,image"`
+	Content     string `json:"content" validate:"omitempty"`
+	Visibility  string `json:"visibility" validate:"omitempty,oneof=private public"`
+	UserID      uint   `json:"user_id"`
+}
+
 type NoteQuery struct {
 	Title      string `query:"title"`
 	Visibility string `query:"visibility"`
-	UserID     string `query:"user_id"`
+	UserID     int    `query:"user_id"`
 }
 
 type NoteAuthor struct {

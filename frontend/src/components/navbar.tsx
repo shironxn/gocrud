@@ -30,7 +30,7 @@ import { useTheme } from "next-themes";
 import useAxios from "axios-hooks";
 import { toast } from "./ui/use-toast";
 import { usePathname, useRouter } from "next/navigation";
-import { NoteCreateDialog } from "./note-dialog";
+import { NoteCreateDialog } from "./note-drawer";
 import { useSearchParams } from "next/navigation";
 
 const menu: { title: string; href: string; icon: JSX.Element }[] = [
@@ -97,11 +97,7 @@ const Navbar = () => {
 
   useEffect(() => {
     if (logoutData) {
-      toast({
-        title: "Success",
-        description: logoutData?.message,
-      });
-      refetchUser();
+      window.location.reload();
     }
   }, [logoutData]);
 
@@ -113,9 +109,9 @@ const Navbar = () => {
     const params = new URLSearchParams(searchParams);
     params.delete("page");
     if (term) {
-      params.set("query", term);
+      params.set("search", term);
     } else {
-      params.delete("query");
+      params.delete("search");
     }
     replace(`${pathname}?${params.toString()}`);
   };
@@ -174,9 +170,11 @@ const Navbar = () => {
               <NavigationMenuItem>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Avatar className="cursor-pointe">
-                      <AvatarImage src={userData?.data?.avatar_url} />
-                      <AvatarFallback>CN</AvatarFallback>
+                    <Avatar className="h-12 w-12 cursor-pointer">
+                      <AvatarImage src={userData?.data.avatar_url} />
+                      <AvatarFallback>
+                        {userData?.data.name.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="mr-5 mt-5 w-56">
@@ -185,7 +183,7 @@ const Navbar = () => {
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     {menu.map((item, i) => (
-                      <Link href={item.href} target="_blank" key={i}>
+                      <Link href={item.href} key={i}>
                         <DropdownMenuItem className="gap-x-3">
                           <div>{item.icon}</div>
                           <div>{item.title}</div>
