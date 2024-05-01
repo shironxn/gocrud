@@ -20,9 +20,9 @@ func (_m *UserRepository) EXPECT() *UserRepository_Expecter {
 	return &UserRepository_Expecter{mock: &_m.Mock}
 }
 
-// Delete provides a mock function with given fields: entity
-func (_m *UserRepository) Delete(entity *domain.User) error {
-	ret := _m.Called(entity)
+// Delete provides a mock function with given fields: user
+func (_m *UserRepository) Delete(user *domain.User) error {
+	ret := _m.Called(user)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
@@ -30,7 +30,7 @@ func (_m *UserRepository) Delete(entity *domain.User) error {
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(*domain.User) error); ok {
-		r0 = rf(entity)
+		r0 = rf(user)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -44,12 +44,12 @@ type UserRepository_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
-//   - entity *domain.User
-func (_e *UserRepository_Expecter) Delete(entity interface{}) *UserRepository_Delete_Call {
-	return &UserRepository_Delete_Call{Call: _e.mock.On("Delete", entity)}
+//   - user *domain.User
+func (_e *UserRepository_Expecter) Delete(user interface{}) *UserRepository_Delete_Call {
+	return &UserRepository_Delete_Call{Call: _e.mock.On("Delete", user)}
 }
 
-func (_c *UserRepository_Delete_Call) Run(run func(entity *domain.User)) *UserRepository_Delete_Call {
+func (_c *UserRepository_Delete_Call) Run(run func(user *domain.User)) *UserRepository_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(*domain.User))
 	})
@@ -183,9 +183,9 @@ func (_c *UserRepository_GetByID_Call) RunAndReturn(run func(uint) (*domain.User
 	return _c
 }
 
-// Update provides a mock function with given fields: req, entity
-func (_m *UserRepository) Update(req domain.UserRequest, entity *domain.User) (*domain.User, error) {
-	ret := _m.Called(req, entity)
+// Update provides a mock function with given fields: req, user
+func (_m *UserRepository) Update(req domain.UserRequest, user *domain.User) (*domain.User, error) {
+	ret := _m.Called(req, user)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
@@ -194,10 +194,10 @@ func (_m *UserRepository) Update(req domain.UserRequest, entity *domain.User) (*
 	var r0 *domain.User
 	var r1 error
 	if rf, ok := ret.Get(0).(func(domain.UserRequest, *domain.User) (*domain.User, error)); ok {
-		return rf(req, entity)
+		return rf(req, user)
 	}
 	if rf, ok := ret.Get(0).(func(domain.UserRequest, *domain.User) *domain.User); ok {
-		r0 = rf(req, entity)
+		r0 = rf(req, user)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*domain.User)
@@ -205,7 +205,7 @@ func (_m *UserRepository) Update(req domain.UserRequest, entity *domain.User) (*
 	}
 
 	if rf, ok := ret.Get(1).(func(domain.UserRequest, *domain.User) error); ok {
-		r1 = rf(req, entity)
+		r1 = rf(req, user)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -220,12 +220,12 @@ type UserRepository_Update_Call struct {
 
 // Update is a helper method to define mock.On call
 //   - req domain.UserRequest
-//   - entity *domain.User
-func (_e *UserRepository_Expecter) Update(req interface{}, entity interface{}) *UserRepository_Update_Call {
-	return &UserRepository_Update_Call{Call: _e.mock.On("Update", req, entity)}
+//   - user *domain.User
+func (_e *UserRepository_Expecter) Update(req interface{}, user interface{}) *UserRepository_Update_Call {
+	return &UserRepository_Update_Call{Call: _e.mock.On("Update", req, user)}
 }
 
-func (_c *UserRepository_Update_Call) Run(run func(req domain.UserRequest, entity *domain.User)) *UserRepository_Update_Call {
+func (_c *UserRepository_Update_Call) Run(run func(req domain.UserRequest, user *domain.User)) *UserRepository_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(domain.UserRequest), args[1].(*domain.User))
 	})

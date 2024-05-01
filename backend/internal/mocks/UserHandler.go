@@ -158,6 +158,52 @@ func (_c *UserHandler_GetByID_Call) RunAndReturn(run func(*fiber.Ctx) error) *Us
 	return _c
 }
 
+// GetMe provides a mock function with given fields: ctx
+func (_m *UserHandler) GetMe(ctx *fiber.Ctx) error {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMe")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*fiber.Ctx) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UserHandler_GetMe_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMe'
+type UserHandler_GetMe_Call struct {
+	*mock.Call
+}
+
+// GetMe is a helper method to define mock.On call
+//   - ctx *fiber.Ctx
+func (_e *UserHandler_Expecter) GetMe(ctx interface{}) *UserHandler_GetMe_Call {
+	return &UserHandler_GetMe_Call{Call: _e.mock.On("GetMe", ctx)}
+}
+
+func (_c *UserHandler_GetMe_Call) Run(run func(ctx *fiber.Ctx)) *UserHandler_GetMe_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(*fiber.Ctx))
+	})
+	return _c
+}
+
+func (_c *UserHandler_GetMe_Call) Return(_a0 error) *UserHandler_GetMe_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *UserHandler_GetMe_Call) RunAndReturn(run func(*fiber.Ctx) error) *UserHandler_GetMe_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Update provides a mock function with given fields: ctx
 func (_m *UserHandler) Update(ctx *fiber.Ctx) error {
 	ret := _m.Called(ctx)

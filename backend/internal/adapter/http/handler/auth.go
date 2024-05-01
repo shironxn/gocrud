@@ -38,9 +38,11 @@ func (h *AuthHandler) Register(ctx *fiber.Ctx) error {
 	var req domain.AuthRegisterRequest
 
 	cookie := ctx.Cookies("refresh-token")
-	claims, _ := h.jwt.ValidateToken(cookie, h.cfg.JWT.Refresh)
-	if claims != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "user is already registered")
+	if cookie != "" {
+		claims, _ := h.jwt.ValidateToken(cookie, h.cfg.JWT.Refresh)
+		if claims != nil {
+			return fiber.NewError(fiber.StatusBadRequest, "user is already registered")
+		}
 	}
 
 	if err := ctx.BodyParser(&req); err != nil {
@@ -56,14 +58,11 @@ func (h *AuthHandler) Register(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.Status(fiber.StatusCreated).JSON(domain.SuccessResponse{
-		Message: "user successfully registered",
-		Data: domain.UserResponse{
-			ID:        result.ID,
-			Name:      result.Name,
-			CreatedAt: result.CreatedAt,
-			UpdatedAt: result.UpdatedAt,
-		},
+	return ctx.Status(fiber.StatusCreated).JSON(domain.UserResponse{
+		ID:        result.ID,
+		Name:      result.Name,
+		CreatedAt: result.CreatedAt,
+		UpdatedAt: result.UpdatedAt,
 	})
 }
 
@@ -79,9 +78,11 @@ func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
 	var req domain.AuthLoginRequest
 
 	cookie := ctx.Cookies("refresh-token")
-	claims, _ := h.jwt.ValidateToken(cookie, h.cfg.JWT.Refresh)
-	if claims != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "user is already logged in")
+	if cookie != "" {
+		claims, _ := h.jwt.ValidateToken(cookie, h.cfg.JWT.Refresh)
+		if claims != nil {
+			return fiber.NewError(fiber.StatusBadRequest, "user is already logged in")
+		}
 	}
 
 	if err := ctx.BodyParser(&req); err != nil {
@@ -125,16 +126,13 @@ func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
 		}(h.cfg.Server.Dev),
 	})
 
-	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "user successfully logged in",
-		Data: domain.UserResponse{
-			ID:        result.ID,
-			Name:      result.Name,
-			CreatedAt: result.CreatedAt,
-			UpdatedAt: result.UpdatedAt,
-			UserToken: tokens,
-		}},
-	)
+	return ctx.Status(fiber.StatusOK).JSON(domain.UserResponse{
+		ID:        result.ID,
+		Name:      result.Name,
+		CreatedAt: result.CreatedAt,
+		UpdatedAt: result.UpdatedAt,
+		UserToken: tokens,
+	})
 }
 
 // @Summary User logout
@@ -170,9 +168,8 @@ func (h *AuthHandler) Logout(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "user successfully logged out",
-	})
+	ctx.Status(fiber.StatusOK)
+	return nil
 }
 
 // @Summary Refresh access token
@@ -203,11 +200,8 @@ func (h *AuthHandler) Refresh(ctx *fiber.Ctx) error {
 		}(h.cfg.Server.Dev),
 	})
 
-	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully refresh token",
-		Data: domain.UserToken{
-			AccessToken: *result,
-			Claims:      claims,
-		},
+	return ctx.Status(fiber.StatusOK).JSON(domain.UserToken{
+		AccessToken: *result,
+		Claims:      claims,
 	})
 }

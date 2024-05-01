@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"reflect"
 
 	"github.com/shironxn/gocrud/internal/core/domain"
 	"github.com/shironxn/gocrud/internal/core/port"
@@ -24,14 +25,17 @@ func NewNoteRepository(db *gorm.DB, pagination util.Pagination) port.NoteReposit
 }
 
 func (r *NoteRepository) Create(req domain.NoteRequest) (*domain.Note, error) {
-	if err := r.db.Where("user_id = ? AND title = ?", req.UserID, req.Title).First(&domain.Note{}).Error; err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, err
-		}
-	} else {
+	var entity domain.Note
+
+	if err := r.db.Table("notes").Select("user, title").Where("user_id = ? AND title = ?", req.UserID, req.Title).Scan(&entity).Error; err != nil {
+		return nil, err
+	}
+
+	if !reflect.DeepEqual(entity, domain.Note{}) {
 		return nil, fiber.NewError(fiber.StatusBadRequest, "note with the same title already exists")
 	}
-	entity := domain.Note{
+
+	entity = domain.Note{
 		Title:       req.Title,
 		Description: req.Description,
 		CoverURL:    req.CoverURL,
@@ -39,14 +43,17 @@ func (r *NoteRepository) Create(req domain.NoteRequest) (*domain.Note, error) {
 		Visibility:  domain.Visibility(req.Visibility),
 		UserID:      req.UserID,
 	}
+
 	if err := r.db.Create(&entity).Preload("Author").Find(&entity).Error; err != nil {
 		return nil, err
 	}
+
 	return &entity, nil
 }
 
 func (r *NoteRepository) GetAll(req domain.NoteQuery, metadata *domain.Metadata) ([]domain.Note, error) {
 	var entity []domain.Note
+
 	if err := r.db.
 		Model(&domain.Note{}).
 		Preload("Author").
@@ -57,43 +64,55 @@ func (r *NoteRepository) GetAll(req domain.NoteQuery, metadata *domain.Metadata)
 		Error; err != nil {
 		return nil, err
 	}
+
 	return entity, nil
 }
 
 func (r *NoteRepository) GetByID(id uint) (*domain.Note, error) {
 	var entity domain.Note
-	if err := r.db.First(&entity, id).Error; err != nil {
+
+	if err := r.db.Preload("Author").First(&entity, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fiber.NewError(fiber.StatusNotFound, "note not found")
 		}
 		return nil, err
 	}
+
 	return &entity, nil
 }
 
-func (r *NoteRepository) Update(req domain.NoteUpdate, entity *domain.Note) (*domain.Note, error) {
-	if err := r.db.Where("user_id = ? AND title = ? AND id != ?", req.UserID, req.Title, entity.ID).First(&domain.Note{}).Error; err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, err
-		}
-	} else {
-		return nil, fiber.NewError(fiber.StatusBadRequest, "note with the same title already exists")
+func (r *NoteRepository) Update(req domain.NoteUpdateRequest, note *domain.Note) (*domain.Note, error) {
+	var entity domain.Note
+
+	if err := r.db.Table("notes").Select("id, title, user_id").Where("id != ? AND title = ? AND user_id = ?", req.ID, req.Title, req.UserID).Scan(&entity).Error; err != nil {
+		return nil, err
 	}
-	if err := r.db.Model(&entity).Updates(req).Preload("Author").Find(&entity).Error; err != nil {
+
+	if !reflect.DeepEqual(entity, domain.Note{}) {
+		return nil, fiber.NewError(fiber.StatusBadRequest, "note with the same title already exists")
+	} else {
+		entity = *note
+	}
+
+	if err := r.db.Model(&entity).Where("id = ? AND user_id = ?", req.ID, req.UserID).Updates(req).Preload("Author").Find(&entity).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fiber.NewError(fiber.StatusNotFound, "note not found")
 		}
 		return nil, err
 	}
-	return entity, nil
+
+	return &entity, nil
 }
 
-func (r *NoteRepository) Delete(entity *domain.Note) error {
+func (r *NoteRepository) Delete(note *domain.Note) error {
+	entity := note
+
 	if err := r.db.Delete(entity).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return fiber.NewError(fiber.StatusNotFound, "note not found")
 		}
 		return err
 	}
+
 	return nil
 }

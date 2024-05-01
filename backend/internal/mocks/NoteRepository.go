@@ -78,9 +78,9 @@ func (_c *NoteRepository_Create_Call) RunAndReturn(run func(domain.NoteRequest) 
 	return _c
 }
 
-// Delete provides a mock function with given fields: entity
-func (_m *NoteRepository) Delete(entity *domain.Note) error {
-	ret := _m.Called(entity)
+// Delete provides a mock function with given fields: note
+func (_m *NoteRepository) Delete(note *domain.Note) error {
+	ret := _m.Called(note)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
@@ -88,7 +88,7 @@ func (_m *NoteRepository) Delete(entity *domain.Note) error {
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(*domain.Note) error); ok {
-		r0 = rf(entity)
+		r0 = rf(note)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -102,12 +102,12 @@ type NoteRepository_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
-//   - entity *domain.Note
-func (_e *NoteRepository_Expecter) Delete(entity interface{}) *NoteRepository_Delete_Call {
-	return &NoteRepository_Delete_Call{Call: _e.mock.On("Delete", entity)}
+//   - note *domain.Note
+func (_e *NoteRepository_Expecter) Delete(note interface{}) *NoteRepository_Delete_Call {
+	return &NoteRepository_Delete_Call{Call: _e.mock.On("Delete", note)}
 }
 
-func (_c *NoteRepository_Delete_Call) Run(run func(entity *domain.Note)) *NoteRepository_Delete_Call {
+func (_c *NoteRepository_Delete_Call) Run(run func(note *domain.Note)) *NoteRepository_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(*domain.Note))
 	})
@@ -241,9 +241,9 @@ func (_c *NoteRepository_GetByID_Call) RunAndReturn(run func(uint) (*domain.Note
 	return _c
 }
 
-// Update provides a mock function with given fields: req, entity
-func (_m *NoteRepository) Update(req domain.NoteRequest, entity *domain.Note) (*domain.Note, error) {
-	ret := _m.Called(req, entity)
+// Update provides a mock function with given fields: req, note
+func (_m *NoteRepository) Update(req domain.NoteUpdateRequest, note *domain.Note) (*domain.Note, error) {
+	ret := _m.Called(req, note)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
@@ -251,19 +251,19 @@ func (_m *NoteRepository) Update(req domain.NoteRequest, entity *domain.Note) (*
 
 	var r0 *domain.Note
 	var r1 error
-	if rf, ok := ret.Get(0).(func(domain.NoteRequest, *domain.Note) (*domain.Note, error)); ok {
-		return rf(req, entity)
+	if rf, ok := ret.Get(0).(func(domain.NoteUpdateRequest, *domain.Note) (*domain.Note, error)); ok {
+		return rf(req, note)
 	}
-	if rf, ok := ret.Get(0).(func(domain.NoteRequest, *domain.Note) *domain.Note); ok {
-		r0 = rf(req, entity)
+	if rf, ok := ret.Get(0).(func(domain.NoteUpdateRequest, *domain.Note) *domain.Note); ok {
+		r0 = rf(req, note)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*domain.Note)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(domain.NoteRequest, *domain.Note) error); ok {
-		r1 = rf(req, entity)
+	if rf, ok := ret.Get(1).(func(domain.NoteUpdateRequest, *domain.Note) error); ok {
+		r1 = rf(req, note)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -277,15 +277,15 @@ type NoteRepository_Update_Call struct {
 }
 
 // Update is a helper method to define mock.On call
-//   - req domain.NoteRequest
-//   - entity *domain.Note
-func (_e *NoteRepository_Expecter) Update(req interface{}, entity interface{}) *NoteRepository_Update_Call {
-	return &NoteRepository_Update_Call{Call: _e.mock.On("Update", req, entity)}
+//   - req domain.NoteUpdateRequest
+//   - note *domain.Note
+func (_e *NoteRepository_Expecter) Update(req interface{}, note interface{}) *NoteRepository_Update_Call {
+	return &NoteRepository_Update_Call{Call: _e.mock.On("Update", req, note)}
 }
 
-func (_c *NoteRepository_Update_Call) Run(run func(req domain.NoteRequest, entity *domain.Note)) *NoteRepository_Update_Call {
+func (_c *NoteRepository_Update_Call) Run(run func(req domain.NoteUpdateRequest, note *domain.Note)) *NoteRepository_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(domain.NoteRequest), args[1].(*domain.Note))
+		run(args[0].(domain.NoteUpdateRequest), args[1].(*domain.Note))
 	})
 	return _c
 }
@@ -295,7 +295,7 @@ func (_c *NoteRepository_Update_Call) Return(_a0 *domain.Note, _a1 error) *NoteR
 	return _c
 }
 
-func (_c *NoteRepository_Update_Call) RunAndReturn(run func(domain.NoteRequest, *domain.Note) (*domain.Note, error)) *NoteRepository_Update_Call {
+func (_c *NoteRepository_Update_Call) RunAndReturn(run func(domain.NoteUpdateRequest, *domain.Note) (*domain.Note, error)) *NoteRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

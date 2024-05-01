@@ -244,7 +244,7 @@ func (_c *NoteService_GetByID_Call) RunAndReturn(run func(uint, *domain.Claims) 
 }
 
 // Update provides a mock function with given fields: req, claims
-func (_m *NoteService) Update(req domain.NoteRequest, claims domain.Claims) (*domain.Note, error) {
+func (_m *NoteService) Update(req domain.NoteUpdateRequest, claims domain.Claims) (*domain.Note, error) {
 	ret := _m.Called(req, claims)
 
 	if len(ret) == 0 {
@@ -253,10 +253,10 @@ func (_m *NoteService) Update(req domain.NoteRequest, claims domain.Claims) (*do
 
 	var r0 *domain.Note
 	var r1 error
-	if rf, ok := ret.Get(0).(func(domain.NoteRequest, domain.Claims) (*domain.Note, error)); ok {
+	if rf, ok := ret.Get(0).(func(domain.NoteUpdateRequest, domain.Claims) (*domain.Note, error)); ok {
 		return rf(req, claims)
 	}
-	if rf, ok := ret.Get(0).(func(domain.NoteRequest, domain.Claims) *domain.Note); ok {
+	if rf, ok := ret.Get(0).(func(domain.NoteUpdateRequest, domain.Claims) *domain.Note); ok {
 		r0 = rf(req, claims)
 	} else {
 		if ret.Get(0) != nil {
@@ -264,7 +264,7 @@ func (_m *NoteService) Update(req domain.NoteRequest, claims domain.Claims) (*do
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(domain.NoteRequest, domain.Claims) error); ok {
+	if rf, ok := ret.Get(1).(func(domain.NoteUpdateRequest, domain.Claims) error); ok {
 		r1 = rf(req, claims)
 	} else {
 		r1 = ret.Error(1)
@@ -279,15 +279,15 @@ type NoteService_Update_Call struct {
 }
 
 // Update is a helper method to define mock.On call
-//   - req domain.NoteRequest
+//   - req domain.NoteUpdateRequest
 //   - claims domain.Claims
 func (_e *NoteService_Expecter) Update(req interface{}, claims interface{}) *NoteService_Update_Call {
 	return &NoteService_Update_Call{Call: _e.mock.On("Update", req, claims)}
 }
 
-func (_c *NoteService_Update_Call) Run(run func(req domain.NoteRequest, claims domain.Claims)) *NoteService_Update_Call {
+func (_c *NoteService_Update_Call) Run(run func(req domain.NoteUpdateRequest, claims domain.Claims)) *NoteService_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(domain.NoteRequest), args[1].(domain.Claims))
+		run(args[0].(domain.NoteUpdateRequest), args[1].(domain.Claims))
 	})
 	return _c
 }
@@ -297,7 +297,7 @@ func (_c *NoteService_Update_Call) Return(_a0 *domain.Note, _a1 error) *NoteServ
 	return _c
 }
 
-func (_c *NoteService_Update_Call) RunAndReturn(run func(domain.NoteRequest, domain.Claims) (*domain.Note, error)) *NoteService_Update_Call {
+func (_c *NoteService_Update_Call) RunAndReturn(run func(domain.NoteUpdateRequest, domain.Claims) (*domain.Note, error)) *NoteService_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

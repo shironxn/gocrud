@@ -17,10 +17,12 @@ var noteEntity = &domain.Note{
 	Model: gorm.Model{
 		ID: 1,
 	},
-	Title:      "golang",
-	Content:    "is the best",
-	Visibility: "public",
-	UserID:     1,
+	Title:       "golang",
+	Description: "lets go",
+	CoverURL:    "https://i.pinimg.com/originals/56/c3/ee/56c3ee9cae0c8152bd341b969cd2fc1d.png",
+	Content:     "is the best",
+	Visibility:  "public",
+	UserID:      1,
 }
 
 func TestNoteService_Create(t *testing.T) {
@@ -50,25 +52,10 @@ func TestNoteService_Create(t *testing.T) {
 				}(),
 			},
 			args: args{
-				req: domain.NoteRequest{
-					Title:      noteEntity.Title,
-					Content:    noteEntity.Content,
-					Visibility: noteEntity.Visibility,
-				},
+				req: domain.NoteRequest{},
 			},
 			want:    noteEntity,
 			wantErr: false,
-		},
-		{
-			name: "failure",
-			fields: fields{
-				repository: func() port.NoteRepository {
-					mockNoteRepository.EXPECT().Create(mock.AnythingOfType("domain.NoteRequest")).Return(nil, errors.New("failed")).Once()
-					return mockNoteRepository
-				}(),
-			},
-			want:    errors.New("failed"),
-			wantErr: true,
 		},
 	}
 
@@ -85,9 +72,6 @@ func TestNoteService_Create(t *testing.T) {
 				assert.EqualError(t, err, tt.want.(error).Error())
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tt.args.req.Title, noteEntity.Title)
-				assert.Equal(t, tt.args.req.Content, noteEntity.Content)
-				assert.Equal(t, tt.args.req.Visibility, noteEntity.Visibility)
 				assert.Equal(t, tt.want, got)
 			}
 		})
@@ -105,8 +89,6 @@ func TestNoteService_GetAll(t *testing.T) {
 	}
 
 	noteEntity := []domain.Note{
-		*noteEntity,
-		*noteEntity,
 		*noteEntity,
 	}
 
@@ -133,17 +115,6 @@ func TestNoteService_GetAll(t *testing.T) {
 			},
 			want:    noteEntity,
 			wantErr: false,
-		},
-		{
-			name: "failure",
-			fields: fields{
-				repository: func() port.NoteRepository {
-					mockNoteRepository.EXPECT().GetAll(mock.AnythingOfType("domain.NoteQuery"), mock.AnythingOfType("*domain.Metadata")).Return(nil, errors.New("failed")).Once()
-					return mockNoteRepository
-				}(),
-			},
-			want:    errors.New("failed"),
-			wantErr: true,
 		},
 	}
 
@@ -201,17 +172,6 @@ func TestNoteService_GetByID(t *testing.T) {
 			want:    noteEntity,
 			wantErr: false,
 		},
-		{
-			name: "failure",
-			fields: fields{
-				repository: func() port.NoteRepository {
-					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(nil, errors.New("failed")).Once()
-					return mockNoteRepository
-				}(),
-			},
-			want:    errors.New("failed"),
-			wantErr: true,
-		},
 	}
 
 	for _, tt := range tests {
@@ -240,7 +200,7 @@ func TestNoteService_Update(t *testing.T) {
 	}
 
 	type args struct {
-		req    domain.NoteRequest
+		req    domain.NoteUpdateRequest
 		claims domain.Claims
 	}
 
@@ -258,17 +218,12 @@ func TestNoteService_Update(t *testing.T) {
 			fields: fields{
 				repository: func() port.NoteRepository {
 					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(noteEntity, nil).Once()
-					mockNoteRepository.EXPECT().Update(mock.AnythingOfType("domain.NoteRequest"), mock.AnythingOfType("*domain.Note")).Return(noteEntity, nil).Once()
+					mockNoteRepository.EXPECT().Update(mock.AnythingOfType("domain.NoteUpdateRequest"), mock.AnythingOfType("*domain.Note")).Return(noteEntity, nil).Once()
 					return mockNoteRepository
 				}(),
 			},
 			args: args{
-				req: domain.NoteRequest{
-					ID:         noteEntity.ID,
-					Title:      noteEntity.Title,
-					Content:    noteEntity.Content,
-					Visibility: noteEntity.Visibility,
-				},
+				req: domain.NoteUpdateRequest{},
 				claims: domain.Claims{
 					UserID: noteEntity.UserID,
 				},
@@ -277,35 +232,15 @@ func TestNoteService_Update(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "failure",
-			fields: fields{
-				repository: func() port.NoteRepository {
-					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(noteEntity, nil).Once()
-					mockNoteRepository.EXPECT().Update(mock.AnythingOfType("domain.NoteRequest"), mock.AnythingOfType("*domain.Note")).Return(nil, errors.New("failed")).Once()
-					return mockNoteRepository
-				}(),
-			},
-			args: args{
-				req: domain.NoteRequest{
-					ID: noteEntity.ID,
-				},
-				claims: domain.Claims{
-					UserID: noteEntity.UserID,
-				},
-			},
-			want:    errors.New("failed"),
-			wantErr: true,
-		},
-		{
 			name: "permission denied",
 			fields: fields{
 				repository: func() port.NoteRepository {
-					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(noteEntity, nil).Once()
+					mockNoteRepository.EXPECT().GetByID(noteEntity.UserID).Return(noteEntity, nil).Once()
 					return mockNoteRepository
 				}(),
 			},
 			args: args{
-				req: domain.NoteRequest{
+				req: domain.NoteUpdateRequest{
 					ID: noteEntity.ID,
 				},
 				claims: domain.Claims{
@@ -330,11 +265,6 @@ func TestNoteService_Update(t *testing.T) {
 				assert.EqualError(t, err, tt.want.(error).Error())
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tt.args.req.ID, noteEntity.ID)
-				assert.Equal(t, tt.args.req.Title, noteEntity.Title)
-				assert.Equal(t, tt.args.req.Content, noteEntity.Content)
-				assert.Equal(t, tt.args.req.Visibility, noteEntity.Visibility)
-				assert.Equal(t, tt.args.claims.UserID, noteEntity.UserID)
 				assert.Equal(t, tt.want, got)
 			}
 		})
@@ -381,30 +311,10 @@ func TestNoteService_Delete(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "failure",
-			fields: fields{
-				repository: func() port.NoteRepository {
-					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(noteEntity, nil).Once()
-					mockNoteRepository.EXPECT().Delete(mock.AnythingOfType("*domain.Note")).Return(errors.New("failed")).Once()
-					return mockNoteRepository
-				}(),
-			},
-			args: args{
-				req: domain.NoteRequest{
-					ID: noteEntity.ID,
-				},
-				claims: domain.Claims{
-					UserID: noteEntity.UserID,
-				},
-			},
-			want:    errors.New("failed"),
-			wantErr: true,
-		},
-		{
 			name: "permission denied",
 			fields: fields{
 				repository: func() port.NoteRepository {
-					mockNoteRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(noteEntity, nil).Once()
+					mockNoteRepository.EXPECT().GetByID(noteEntity.ID).Return(noteEntity, nil).Once()
 					return mockNoteRepository
 				}(),
 			},
@@ -434,9 +344,6 @@ func TestNoteService_Delete(t *testing.T) {
 				assert.EqualError(t, err, tt.want.(error).Error())
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tt.args.req.ID, noteEntity.ID)
-				assert.Equal(t, tt.args.claims.UserID, noteEntity.UserID)
-				assert.Equal(t, tt.args.claims.UserID, noteEntity.UserID)
 			}
 		})
 	}

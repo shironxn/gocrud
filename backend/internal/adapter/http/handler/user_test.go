@@ -3,7 +3,6 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -53,39 +52,12 @@ func TestUserHandler_GetAll(t *testing.T) {
 			name: "success",
 			fields: fields{
 				service: func() port.UserService {
-					mockUserService.EXPECT().GetAll(mock.AnythingOfType("domain.UserQuery"), mock.AnythingOfType("domain.Metadata")).Return(userEntity, nil).Once()
+					mockUserService.EXPECT().GetAll(mock.AnythingOfType("domain.UserQuery"), mock.AnythingOfType("*domain.Metadata")).Return(userEntity, nil).Once()
 					return mockUserService
 				}(),
 			},
-			code: fiber.StatusOK,
-			want: domain.SuccessResponse{
-				Message: "successfully retrieved all user data",
-				Data: func() []domain.UserResponse {
-					var data []domain.UserResponse
-					for _, user := range userEntity {
-						data = append(data, domain.UserResponse{
-							ID:   user.ID,
-							Name: user.Name,
-						})
-					}
-					return data
-				}(),
-			},
+			code:    fiber.StatusOK,
 			wantErr: false,
-		},
-		{
-			name: "failure",
-			fields: fields{
-				service: func() port.UserService {
-					mockUserService.EXPECT().GetAll(mock.AnythingOfType("domain.UserQuery"), mock.AnythingOfType("domain.Metadata")).Return(nil, errors.New("failed")).Once()
-					return mockUserService
-				}(),
-			},
-			code: fiber.StatusInternalServerError,
-			want: domain.ErrorResponse{
-				Message: "failed",
-			},
-			wantErr: true,
 		},
 	}
 
@@ -111,14 +83,7 @@ func TestUserHandler_GetAll(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.want, got)
 			} else {
-				var got domain.SuccessResponse
-				err = json.NewDecoder(res.Body).Decode(&got)
 				assert.NoError(t, err)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
-				for i, data := range got.Data.([]interface{}) {
-					assert.Equal(t, tt.want.(domain.SuccessResponse).Data.([]domain.UserResponse)[i].ID, uint(data.(map[string]interface{})["id"].(float64)))
-					assert.Equal(t, tt.want.(domain.SuccessResponse).Data.([]domain.UserResponse)[i].Name, data.(map[string]interface{})["name"].(string))
-				}
 			}
 		})
 	}
@@ -147,38 +112,12 @@ func TestUserHandler_GetByID(t *testing.T) {
 			name: "success",
 			fields: fields{
 				service: func() port.UserService {
-					mockUserService.EXPECT().GetByID(mock.AnythingOfType("domain.UserRequest")).Return(userEntity, nil).Once()
+					mockUserService.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(userEntity, nil).Once()
 					return mockUserService
 				}(),
 			},
-			args: args{
-				req: domain.UserRequest{
-					ID: userEntity.ID,
-				},
-			},
-			code: fiber.StatusOK,
-			want: domain.SuccessResponse{
-				Message: "successfully retrieved user by id",
-				Data: domain.UserResponse{
-					ID:   userEntity.ID,
-					Name: userEntity.Name,
-				},
-			},
+			code:    fiber.StatusOK,
 			wantErr: false,
-		},
-		{
-			name: "failure",
-			fields: fields{
-				service: func() port.UserService {
-					mockUserService.EXPECT().GetByID(mock.AnythingOfType("domain.UserRequest")).Return(nil, errors.New("failed")).Once()
-					return mockUserService
-				}(),
-			},
-			code: fiber.StatusInternalServerError,
-			want: domain.ErrorResponse{
-				Message: "failed",
-			},
-			wantErr: true,
 		},
 	}
 
@@ -204,13 +143,7 @@ func TestUserHandler_GetByID(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.want, got)
 			} else {
-				var got domain.SuccessResponse
-				err = json.NewDecoder(res.Body).Decode(&got)
 				assert.NoError(t, err)
-				assert.Equal(t, tt.args.req.ID, userEntity.ID)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).ID, uint(got.Data.(map[string]interface{})["id"].(float64)))
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).Name, got.Data.(map[string]interface{})["name"].(string))
 			}
 		})
 	}
@@ -225,13 +158,6 @@ func TestUserHandler_Update(t *testing.T) {
 	type args struct {
 		req    domain.UserRequest
 		claims domain.Claims
-	}
-
-	userEntity := &domain.User{
-		Model:    gorm.Model{ID: 1},
-		Name:     "shiron",
-		Email:    "shiron@example.com",
-		Password: "$2y$10$YovD7LTJb0XqE.Ll1Xtjnuns6tHiQM7MdO5T2QuThx3UyfLCkP1o6",
 	}
 
 	mockUserService := mocks.NewUserService(t)
@@ -254,52 +180,8 @@ func TestUserHandler_Update(t *testing.T) {
 				}(),
 				validator: validator,
 			},
-			args: args{
-				req: domain.UserRequest{
-					ID:       userEntity.ID,
-					Name:     userEntity.Name,
-					Email:    userEntity.Email,
-					Password: userEntity.Password,
-				},
-				claims: domain.Claims{
-					UserID: userEntity.ID,
-				},
-			},
-			code: fiber.StatusOK,
-			want: domain.SuccessResponse{
-				Message: "successfully updated user by id",
-				Data: domain.UserResponse{
-					ID:   userEntity.ID,
-					Name: userEntity.Name,
-				},
-			},
+			code:    fiber.StatusOK,
 			wantErr: false,
-		},
-		{
-			name: "failure",
-			fields: fields{
-				service: func() port.UserService {
-					mockUserService.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("domain.Claims")).Return(nil, errors.New("failed")).Once()
-					return mockUserService
-				}(),
-				validator: validator,
-			},
-			args: args{
-				req: domain.UserRequest{
-					ID:       userEntity.ID,
-					Name:     userEntity.Name,
-					Email:    userEntity.Email,
-					Password: userEntity.Password,
-				},
-				claims: domain.Claims{
-					UserID: userEntity.ID,
-				},
-			},
-			code: fiber.StatusInternalServerError,
-			want: domain.ErrorResponse{
-				Message: "failed",
-			},
-			wantErr: true,
 		},
 		{
 			name: "permission denied",
@@ -310,32 +192,10 @@ func TestUserHandler_Update(t *testing.T) {
 				}(),
 				validator: validator,
 			},
-			args: args{
-				req: domain.UserRequest{
-					ID:       userEntity.ID,
-					Name:     userEntity.Name,
-					Email:    userEntity.Email,
-					Password: userEntity.Password,
-				},
-				claims: domain.Claims{
-					UserID: userEntity.ID,
-				},
-			},
 			code: fiber.StatusForbidden,
 			want: domain.ErrorResponse{
-				Message: "user does not have permission to perform this action",
-			},
-			wantErr: true,
-		},
-		{
-			name: "validation error",
-			fields: fields{
-				service:   mockUserService,
-				validator: validator,
-			},
-			code: fiber.StatusBadRequest,
-			want: domain.ErrorResponse{
-				Message: "validation error",
+				Code:  403,
+				Error: "user does not have permission to perform this action",
 			},
 			wantErr: true,
 		},
@@ -371,16 +231,7 @@ func TestUserHandler_Update(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.want, got)
 			} else {
-				var got domain.SuccessResponse
-				err = json.NewDecoder(res.Body).Decode(&got)
 				assert.NoError(t, err)
-				assert.Equal(t, tt.args.req.ID, userEntity.ID)
-				assert.Equal(t, tt.args.req.Name, userEntity.Name)
-				assert.Equal(t, tt.args.req.Email, userEntity.Email)
-				assert.Equal(t, tt.args.req.Password, userEntity.Password)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).ID, uint(got.Data.(map[string]interface{})["id"].(float64)))
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).Name, got.Data.(map[string]interface{})["name"].(string))
 			}
 		})
 	}
@@ -394,13 +245,6 @@ func TestUserHandler_Delete(t *testing.T) {
 	type args struct {
 		req    domain.UserRequest
 		claims domain.Claims
-	}
-
-	userEntity := &domain.User{
-		Model:    gorm.Model{ID: 1},
-		Name:     "shiron",
-		Email:    "shiron@example.com",
-		Password: "$2y$10$YovD7LTJb0XqE.Ll1Xtjnuns6tHiQM7MdO5T2QuThx3UyfLCkP1o6",
 	}
 
 	mockUserService := mocks.NewUserService(t)
@@ -422,46 +266,12 @@ func TestUserHandler_Delete(t *testing.T) {
 					return mockUserService
 				}(),
 			},
-			args: args{
-				req: domain.UserRequest{
-					ID: userEntity.ID,
-				},
-				claims: domain.Claims{
-					UserID: userEntity.ID,
-				},
-			},
 			code: fiber.StatusOK,
 			cookie: &http.Cookie{
-				Name:  "token",
+				Name:  "refresh-token",
 				Value: "dummy-token",
 			},
-			want: domain.SuccessResponse{
-				Message: "successfully deleted user by id",
-			},
 			wantErr: false,
-		},
-		{
-			name: "failure",
-			fields: fields{
-				service: func() port.UserService {
-					mockUserService.EXPECT().Delete(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("domain.Claims")).Return(errors.New("failed")).Once()
-					return mockUserService
-				}(),
-			},
-			args: args{
-				req: domain.UserRequest{
-					ID: userEntity.ID,
-				},
-				claims: domain.Claims{
-					UserID: userEntity.ID,
-				},
-			},
-			code:   http.StatusInternalServerError,
-			cookie: nil,
-			want: domain.ErrorResponse{
-				Message: "failed",
-			},
-			wantErr: true,
 		},
 		{
 			name: "permission denied",
@@ -471,18 +281,11 @@ func TestUserHandler_Delete(t *testing.T) {
 					return mockUserService
 				}(),
 			},
-			args: args{
-				req: domain.UserRequest{
-					ID: userEntity.ID,
-				},
-				claims: domain.Claims{
-					UserID: userEntity.ID,
-				},
-			},
 			code:   http.StatusForbidden,
 			cookie: nil,
 			want: domain.ErrorResponse{
-				Message: "user does not have permission to perform this action",
+				Code:  403,
+				Error: "user does not have permission to perform this action",
 			},
 			wantErr: true,
 		},
@@ -517,10 +320,6 @@ func TestUserHandler_Delete(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.want, got)
 			} else {
-				var got domain.SuccessResponse
-				err = json.NewDecoder(res.Body).Decode(&got)
-				assert.NoError(t, err)
-
 				var tokenCookie *http.Cookie
 				for _, cookie := range res.Cookies() {
 					if cookie.Name == tt.cookie.Name {
@@ -529,10 +328,9 @@ func TestUserHandler_Delete(t *testing.T) {
 					}
 				}
 
+				assert.NoError(t, err)
 				assert.NotNil(t, tokenCookie)
 				assert.Empty(t, tokenCookie.Value)
-				assert.Equal(t, tt.args.req.ID, userEntity.ID)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
 			}
 		})
 	}

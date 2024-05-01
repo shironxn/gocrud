@@ -9,8 +9,8 @@ import (
 type UserRepository interface {
 	GetAll(req domain.UserQuery, metdata *domain.Metadata) ([]domain.User, error)
 	GetByID(id uint) (*domain.User, error)
-	Update(req domain.UserRequest, entity *domain.User) (*domain.User, error)
-	Delete(entity *domain.User) error
+	Update(req domain.UserRequest, user *domain.User) (*domain.User, error)
+	Delete(user *domain.User) error
 }
 
 type UserService interface {

@@ -34,7 +34,7 @@ type NoteRequest struct {
 	UserID      uint   `json:"user_id"`
 }
 
-type NoteUpdate struct {
+type NoteUpdateRequest struct {
 	ID          uint   `json:"id"`
 	Title       string `json:"title" validate:"omitempty,max=25"`
 	Description string `json:"description" validate:"omitempty,max=50"`
@@ -53,7 +53,7 @@ type NoteQuery struct {
 type NoteAuthor struct {
 	ID        uint   `json:"id"`
 	Name      string `json:"name"`
-	AvatarURL string `json:"avatar_url"`
+	AvatarURL string `json:"avatar_url,omitempty"`
 }
 
 type NoteResponse struct {

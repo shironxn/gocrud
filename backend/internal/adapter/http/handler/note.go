@@ -9,7 +9,6 @@ import (
 	_ "github.com/shironxn/gocrud/docs"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/log"
 )
 
 type NoteHandler struct {
@@ -58,26 +57,21 @@ func (h *NoteHandler) Create(ctx *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	return ctx.Status(fiber.StatusCreated).JSON(
-		domain.SuccessResponse{
-			Message: "successfully created note",
-			Data: domain.NoteResponse{
-				ID:          result.ID,
-				Title:       result.Title,
-				Description: result.Description,
-				CoverURL:    result.CoverURL,
-				Content:     result.Content,
-				Visibility:  string(result.Visibility),
-				Author: domain.NoteAuthor{
-					ID:        result.Author.ID,
-					Name:      result.Author.Name,
-					AvatarURL: result.Author.AvatarURL,
-				},
-				UpdatedAt: result.UpdatedAt,
-				CreatedAt: result.CreatedAt,
-			},
+	return ctx.Status(fiber.StatusCreated).JSON(domain.NoteResponse{
+		ID:          result.ID,
+		Title:       result.Title,
+		Description: result.Description,
+		CoverURL:    result.CoverURL,
+		Content:     result.Content,
+		Visibility:  string(result.Visibility),
+		Author: domain.NoteAuthor{
+			ID:        result.Author.ID,
+			Name:      result.Author.Name,
+			AvatarURL: result.Author.AvatarURL,
 		},
-	)
+		UpdatedAt: result.UpdatedAt,
+		CreatedAt: result.CreatedAt,
+	})
 }
 
 // @Summary Get all notes
@@ -107,25 +101,23 @@ func (h *NoteHandler) GetAll(ctx *fiber.Ctx) error {
 		return err
 	}
 
+	req.Visibility = "public"
 	cookie := ctx.Cookies("access-token")
-	claims, _ := h.jwt.ValidateToken(cookie, h.cfg.JWT.Access)
-	if claims != nil {
-		switch {
-		case req.Visibility == "private":
-			req.UserID = int(claims.UserID)
-		case req.UserID != 0:
-			log.Info(req.UserID)
-			req.UserID = int(claims.UserID)
-		default:
+	if cookie != "" {
+		claims, _ := h.jwt.ValidateToken(cookie, h.cfg.JWT.Access)
+		if claims != nil {
+			switch {
+			case req.Visibility == "private":
+				req.UserID = int(claims.UserID)
+			case req.UserID != 0:
+				req.UserID = int(claims.UserID)
+			default:
+				req.Visibility = "public"
+			}
+		} else {
 			req.Visibility = "public"
 		}
-	} else {
-		req.Visibility = "public"
 	}
-
-	// if req.UserID != nil {
-	// 	req.UserID = uint(req.UserID.(uint))
-	// }
 
 	result, err := h.service.GetAll(req, &metadata)
 	if err != nil {
@@ -150,12 +142,9 @@ func (h *NoteHandler) GetAll(ctx *fiber.Ctx) error {
 		})
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully retrieved notes",
-		Data: domain.NotePaginationResponse{
-			Notes:    data,
-			Metadata: metadata,
-		},
+	return ctx.Status(fiber.StatusOK).JSON(domain.NotePaginationResponse{
+		Notes:    data,
+		Metadata: metadata,
 	})
 }
 
@@ -178,38 +167,43 @@ func (h *NoteHandler) GetByID(ctx *fiber.Ctx) error {
 	}
 
 	cookie := ctx.Cookies("access-token")
-	claims, err := h.jwt.ValidateToken(cookie, h.cfg.JWT.Access)
-	if err != nil {
-		data, err := h.service.GetByID(req.ID, nil)
+	if cookie != "" {
+		claims, err := h.jwt.ValidateToken(cookie, h.cfg.JWT.Access)
 		if err != nil {
-			return err
+			data, err := h.service.GetByID(req.ID, nil)
+			if err != nil {
+				return err
+			}
+			result = data
+		} else {
+			data, err := h.service.GetByID(req.ID, claims)
+			if err != nil {
+				return err
+			}
+			result = data
 		}
-		result = data
 	} else {
-		data, err := h.service.GetByID(req.ID, claims)
+		data, err := h.service.GetByID(req.ID, nil)
 		if err != nil {
 			return err
 		}
 		result = data
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully retrieved note by id",
-		Data: domain.NoteResponse{
-			ID:          result.ID,
-			Title:       result.Title,
-			Description: result.Description,
-			CoverURL:    result.CoverURL,
-			Content:     result.Content,
-			Visibility:  string(result.Visibility),
-			Author: domain.NoteAuthor{
-				ID:        result.Author.ID,
-				Name:      result.Author.Name,
-				AvatarURL: result.Author.AvatarURL,
-			},
-			UpdatedAt: result.UpdatedAt,
-			CreatedAt: result.CreatedAt,
+	return ctx.Status(fiber.StatusOK).JSON(domain.NoteResponse{
+		ID:          result.ID,
+		Title:       result.Title,
+		Description: result.Description,
+		CoverURL:    result.CoverURL,
+		Content:     result.Content,
+		Visibility:  string(result.Visibility),
+		Author: domain.NoteAuthor{
+			ID:        result.Author.ID,
+			Name:      result.Author.Name,
+			AvatarURL: result.Author.AvatarURL,
 		},
+		UpdatedAt: result.UpdatedAt,
+		CreatedAt: result.CreatedAt,
 	})
 }
 
@@ -223,7 +217,7 @@ func (h *NoteHandler) GetByID(ctx *fiber.Ctx) error {
 // @Success 200 {object} domain.NoteResponse "Successfully updated a note by ID"
 // @Router /notes/{id} [put]
 func (h *NoteHandler) Update(ctx *fiber.Ctx) error {
-	var req domain.NoteUpdate
+	var req domain.NoteUpdateRequest
 
 	if err := ctx.BodyParser(&req); err != nil {
 		return err
@@ -248,23 +242,20 @@ func (h *NoteHandler) Update(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully updated note by id",
-		Data: domain.NoteResponse{
-			ID:          result.ID,
-			Title:       result.Title,
-			Description: result.Description,
-			CoverURL:    result.CoverURL,
-			Content:     result.Content,
-			Visibility:  string(result.Visibility),
-			Author: domain.NoteAuthor{
-				ID:        result.Author.ID,
-				Name:      result.Author.Name,
-				AvatarURL: result.Author.AvatarURL,
-			},
-			UpdatedAt: result.UpdatedAt,
-			CreatedAt: result.CreatedAt,
+	return ctx.Status(fiber.StatusOK).JSON(domain.NoteResponse{
+		ID:          result.ID,
+		Title:       result.Title,
+		Description: result.Description,
+		CoverURL:    result.CoverURL,
+		Content:     result.Content,
+		Visibility:  string(result.Visibility),
+		Author: domain.NoteAuthor{
+			ID:        result.Author.ID,
+			Name:      result.Author.Name,
+			AvatarURL: result.Author.AvatarURL,
 		},
+		UpdatedAt: result.UpdatedAt,
+		CreatedAt: result.CreatedAt,
 	})
 }
 
@@ -290,7 +281,5 @@ func (h *NoteHandler) Delete(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully deleted note by id",
-	})
+	return ctx.Status(fiber.StatusOK).JSON("successfully deleted note by id")
 }

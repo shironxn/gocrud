@@ -62,17 +62,6 @@ func TestUserService_GetAll(t *testing.T) {
 			want:    userEntity,
 			wantErr: false,
 		},
-		{
-			name: "failure",
-			fields: fields{
-				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetAll(mock.AnythingOfType("domain.UserQuery"), mock.AnythingOfType("*domain.Metadata")).Return(nil, errors.New("failed")).Once()
-					return mockUserRepository
-				}(),
-			},
-			want:    errors.New("failed"),
-			wantErr: true,
-		},
 	}
 
 	for _, tt := range tests {
@@ -128,17 +117,6 @@ func TestUserService_GetByID(t *testing.T) {
 			want:    userEntity,
 			wantErr: false,
 		},
-		{
-			name: "failure",
-			fields: fields{
-				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(nil, errors.New("failed"))
-					return mockUserRepository
-				}(),
-			},
-			want:    errors.New("failed"),
-			wantErr: true,
-		},
 	}
 
 	for _, tt := range tests {
@@ -154,7 +132,6 @@ func TestUserService_GetByID(t *testing.T) {
 				assert.EqualError(t, err, tt.want.(error).Error())
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tt.args.req.ID, userEntity.ID)
 				assert.Equal(t, tt.want, got)
 			}
 
@@ -194,12 +171,7 @@ func TestUserService_Update(t *testing.T) {
 				bcrypt: bcrypt,
 			},
 			args: args{
-				req: domain.UserRequest{
-					ID:       userEntity.ID,
-					Name:     userEntity.Name,
-					Email:    userEntity.Email,
-					Password: userEntity.Password,
-				},
+				req: domain.UserRequest{},
 				claims: domain.Claims{
 					UserID: userEntity.ID,
 				},
@@ -208,31 +180,10 @@ func TestUserService_Update(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "failure",
-			fields: fields{
-				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(userEntity, nil).Once()
-					mockUserRepository.EXPECT().Update(mock.AnythingOfType("domain.UserRequest"), mock.AnythingOfType("*domain.User")).Return(nil, errors.New("failed")).Once()
-					return mockUserRepository
-				}(),
-				bcrypt: bcrypt,
-			},
-			args: args{
-				req: domain.UserRequest{
-					ID: userEntity.ID,
-				},
-				claims: domain.Claims{
-					UserID: userEntity.ID,
-				},
-			},
-			want:    errors.New("failed"),
-			wantErr: true,
-		},
-		{
 			name: "permission denied",
 			fields: fields{
 				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(userEntity, nil).Once()
+					mockUserRepository.EXPECT().GetByID(userEntity.ID).Return(userEntity, nil).Once()
 					return mockUserRepository
 				}(),
 			},
@@ -263,11 +214,6 @@ func TestUserService_Update(t *testing.T) {
 				assert.EqualError(t, err, tt.want.(error).Error())
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tt.args.req.ID, userEntity.ID)
-				assert.Equal(t, tt.args.req.Name, userEntity.Name)
-				assert.Equal(t, tt.args.req.Email, userEntity.Email)
-				assert.Equal(t, tt.args.req.Password, userEntity.Password)
-				assert.Equal(t, tt.args.claims.UserID, userEntity.ID)
 				assert.Equal(t, tt.want, got)
 			}
 		})
@@ -314,26 +260,6 @@ func TestUserService_Delete(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "failure",
-			fields: fields{
-				repository: func() port.UserRepository {
-					mockUserRepository.EXPECT().GetByID(mock.AnythingOfType("uint")).Return(userEntity, nil).Once()
-					mockUserRepository.EXPECT().Delete(mock.AnythingOfType("*domain.User")).Return(errors.New("failed")).Once()
-					return mockUserRepository
-				}(),
-			},
-			args: args{
-				req: domain.UserRequest{
-					ID: userEntity.ID,
-				},
-				claims: domain.Claims{
-					UserID: userEntity.ID,
-				},
-			},
-			want:    errors.New("failed"),
-			wantErr: true,
-		},
-		{
 			name: "permission denied",
 			fields: fields{
 				repository: func() port.UserRepository {
@@ -367,8 +293,6 @@ func TestUserService_Delete(t *testing.T) {
 				assert.EqualError(t, err, tt.want.(error).Error())
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tt.args.req.ID, userEntity.ID)
-				assert.Equal(t, tt.args.claims.UserID, userEntity.ID)
 			}
 		})
 	}

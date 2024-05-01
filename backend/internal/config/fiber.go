@@ -21,7 +21,8 @@ func ErrorHandler() fiber.ErrorHandler {
 		}
 
 		return ctx.Status(code).JSON(domain.ErrorResponse{
-			Message: err.Error(),
+			Code:  code,
+			Error: err.Error(),
 		})
 	}
 }

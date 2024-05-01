@@ -5,7 +5,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/shironxn/gocrud/internal/config"
-	"github.com/shironxn/gocrud/internal/core/domain"
 
 	_ "github.com/shironxn/gocrud/docs"
 
@@ -33,8 +32,6 @@ func (r *InitRoute) Route(app *fiber.App) {
 
 	app.Get("/api/v1/docs/*", swagger.HandlerDefault)
 	app.Get("/", func(ctx *fiber.Ctx) error {
-		return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-			Message: "welcome to gocrud by shironxn",
-		})
+		return ctx.Status(fiber.StatusOK).JSON("Welcome to gocrud by shironxn")
 	})
 }

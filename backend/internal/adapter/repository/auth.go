@@ -2,10 +2,9 @@ package repository
 
 import (
 	"errors"
-	"strings"
 
-	"github.com/go-sql-driver/mysql"
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/shironxn/gocrud/internal/core/domain"
 	"github.com/shironxn/gocrud/internal/core/port"
 	"gorm.io/gorm"
@@ -28,12 +27,12 @@ func (r *AuthRepository) Register(req domain.AuthRegisterRequest) (*domain.User,
 		Password: req.Password,
 	}
 	if err := r.db.Create(&entity).Error; err != nil {
-		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
-			if strings.Contains(mysqlErr.Message, "name") {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			switch pgErr.ConstraintName {
+			case "idx_users_name":
 				return nil, fiber.NewError(fiber.StatusBadRequest, "user with the same name already exists")
-			}
-			if strings.Contains(mysqlErr.Message, "email") {
+			case "idx_users_email":
 				return nil, fiber.NewError(fiber.StatusBadRequest, "user with the same email already exists")
 			}
 		}

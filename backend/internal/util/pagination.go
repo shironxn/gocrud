@@ -37,12 +37,13 @@ func (p *Pagination) Paginate(metadata *domain.Metadata) func(db *gorm.DB) *gorm
 		}
 
 		if err := p.validator.Validate(metadata); err != nil {
-			for _, error := range err.Errors {
+			for _, error := range err.Error.([]domain.ValidationError) {
 				switch error.Field {
 				case "Sort":
 					metadata.Sort = "created_at"
 				case "Order":
 					metadata.Order = "asc"
+
 				}
 			}
 		}

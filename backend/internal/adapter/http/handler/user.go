@@ -67,12 +67,9 @@ func (h *UserHandler) GetAll(ctx *fiber.Ctx) error {
 			})
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully retrieved all user data",
-		Data: domain.UserPaginationResponse{
-			Users:    data,
-			Metadata: metadata,
-		},
+	return ctx.Status(fiber.StatusOK).JSON(domain.UserPaginationResponse{
+		Users:    data,
+		Metadata: metadata,
 	})
 }
 
@@ -84,16 +81,13 @@ func (h *UserHandler) GetMe(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully retrieved user by id",
-		Data: domain.UserResponse{
-			ID:        result.ID,
-			Name:      result.Name,
-			Bio:       result.Bio,
-			AvatarURL: result.AvatarURL,
-			CreatedAt: result.CreatedAt,
-			UpdatedAt: result.UpdatedAt,
-		},
+	return ctx.Status(fiber.StatusOK).JSON(domain.UserResponse{
+		ID:        result.ID,
+		Name:      result.Name,
+		Bio:       result.Bio,
+		AvatarURL: result.AvatarURL,
+		CreatedAt: result.CreatedAt,
+		UpdatedAt: result.UpdatedAt,
 	})
 }
 
@@ -118,16 +112,13 @@ func (h *UserHandler) GetByID(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully retrieved user by id",
-		Data: domain.UserResponse{
-			ID:        result.ID,
-			Name:      result.Name,
-			Bio:       result.Bio,
-			AvatarURL: result.AvatarURL,
-			CreatedAt: result.CreatedAt,
-			UpdatedAt: result.UpdatedAt,
-		},
+	return ctx.Status(fiber.StatusOK).JSON(domain.UserResponse{
+		ID:        result.ID,
+		Name:      result.Name,
+		Bio:       result.Bio,
+		AvatarURL: result.AvatarURL,
+		CreatedAt: result.CreatedAt,
+		UpdatedAt: result.UpdatedAt,
 	})
 }
 
@@ -166,16 +157,13 @@ func (h *UserHandler) Update(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully updated user by id",
-		Data: domain.UserResponse{
-			ID:        result.ID,
-			Name:      result.Name,
-			Bio:       result.Bio,
-			AvatarURL: result.AvatarURL,
-			CreatedAt: result.CreatedAt,
-			UpdatedAt: result.UpdatedAt,
-		},
+	return ctx.Status(fiber.StatusOK).JSON(domain.UserResponse{
+		ID:        result.ID,
+		Name:      result.Name,
+		Bio:       result.Bio,
+		AvatarURL: result.AvatarURL,
+		CreatedAt: result.CreatedAt,
+		UpdatedAt: result.UpdatedAt,
 	})
 }
 
@@ -217,7 +205,5 @@ func (h *UserHandler) Delete(ctx *fiber.Ctx) error {
 		SameSite: "lax",
 	})
 
-	return ctx.Status(fiber.StatusOK).JSON(domain.SuccessResponse{
-		Message: "successfully deleted user by id",
-	})
+	return ctx.Status(fiber.StatusOK).JSON("successfully deleted user by id")
 }

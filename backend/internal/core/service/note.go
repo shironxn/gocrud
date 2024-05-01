@@ -39,7 +39,7 @@ func (h *NoteService) GetByID(id uint, claims *domain.Claims) (*domain.Note, err
 	return data, nil
 }
 
-func (h *NoteService) Update(req domain.NoteUpdate, claims domain.Claims) (*domain.Note, error) {
+func (h *NoteService) Update(req domain.NoteUpdateRequest, claims domain.Claims) (*domain.Note, error) {
 	note, err := h.repository.GetByID(req.ID)
 	if err != nil {
 		return nil, err

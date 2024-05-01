@@ -40,7 +40,7 @@ func NewValidator() (*Validator, error) {
 	return &Validator{validate: validate, trans: trans}, nil
 }
 
-func (v Validator) Validate(data interface{}) *domain.ErrorValidationResponse {
+func (v Validator) Validate(data interface{}) *domain.ErrorResponse {
 	if err := v.validate.Struct(data); err != nil {
 		var errMessages []domain.ValidationError
 		errs := err.(validator.ValidationErrors)
@@ -50,9 +50,9 @@ func (v Validator) Validate(data interface{}) *domain.ErrorValidationResponse {
 				Error: e.Translate(v.trans),
 			})
 		}
-		return &domain.ErrorValidationResponse{
-			Message: "validation error",
-			Errors:  errMessages,
+		return &domain.ErrorResponse{
+			Code:  400,
+			Error: errMessages,
 		}
 	}
 

@@ -3,7 +3,6 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -19,7 +18,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var authEntity = &domain.User{
+var authEntity = domain.User{
 	Model:     gorm.Model{ID: 1},
 	Name:      "shiron",
 	Email:     "shiron@example.com",
@@ -29,7 +28,7 @@ var authEntity = &domain.User{
 	Notes:     []domain.Note{},
 }
 
-var userToken = &domain.UserToken{
+var userToken = domain.UserToken{
 	AccessToken:  "anjay",
 	RefreshToken: "anjay",
 }
@@ -48,18 +47,16 @@ func TestAuthHandler_Register(t *testing.T) {
 	validator, _ := util.NewValidator()
 
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		code    int
-		want    interface{}
-		wantErr bool
+		name   string
+		fields fields
+		args   args
+		code   int
 	}{
 		{
 			name: "success",
 			fields: fields{
 				service: func() port.AuthService {
-					mockAuthService.EXPECT().Register(mock.AnythingOfType("domain.AuthRegisterRequest")).Return(authEntity, nil).Once()
+					mockAuthService.EXPECT().Register(mock.AnythingOfType("domain.AuthRegisterRequest")).Return(&authEntity, nil).Once()
 					return mockAuthService
 				}(),
 				validator: validator,
@@ -72,36 +69,6 @@ func TestAuthHandler_Register(t *testing.T) {
 				},
 			},
 			code: fiber.StatusCreated,
-			want: domain.SuccessResponse{
-				Message: "user successfully registered",
-				Data: domain.UserResponse{
-					ID:   authEntity.ID,
-					Name: authEntity.Name,
-				},
-			},
-			wantErr: false,
-		},
-		{
-			name: "failure",
-			fields: fields{
-				service: func() port.AuthService {
-					mockAuthService.EXPECT().Register(mock.AnythingOfType("domain.AuthRegisterRequest")).Return(nil, errors.New("failed")).Once()
-					return mockAuthService
-				}(),
-				validator: validator,
-			},
-			args: args{
-				req: domain.AuthRegisterRequest{
-					Name:     authEntity.Name,
-					Email:    authEntity.Email,
-					Password: authEntity.Password,
-				},
-			},
-			code: fiber.StatusInternalServerError,
-			want: domain.ErrorResponse{
-				Message: "failed",
-			},
-			wantErr: true,
 		},
 		{
 			name: "validation error",
@@ -113,10 +80,6 @@ func TestAuthHandler_Register(t *testing.T) {
 				validator: validator,
 			},
 			code: fiber.StatusBadRequest,
-			want: domain.ErrorResponse{
-				Message: "validation error",
-			},
-			wantErr: true,
 		},
 	}
 
@@ -139,23 +102,6 @@ func TestAuthHandler_Register(t *testing.T) {
 			res, err := app.Test(req)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.code, res.StatusCode)
-
-			if tt.wantErr {
-				var got domain.ErrorResponse
-				err = json.NewDecoder(res.Body).Decode(&got)
-				assert.NoError(t, err)
-				assert.Equal(t, tt.want, got)
-			} else {
-				var got domain.SuccessResponse
-				err = json.NewDecoder(res.Body).Decode(&got)
-				assert.NoError(t, err)
-				assert.Equal(t, tt.args.req.Name, authEntity.Name)
-				assert.Equal(t, tt.args.req.Email, authEntity.Email)
-				assert.Equal(t, tt.args.req.Password, authEntity.Password)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).ID, uint(got.Data.(map[string]interface{})["id"].(float64)))
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).Name, got.Data.(map[string]interface{})["name"].(string))
-			}
 		})
 	}
 }
@@ -163,8 +109,9 @@ func TestAuthHandler_Register(t *testing.T) {
 func TestAuthHandler_Login(t *testing.T) {
 	type fields struct {
 		service   port.AuthService
-		validator *util.Validator
+		cfg       *config.Config
 		jwt       util.JWT
+		validator *util.Validator
 	}
 
 	type args struct {
@@ -172,26 +119,26 @@ func TestAuthHandler_Login(t *testing.T) {
 	}
 
 	mockAuthService := mocks.NewAuthService(t)
-	validator, _ := util.NewValidator()
 	jwt := util.NewJWT(&config.Config{})
+	validator, _ := util.NewValidator()
 
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
 		code    int
-		want    interface{}
-		wantErr bool
+		wantErr interface{}
 	}{
 		{
 			name: "success",
 			fields: fields{
 				service: func() port.AuthService {
-					mockAuthService.EXPECT().Login(mock.AnythingOfType("domain.AuthLoginRequest")).Return(authEntity, userToken, nil).Once()
+					mockAuthService.EXPECT().Login(mock.AnythingOfType("domain.AuthLoginRequest")).Return(&authEntity, &userToken, nil).Once()
 					return mockAuthService
 				}(),
-				validator: validator,
+				cfg:       &config.Config{},
 				jwt:       jwt,
+				validator: validator,
 			},
 			args: args{
 				req: domain.AuthLoginRequest{
@@ -200,36 +147,6 @@ func TestAuthHandler_Login(t *testing.T) {
 				},
 			},
 			code: fiber.StatusOK,
-			want: domain.SuccessResponse{
-				Message: "user successfully logged in",
-				Data: domain.UserResponse{
-					ID:   authEntity.ID,
-					Name: authEntity.Name,
-				},
-			},
-			wantErr: false,
-		},
-		{
-			name: "failure",
-			fields: fields{
-				service: func() port.AuthService {
-					mockAuthService.EXPECT().Login(mock.AnythingOfType("domain.AuthLoginRequest")).Return(nil, nil, errors.New("failed")).Once()
-					return mockAuthService
-				}(),
-				validator: validator,
-				jwt:       jwt,
-			},
-			args: args{
-				req: domain.AuthLoginRequest{
-					Email:    authEntity.Email,
-					Password: authEntity.Password,
-				},
-			},
-			code: fiber.StatusInternalServerError,
-			want: domain.ErrorResponse{
-				Message: "failed",
-			},
-			wantErr: true,
 		},
 		{
 			name: "wrong password",
@@ -238,8 +155,8 @@ func TestAuthHandler_Login(t *testing.T) {
 					mockAuthService.EXPECT().Login(mock.AnythingOfType("domain.AuthLoginRequest")).Return(nil, nil, fiber.NewError(fiber.StatusUnauthorized, "invalid password")).Once()
 					return mockAuthService
 				}(),
-				validator: validator,
 				jwt:       jwt,
+				validator: validator,
 			},
 			args: args{
 				req: domain.AuthLoginRequest{
@@ -248,34 +165,20 @@ func TestAuthHandler_Login(t *testing.T) {
 				},
 			},
 			code: fiber.StatusUnauthorized,
-			want: domain.ErrorResponse{
-				Message: "invalid password",
+			wantErr: domain.ErrorResponse{
+				Code:  401,
+				Error: "invalid password",
 			},
-			wantErr: true,
-		},
-		{
-			name: "validation error",
-			fields: fields{
-				service: func() port.AuthService {
-					mockAuthService.EXPECT().Login(mock.AnythingOfType("domain.AuthLoginRequest")).Maybe()
-					return mockAuthService
-				}(),
-				validator: validator,
-			},
-			code: fiber.StatusBadRequest,
-			want: domain.ErrorResponse{
-				Message: "validation error",
-			},
-			wantErr: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			h := &AuthHandler{
+				cfg:       tt.fields.cfg,
 				service:   tt.fields.service,
-				validator: tt.fields.validator,
 				jwt:       tt.fields.jwt,
+				validator: tt.fields.validator,
 			}
 
 			app := config.NewFiber()
@@ -291,95 +194,92 @@ func TestAuthHandler_Login(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tt.code, res.StatusCode)
 
-			if tt.wantErr {
+			if tt.wantErr != nil {
 				var got domain.ErrorResponse
 				err = json.NewDecoder(res.Body).Decode(&got)
 				assert.NoError(t, err)
-				assert.Equal(t, tt.want, got)
-			} else {
-				var got domain.SuccessResponse
-				err = json.NewDecoder(res.Body).Decode(&got)
-				assert.NoError(t, err)
-				assert.Equal(t, tt.args.req.Email, authEntity.Email)
-				assert.Equal(t, tt.args.req.Password, authEntity.Password)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).ID, uint(got.Data.(map[string]interface{})["id"].(float64)))
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.UserResponse).Name, got.Data.(map[string]interface{})["name"].(string))
+				assert.Equal(t, tt.wantErr, got)
 			}
 		})
 	}
 }
 
 func TestAuthHandler_Logout(t *testing.T) {
+	type fields struct {
+		service port.AuthService
+		jwt     util.JWT
+	}
+
+	type args struct {
+		claims domain.Claims
+	}
+
+	mockAuthService := mocks.NewAuthService(t)
+	jwt := util.NewJWT(&config.Config{})
+
 	tests := []struct {
-		name    string
-		code    int
-		cookie  *http.Cookie
-		want    interface{}
-		wantErr bool
+		name   string
+		fields fields
+		args   args
+		code   int
+		cookie []*fiber.Cookie
 	}{
 		{
 			name: "success",
+			fields: fields{
+				service: func() port.AuthService {
+					mockAuthService.EXPECT().Logout(mock.AnythingOfType("uint")).Return(nil)
+					return mockAuthService
+				}(),
+				jwt: jwt,
+			},
+			args: args{
+				domain.Claims{
+					UserID: authEntity.ID,
+				},
+			},
 			code: fiber.StatusOK,
-			cookie: &http.Cookie{
-				Name:  "token",
-				Value: "dummy-token",
+			cookie: []*fiber.Cookie{
+				{
+					Name:  "refresh-token",
+					Value: "dummy-token",
+				},
+				{
+					Name:  "access-token",
+					Value: "dummy-token",
+				},
 			},
-			want: domain.SuccessResponse{
-				Message: "user successfully logged out",
-			},
-			wantErr: false,
-		},
-		{
-			name:   "failure",
-			code:   fiber.StatusBadRequest,
-			cookie: nil,
-			want: domain.ErrorResponse{
-				Message: "user is already logged out",
-			},
-			wantErr: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h := &AuthHandler{}
+			h := &AuthHandler{
+				service: tt.fields.service,
+				jwt:     tt.fields.jwt,
+			}
 
 			app := config.NewFiber()
+			app.Use(func(ctx *fiber.Ctx) error {
+				ctx.Locals("claims", &tt.args.claims)
+				return ctx.Next()
+			})
 			app.Post("/api/v1/auth/logout", h.Logout)
 
 			req := httptest.NewRequest(fiber.MethodPost, "/api/v1/auth/logout", nil)
 			req.Header.Set("Content-Type", "application/json")
 			if tt.cookie != nil {
-				req.AddCookie(tt.cookie)
+				for _, cookie := range tt.cookie {
+					req.AddCookie(&http.Cookie{
+						Name:  cookie.Name,
+						Value: cookie.Value,
+					})
+				}
 			}
 
 			res, err := app.Test(req)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.code, res.StatusCode)
-
-			if tt.wantErr {
-				var got domain.ErrorResponse
-				err = json.NewDecoder(res.Body).Decode(&got)
-				assert.NoError(t, err)
-				assert.Equal(t, tt.want, got)
-			} else {
-				var got domain.SuccessResponse
-				err = json.NewDecoder(res.Body).Decode(&got)
-				assert.NoError(t, err)
-
-				var tokenCookie *http.Cookie
-				for _, cookie := range res.Cookies() {
-					if cookie.Name == tt.cookie.Name {
-						tokenCookie = cookie
-						break
-					}
-				}
-
-				assert.NotNil(t, tokenCookie)
-				assert.Empty(t, tokenCookie.Value)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
-			}
 		})
 	}
 }

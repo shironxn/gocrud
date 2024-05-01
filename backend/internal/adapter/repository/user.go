@@ -28,9 +28,11 @@ func NewUserRepository(db *gorm.DB, pagination util.Pagination) port.UserReposit
 func (r *UserRepository) GetAll(req domain.UserQuery, metadata *domain.Metadata) ([]domain.User, error) {
 	var entities []domain.User
 	query := r.db.Model(&domain.User{})
+
 	if !req.Details {
 		query = r.db.Model(&domain.User{}).Select("id", "name", "created_at", "updated_at")
 	}
+
 	if err := query.
 		Where(&domain.UserQuery{Name: req.Name}).
 		Count(&metadata.TotalRecords).
@@ -39,21 +41,26 @@ func (r *UserRepository) GetAll(req domain.UserQuery, metadata *domain.Metadata)
 		Error; err != nil {
 		return nil, err
 	}
+
 	return entities, nil
 }
 
 func (r *UserRepository) GetByID(id uint) (*domain.User, error) {
 	var entity domain.User
+
 	if err := r.db.First(&entity, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fiber.NewError(fiber.StatusNotFound, "user not found")
 		}
 		return nil, err
 	}
+
 	return &entity, nil
 }
 
-func (r *UserRepository) Update(req domain.UserRequest, entity *domain.User) (*domain.User, error) {
+func (r *UserRepository) Update(req domain.UserRequest, user *domain.User) (*domain.User, error) {
+	entity := user
+
 	if req.Bio == "" {
 		r.db.Model(entity).Update("bio", "")
 	}
@@ -77,15 +84,19 @@ func (r *UserRepository) Update(req domain.UserRequest, entity *domain.User) (*d
 		}
 		return nil, err
 	}
+
 	return entity, nil
 }
 
-func (r *UserRepository) Delete(entity *domain.User) error {
+func (r *UserRepository) Delete(user *domain.User) error {
+	entity := user
+
 	if err := r.db.Delete(entity).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return fiber.NewError(fiber.StatusNotFound, "user not found")
 		}
 		return err
 	}
+
 	return nil
 }

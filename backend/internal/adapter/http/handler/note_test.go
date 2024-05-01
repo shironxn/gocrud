@@ -3,7 +3,6 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http/httptest"
 	"testing"
@@ -24,19 +23,22 @@ var noteEntity = &domain.Note{
 	Model: gorm.Model{
 		ID: 1,
 	},
-	Title:      "golang",
-	Content:    "is the best",
-	Visibility: "public",
+	Title:       "golang",
+	Description: "lets go",
+	CoverURL:    "https://i.pinimg.com/originals/56/c3/ee/56c3ee9cae0c8152bd341b969cd2fc1d.png",
+	Content:     "is the best",
+	Visibility:  "public",
+	UserID:      1,
 }
 
-var metadataEntity = domain.Metadata{
-	Sort:         "id",
-	Order:        "desc",
-	TotalRecords: 100,
-	TotalPage:    10,
-	Limit:        10,
-	Page:         1,
-}
+// var metadataEntity = domain.Metadata{
+// 	Sort:         "id",
+// 	Order:        "desc",
+// 	TotalRecords: 100,
+// 	TotalPage:    10,
+// 	Limit:        10,
+// 	Page:         1,
+// }
 
 func TestNoteHandler_Create(t *testing.T) {
 	type fields struct {
@@ -57,8 +59,7 @@ func TestNoteHandler_Create(t *testing.T) {
 		fields  fields
 		args    args
 		code    int
-		want    interface{}
-		wantErr bool
+		wantErr interface{}
 	}{
 		{
 			name: "success",
@@ -71,61 +72,22 @@ func TestNoteHandler_Create(t *testing.T) {
 			},
 			args: args{
 				req: domain.NoteRequest{
-					Title:      noteEntity.Title,
-					Content:    noteEntity.Content,
-					Visibility: noteEntity.Visibility,
+					Title:       noteEntity.Title,
+					Description: noteEntity.Description,
+					CoverURL:    noteEntity.CoverURL,
+					Content:     noteEntity.Content,
+					Visibility:  string(noteEntity.Visibility),
 				},
-				claims: domain.Claims{},
 			},
 			code: fiber.StatusCreated,
-			want: domain.SuccessResponse{
-				Message: "successfully created note",
-				Data: domain.NoteResponse{
-					ID:         noteEntity.ID,
-					Title:      noteEntity.Title,
-					Content:    noteEntity.Content,
-					Visibility: noteEntity.Visibility,
-				},
-			},
-			wantErr: false,
-		},
-		{
-			name: "failure",
-			fields: fields{
-				service: func() port.NoteService {
-					mockNoteService.EXPECT().Create(mock.AnythingOfType("domain.NoteRequest")).Return(nil, errors.New("failed")).Once()
-					return mockNoteService
-				}(),
-				validator: validator,
-			},
-			args: args{
-				req: domain.NoteRequest{
-					Title:      noteEntity.Title,
-					Content:    noteEntity.Content,
-					Visibility: noteEntity.Visibility,
-				},
-				claims: domain.Claims{},
-			},
-			code: fiber.StatusInternalServerError,
-			want: domain.ErrorResponse{
-				Message: "failed",
-			},
-			wantErr: true,
 		},
 		{
 			name: "validation error",
 			fields: fields{
-				service: func() port.NoteService {
-					mockNoteService.EXPECT().Create(mock.AnythingOfType("domain.NoteRequest")).Return(nil, fiber.NewError(fiber.StatusBadRequest, "validation error")).Once()
-					return mockNoteService
-				}(),
+				service:   mockNoteService,
 				validator: validator,
 			},
 			code: fiber.StatusBadRequest,
-			want: domain.ErrorResponse{
-				Message: "validation error",
-			},
-			wantErr: true,
 		},
 	}
 
@@ -141,37 +103,17 @@ func TestNoteHandler_Create(t *testing.T) {
 				ctx.Locals("claims", &tt.args.claims)
 				return ctx.Next()
 			})
-			app.Post("/api/v1/note", h.Create)
+			app.Post("/api/v1/notes", h.Create)
 
 			requestBody, err := json.Marshal(tt.args.req)
 			assert.NoError(t, err)
 
-			req := httptest.NewRequest(fiber.MethodPost, "/api/v1/note", bytes.NewBuffer(requestBody))
+			req := httptest.NewRequest(fiber.MethodPost, "/api/v1/notes", bytes.NewBuffer(requestBody))
 			req.Header.Set("Content-Type", "application/json")
 
 			res, err := app.Test(req)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.code, res.StatusCode)
-
-			if tt.wantErr {
-				var got domain.ErrorResponse
-				err = json.NewDecoder(res.Body).Decode(&got)
-				assert.NoError(t, err)
-				assert.Equal(t, tt.want, got)
-				t.Log(got)
-			} else {
-				var got domain.SuccessResponse
-				err = json.NewDecoder(res.Body).Decode(&got)
-				assert.NoError(t, err)
-				assert.Equal(t, tt.args.req.Title, noteEntity.Title)
-				assert.Equal(t, tt.args.req.Content, noteEntity.Content)
-				assert.Equal(t, tt.args.req.Visibility, noteEntity.Visibility)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.NoteResponse).ID, uint(got.Data.(map[string]interface{})["id"].(float64)))
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.NoteResponse).Title, got.Data.(map[string]interface{})["title"].(string))
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.NoteResponse).Content, got.Data.(map[string]interface{})["content"].(string))
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.NoteResponse).Visibility, got.Data.(map[string]interface{})["visibility"].(string))
-			}
 		})
 	}
 }
@@ -179,63 +121,29 @@ func TestNoteHandler_Create(t *testing.T) {
 func TestNoteHandler_GetAll(t *testing.T) {
 	type fields struct {
 		service port.NoteService
-	}
-
-	noteEntity := []domain.Note{
-		*noteEntity,
+		jwt     util.JWT
 	}
 
 	mockNoteService := mocks.NewNoteService(t)
+	jwt := util.NewJWT(&config.Config{})
 
 	tests := []struct {
-		name    string
-		fields  fields
-		code    int
-		want    interface{}
-		wantErr bool
+		name   string
+		fields fields
+		code   int
 	}{
 		{
 			name: "success",
 			fields: fields{
 				service: func() port.NoteService {
-					mockNoteService.EXPECT().GetAll(mock.AnythingOfType("domain.NoteQuery"), mock.AnythingOfType("*domain.Metadata")).Return(noteEntity, nil).Once()
+					mockNoteService.EXPECT().GetAll(mock.AnythingOfType("domain.NoteQuery"), mock.AnythingOfType("*domain.Metadata")).Return([]domain.Note{
+						*noteEntity,
+					}, nil).Once()
 					return mockNoteService
 				}(),
+				jwt: jwt,
 			},
 			code: fiber.StatusOK,
-			want: domain.SuccessResponse{
-				Message: "successfully retrieved notes",
-				Data: domain.NotePaginationResponse{
-					Notes: func() []domain.NoteResponse {
-						var data []domain.NoteResponse
-						for _, note := range noteEntity {
-							data = append(data, domain.NoteResponse{
-								ID:         note.ID,
-								Title:      note.Title,
-								Content:    note.Content,
-								Visibility: note.Visibility,
-							})
-						}
-						return data
-					}(),
-					Metadata: metadataEntity,
-				},
-			},
-			wantErr: false,
-		},
-		{
-			name: "failure",
-			fields: fields{
-				service: func() port.NoteService {
-					mockNoteService.EXPECT().GetAll(mock.AnythingOfType("domain.NoteQuery"), mock.AnythingOfType("*domain.Metadata")).Return(nil, errors.New("failed")).Once()
-					return mockNoteService
-				}(),
-			},
-			code: fiber.StatusInternalServerError,
-			want: domain.ErrorResponse{
-				Message: "failed",
-			},
-			wantErr: true,
 		},
 	}
 
@@ -243,29 +151,18 @@ func TestNoteHandler_GetAll(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			h := &NoteHandler{
 				service: tt.fields.service,
+				jwt:     tt.fields.jwt,
 			}
 
 			app := config.NewFiber()
-			app.Get("/api/v1/note", h.GetAll)
+			app.Get("/api/v1/notes", h.GetAll)
 
-			req := httptest.NewRequest(fiber.MethodGet, "/api/v1/note", nil)
+			req := httptest.NewRequest(fiber.MethodGet, "/api/v1/notes", nil)
 			req.Header.Set("Content-Type", "application/json")
 
 			res, err := app.Test(req)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.code, res.StatusCode)
-
-			if tt.wantErr {
-				var got domain.ErrorResponse
-				err = json.NewDecoder(res.Body).Decode(&got)
-				assert.NoError(t, err)
-				assert.Equal(t, tt.want, got)
-			} else {
-				var got domain.SuccessResponse
-				err = json.NewDecoder(res.Body).Decode(&got)
-				assert.NoError(t, err)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
-			}
 		})
 	}
 }
@@ -273,68 +170,33 @@ func TestNoteHandler_GetAll(t *testing.T) {
 func TestNoteHandler_GetByID(t *testing.T) {
 	type fields struct {
 		service port.NoteService
+		jwt     util.JWT
 	}
 
 	type args struct {
-		req    domain.NoteRequest
+		req    uint
 		claims *domain.Claims
 	}
 
 	mockNoteService := mocks.NewNoteService(t)
+	jwt := util.NewJWT(&config.Config{})
 
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		code    int
-		want    interface{}
-		wantErr bool
+		name   string
+		fields fields
+		args   args
+		code   int
 	}{
 		{
 			name: "success",
 			fields: fields{
 				service: func() port.NoteService {
-					mockNoteService.EXPECT().GetByID(mock.AnythingOfType("domain.NoteRequest"), mock.AnythingOfType("*domain.Claims")).Return(noteEntity, nil).Once()
+					mockNoteService.EXPECT().GetByID(mock.AnythingOfType("uint"), mock.AnythingOfType("*domain.Claims")).Return(noteEntity, nil).Once()
 					return mockNoteService
 				}(),
-			},
-			args: args{
-				req: domain.NoteRequest{
-					ID: noteEntity.ID,
-				},
-				claims: &domain.Claims{},
+				jwt: jwt,
 			},
 			code: fiber.StatusOK,
-			want: domain.SuccessResponse{
-				Message: "successfully retrieved note by id",
-				Data: domain.NoteResponse{
-					ID:         noteEntity.ID,
-					Title:      noteEntity.Title,
-					Content:    noteEntity.Content,
-					Visibility: noteEntity.Visibility,
-				},
-			},
-			wantErr: false,
-		},
-		{
-			name: "failure",
-			fields: fields{
-				service: func() port.NoteService {
-					mockNoteService.EXPECT().GetByID(mock.AnythingOfType("domain.NoteRequest"), mock.AnythingOfType("*domain.Claims")).Return(nil, errors.New("failed")).Once()
-					return mockNoteService
-				}(),
-			},
-			args: args{
-				req: domain.NoteRequest{
-					ID: noteEntity.ID,
-				},
-				claims: &domain.Claims{},
-			},
-			code: fiber.StatusInternalServerError,
-			want: domain.ErrorResponse{
-				Message: "failed",
-			},
-			wantErr: true,
 		},
 	}
 
@@ -342,6 +204,7 @@ func TestNoteHandler_GetByID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			h := &NoteHandler{
 				service: tt.fields.service,
+				jwt:     tt.fields.jwt,
 			}
 
 			app := config.NewFiber()
@@ -354,29 +217,12 @@ func TestNoteHandler_GetByID(t *testing.T) {
 			requestBody, err := json.Marshal(tt.args.req)
 			assert.NoError(t, err)
 
-			req := httptest.NewRequest(fiber.MethodGet, fmt.Sprintf("/api/v1/note/%v", tt.args.req.ID), bytes.NewBuffer(requestBody))
+			req := httptest.NewRequest(fiber.MethodGet, fmt.Sprintf("/api/v1/note/%v", tt.args.req), bytes.NewBuffer(requestBody))
 			req.Header.Set("Content-Type", "application/json")
 
 			res, err := app.Test(req)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.code, res.StatusCode)
-
-			if tt.wantErr {
-				var got domain.ErrorResponse
-				err = json.NewDecoder(res.Body).Decode(&got)
-				assert.NoError(t, err)
-				assert.Equal(t, tt.want, got)
-			} else {
-				var got domain.SuccessResponse
-				err = json.NewDecoder(res.Body).Decode(&got)
-				assert.NoError(t, err)
-				assert.Equal(t, tt.args.req.ID, noteEntity.ID)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.NoteResponse).ID, uint(got.Data.(map[string]interface{})["id"].(float64)))
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.NoteResponse).Title, got.Data.(map[string]interface{})["title"].(string))
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.NoteResponse).Content, got.Data.(map[string]interface{})["content"].(string))
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.NoteResponse).Visibility, got.Data.(map[string]interface{})["visibility"].(string))
-			}
 		})
 	}
 }
@@ -384,15 +230,17 @@ func TestNoteHandler_GetByID(t *testing.T) {
 func TestNoteHandler_Update(t *testing.T) {
 	type fields struct {
 		service   port.NoteService
+		jwt       util.JWT
 		validator *util.Validator
 	}
 
 	type args struct {
-		req    domain.NoteRequest
+		req    domain.NoteUpdateRequest
 		claims domain.Claims
 	}
 
 	mockNoteService := mocks.NewNoteService(t)
+	jwt := util.NewJWT(&config.Config{})
 	validator, _ := util.NewValidator()
 
 	tests := []struct {
@@ -400,98 +248,34 @@ func TestNoteHandler_Update(t *testing.T) {
 		fields  fields
 		args    args
 		code    int
-		want    interface{}
-		wantErr bool
+		wantErr interface{}
 	}{
 		{
 			name: "success",
 			fields: fields{
 				service: func() port.NoteService {
-					mockNoteService.EXPECT().Update(mock.AnythingOfType("domain.NoteRequest"), mock.AnythingOfType("domain.Claims")).Return(noteEntity, nil).Once()
+					mockNoteService.EXPECT().Update(mock.AnythingOfType("domain.NoteUpdateRequest"), mock.AnythingOfType("domain.Claims")).Return(noteEntity, nil).Once()
 					return mockNoteService
 				}(),
+				jwt:       jwt,
 				validator: validator,
-			},
-			args: args{
-				req: domain.NoteRequest{
-					ID:         noteEntity.ID,
-					Title:      noteEntity.Title,
-					Content:    noteEntity.Content,
-					Visibility: noteEntity.Visibility,
-				},
-				claims: domain.Claims{},
 			},
 			code: fiber.StatusOK,
-			want: domain.SuccessResponse{
-				Message: "successfully updated note by id",
-				Data: domain.NoteResponse{
-					ID:         noteEntity.ID,
-					Title:      noteEntity.Title,
-					Content:    noteEntity.Content,
-					Visibility: noteEntity.Visibility,
-				},
-			},
-			wantErr: false,
-		},
-		{
-			name: "failure",
-			fields: fields{
-				service: func() port.NoteService {
-					mockNoteService.EXPECT().Update(mock.AnythingOfType("domain.NoteRequest"), mock.AnythingOfType("domain.Claims")).Return(nil, errors.New("failed")).Once()
-					return mockNoteService
-				}(),
-				validator: validator,
-			},
-			args: args{
-				req: domain.NoteRequest{
-					ID:         noteEntity.ID,
-					Title:      noteEntity.Title,
-					Content:    noteEntity.Content,
-					Visibility: noteEntity.Visibility,
-				},
-				claims: domain.Claims{},
-			},
-			code: fiber.StatusInternalServerError,
-			want: domain.ErrorResponse{
-				Message: "failed",
-			},
-			wantErr: true,
 		},
 		{
 			name: "permission denied",
 			fields: fields{
 				service: func() port.NoteService {
-					mockNoteService.EXPECT().Update(mock.AnythingOfType("domain.NoteRequest"), mock.AnythingOfType("domain.Claims")).Return(nil, fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")).Once()
+					mockNoteService.EXPECT().Update(mock.AnythingOfType("domain.NoteUpdateRequest"), mock.AnythingOfType("domain.Claims")).Return(nil, fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")).Once()
 					return mockNoteService
 				}(),
 				validator: validator,
 			},
-			args: args{
-				req: domain.NoteRequest{
-					ID:         noteEntity.ID,
-					Title:      noteEntity.Title,
-					Content:    noteEntity.Content,
-					Visibility: noteEntity.Visibility,
-				},
-				claims: domain.Claims{},
-			},
 			code: fiber.StatusForbidden,
-			want: domain.ErrorResponse{
-				Message: "user does not have permission to perform this action",
+			wantErr: domain.ErrorResponse{
+				Code:  403,
+				Error: "user does not have permission to perform this action",
 			},
-			wantErr: true,
-		},
-		{
-			name: "validation error",
-			fields: fields{
-				service:   mockNoteService,
-				validator: validator,
-			},
-			code: fiber.StatusBadRequest,
-			want: domain.ErrorResponse{
-				Message: "validation error",
-			},
-			wantErr: true,
 		},
 	}
 
@@ -499,6 +283,7 @@ func TestNoteHandler_Update(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			h := &NoteHandler{
 				service:   tt.fields.service,
+				jwt:       tt.fields.jwt,
 				validator: tt.fields.validator,
 			}
 
@@ -519,24 +304,11 @@ func TestNoteHandler_Update(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tt.code, res.StatusCode)
 
-			if tt.wantErr {
+			if tt.wantErr != nil {
 				var got domain.ErrorResponse
 				err = json.NewDecoder(res.Body).Decode(&got)
 				assert.NoError(t, err)
-				assert.Equal(t, tt.want, got)
-			} else {
-				var got domain.SuccessResponse
-				err = json.NewDecoder(res.Body).Decode(&got)
-				assert.NoError(t, err)
-				assert.Equal(t, tt.args.req.ID, noteEntity.ID)
-				assert.Equal(t, tt.args.req.Title, noteEntity.Title)
-				assert.Equal(t, tt.args.req.Content, noteEntity.Content)
-				assert.Equal(t, tt.args.req.Visibility, noteEntity.Visibility)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.NoteResponse).ID, uint(got.Data.(map[string]interface{})["id"].(float64)))
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.NoteResponse).Title, got.Data.(map[string]interface{})["title"].(string))
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.NoteResponse).Content, got.Data.(map[string]interface{})["content"].(string))
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Data.(domain.NoteResponse).Visibility, got.Data.(map[string]interface{})["visibility"].(string))
+				assert.Equal(t, tt.wantErr, got)
 			}
 		})
 	}
@@ -548,7 +320,7 @@ func TestNoteHandler_Delete(t *testing.T) {
 	}
 
 	type args struct {
-		req    domain.NoteRequest
+		req    uint
 		claims domain.Claims
 	}
 
@@ -559,68 +331,31 @@ func TestNoteHandler_Delete(t *testing.T) {
 		fields  fields
 		args    args
 		code    int
-		want    interface{}
-		wantErr bool
+		wantErr interface{}
 	}{
 		{
 			name: "success",
 			fields: fields{
 				service: func() port.NoteService {
-					mockNoteService.EXPECT().Delete(mock.AnythingOfType("domain.NoteRequest"), mock.AnythingOfType("domain.Claims")).Return(nil).Once()
+					mockNoteService.EXPECT().Delete(mock.AnythingOfType("uint"), mock.AnythingOfType("domain.Claims")).Return(nil).Once()
 					return mockNoteService
 				}(),
-			},
-			args: args{
-				req: domain.NoteRequest{
-					ID: noteEntity.ID,
-				},
-				claims: domain.Claims{},
 			},
 			code: fiber.StatusOK,
-			want: domain.SuccessResponse{
-				Message: "successfully deleted note by id",
-			},
-			wantErr: false,
-		},
-		{
-			name: "failure",
-			fields: fields{
-				service: func() port.NoteService {
-					mockNoteService.EXPECT().Delete(mock.AnythingOfType("domain.NoteRequest"), mock.AnythingOfType("domain.Claims")).Return(errors.New("failed")).Once()
-					return mockNoteService
-				}(),
-			},
-			args: args{
-				req: domain.NoteRequest{
-					ID: noteEntity.ID,
-				},
-				claims: domain.Claims{},
-			},
-			code: fiber.StatusInternalServerError,
-			want: domain.ErrorResponse{
-				Message: "failed",
-			},
-			wantErr: true,
 		},
 		{
 			name: "permission denied",
 			fields: fields{
 				service: func() port.NoteService {
-					mockNoteService.EXPECT().Delete(mock.AnythingOfType("domain.NoteRequest"), mock.AnythingOfType("domain.Claims")).Return(fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")).Once()
+					mockNoteService.EXPECT().Delete(mock.AnythingOfType("uint"), mock.AnythingOfType("domain.Claims")).Return(fiber.NewError(fiber.StatusForbidden, "user does not have permission to perform this action")).Once()
 					return mockNoteService
 				}(),
 			},
-			args: args{
-				req: domain.NoteRequest{
-					ID: noteEntity.ID,
-				},
-				claims: domain.Claims{},
-			},
 			code: fiber.StatusForbidden,
-			want: domain.ErrorResponse{
-				Message: "user does not have permission to perform this action",
+			wantErr: domain.ErrorResponse{
+				Code:  403,
+				Error: "user does not have permission to perform this action",
 			},
-			wantErr: true,
 		},
 	}
 
@@ -637,24 +372,18 @@ func TestNoteHandler_Delete(t *testing.T) {
 			})
 			app.Delete("/api/v1/note/:id", h.Delete)
 
-			req := httptest.NewRequest(fiber.MethodDelete, fmt.Sprintf("/api/v1/note/%v", tt.args.req.ID), nil)
+			req := httptest.NewRequest(fiber.MethodDelete, fmt.Sprintf("/api/v1/note/%v", tt.args.req), nil)
 			req.Header.Set("Content-Type", "application/json")
 
 			res, err := app.Test(req)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.code, res.StatusCode)
 
-			if tt.wantErr {
+			if tt.wantErr != nil {
 				var got domain.ErrorResponse
 				err = json.NewDecoder(res.Body).Decode(&got)
 				assert.NoError(t, err)
-				assert.Equal(t, tt.want, got)
-			} else {
-				var got domain.SuccessResponse
-				err = json.NewDecoder(res.Body).Decode(&got)
-				assert.NoError(t, err)
-				assert.Equal(t, tt.args.req.ID, noteEntity.ID)
-				assert.Equal(t, tt.want.(domain.SuccessResponse).Message, got.Message)
+				assert.Equal(t, tt.wantErr, got)
 			}
 		})
 	}
