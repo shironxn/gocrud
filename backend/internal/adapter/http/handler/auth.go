@@ -139,7 +139,7 @@ func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
 // @Description Log out the currently logged-in user
 // @Tags auth
 // @Produce json
-// @Success 200 {object} domain.SuccessResponse "Successfully logged out"
+// @Success 200 "Successfully logged out"
 // @Router /auth/logout [post]
 func (h *AuthHandler) Logout(ctx *fiber.Ctx) error {
 	var req domain.User
@@ -176,7 +176,7 @@ func (h *AuthHandler) Logout(ctx *fiber.Ctx) error {
 // @Description Refresh the access token using the refresh token
 // @Tags auth
 // @Produce json
-// @Success 200 {object} domain.SuccessResponse "Successfully refreshed token"
+// @Success 200 {object} domain.UserToken "Successfully refreshed token"
 // @Router /auth/refresh [post]
 func (h *AuthHandler) Refresh(ctx *fiber.Ctx) error {
 	cookie := ctx.Cookies("refresh-token")

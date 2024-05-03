@@ -18,7 +18,6 @@ import (
 // @title gocrud
 // @version 1.0
 // @description golang crud api
-// @host 419a-103-10-66-17.ngrok-free.app
 // @BasePath /api/v1
 func main() {
 	cfg, err := config.NewConfig()

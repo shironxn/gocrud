@@ -130,7 +130,6 @@ func (h *UserHandler) GetByID(ctx *fiber.Ctx) error {
 // @Param id path int true "User ID"
 // @Param user body domain.UserRequest true "Updated user data object"
 // @Success 200 {object} domain.UserResponse "Successfully updated user by ID"
-// @Failure 400 {object} domain.ErrorValidationResponse "Validation error"
 // @Router /users/{id} [put]
 func (h *UserHandler) Update(ctx *fiber.Ctx) error {
 	var req domain.UserRequest
@@ -172,7 +171,7 @@ func (h *UserHandler) Update(ctx *fiber.Ctx) error {
 // @Tags user
 // @Produce json
 // @Param id path int true "User ID"
-// @Success 200 {object} domain.SuccessResponse "Successfully deleted user by ID"
+// @Success 200 "Successfully deleted user by ID"
 // @Router /users/{id} [delete]
 func (h *UserHandler) Delete(ctx *fiber.Ctx) error {
 	var req domain.UserRequest

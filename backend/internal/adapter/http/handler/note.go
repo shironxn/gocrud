@@ -213,7 +213,7 @@ func (h *NoteHandler) GetByID(ctx *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param id path int true "Note ID"
-// @Param note body domain.NoteUpdate true "Updated note object"
+// @Param note body domain.NoteUpdateRequest true "Updated note object"
 // @Success 200 {object} domain.NoteResponse "Successfully updated a note by ID"
 // @Router /notes/{id} [put]
 func (h *NoteHandler) Update(ctx *fiber.Ctx) error {
@@ -264,7 +264,7 @@ func (h *NoteHandler) Update(ctx *fiber.Ctx) error {
 // @Tags note
 // @Produce json
 // @Param id path int true "Note ID"
-// @Success 200 {object} domain.SuccessResponse "Successfully deleted a note by ID"
+// @Success 200 "Successfully deleted a note by ID"
 // @Router /notes/{id} [delete]
 func (h *NoteHandler) Delete(ctx *fiber.Ctx) error {
 	var req domain.NoteRequest

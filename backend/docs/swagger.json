@@ -6,7 +6,6 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "419a-103-10-66-17.ngrok-free.app",
     "basePath": "/api/v1",
     "paths": {
         "/auth/login": {
@@ -55,10 +54,7 @@
                 "summary": "User logout",
                 "responses": {
                     "200": {
-                        "description": "Successfully logged out",
-                        "schema": {
-                            "$ref": "#/definitions/domain.SuccessResponse"
-                        }
+                        "description": "Successfully logged out"
                     }
                 }
             }
@@ -77,7 +73,7 @@
                     "200": {
                         "description": "Successfully refreshed token",
                         "schema": {
-                            "$ref": "#/definitions/domain.SuccessResponse"
+                            "$ref": "#/definitions/domain.UserToken"
                         }
                     }
                 }
@@ -288,7 +284,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.NoteRequest"
+                            "$ref": "#/definitions/domain.NoteUpdateRequest"
                         }
                     }
                 ],
@@ -321,10 +317,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully deleted a note by ID",
-                        "schema": {
-                            "$ref": "#/definitions/domain.SuccessResponse"
-                        }
+                        "description": "Successfully deleted a note by ID"
                     }
                 }
             }
@@ -472,12 +465,6 @@
                         "schema": {
                             "$ref": "#/definitions/domain.UserResponse"
                         }
-                    },
-                    "400": {
-                        "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorValidationResponse"
-                        }
                     }
                 }
             },
@@ -501,10 +488,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully deleted user by ID",
-                        "schema": {
-                            "$ref": "#/definitions/domain.SuccessResponse"
-                        }
+                        "description": "Successfully deleted user by ID"
                     }
                 }
             }
@@ -539,7 +523,7 @@
                 },
                 "name": {
                     "type": "string",
-                    "maxLength": 30,
+                    "maxLength": 20,
                     "minLength": 4
                 },
                 "password": {
@@ -554,20 +538,6 @@
             "properties": {
                 "user_id": {
                     "type": "integer"
-                }
-            }
-        },
-        "domain.ErrorValidationResponse": {
-            "type": "object",
-            "properties": {
-                "errors": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.ValidationError"
-                    }
-                },
-                "message": {
-                    "type": "string"
                 }
             }
         },
@@ -609,6 +579,9 @@
         "domain.NoteAuthor": {
             "type": "object",
             "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -633,16 +606,30 @@
         },
         "domain.NoteRequest": {
             "type": "object",
+            "required": [
+                "content",
+                "cover_url",
+                "description",
+                "title",
+                "visibility"
+            ],
             "properties": {
                 "content": {
                     "type": "string"
+                },
+                "cover_url": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 50
                 },
                 "id": {
                     "type": "integer"
                 },
                 "title": {
                     "type": "string",
-                    "maxLength": 30
+                    "maxLength": 25
                 },
                 "user_id": {
                     "type": "integer"
@@ -665,7 +652,13 @@
                 "content": {
                     "type": "string"
                 },
+                "cover_url": {
+                    "type": "string"
+                },
                 "created_at": {
+                    "type": "string"
+                },
+                "description": {
                     "type": "string"
                 },
                 "id": {
@@ -682,12 +675,35 @@
                 }
             }
         },
-        "domain.SuccessResponse": {
+        "domain.NoteUpdateRequest": {
             "type": "object",
             "properties": {
-                "data": {},
-                "message": {
+                "content": {
                     "type": "string"
+                },
+                "cover_url": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 25
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "visibility": {
+                    "type": "string",
+                    "enum": [
+                        "private",
+                        "public"
+                    ]
                 }
             }
         },
@@ -723,7 +739,7 @@
                 },
                 "name": {
                     "type": "string",
-                    "maxLength": 30,
+                    "maxLength": 20,
                     "minLength": 4
                 },
                 "password": {
@@ -769,17 +785,6 @@
                     "$ref": "#/definitions/domain.Claims"
                 },
                 "refresh_token": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.ValidationError": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string"
-                },
-                "field": {
                     "type": "string"
                 }
             }

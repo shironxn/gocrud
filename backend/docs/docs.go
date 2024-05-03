@@ -61,10 +61,7 @@ const docTemplate = `{
                 "summary": "User logout",
                 "responses": {
                     "200": {
-                        "description": "Successfully logged out",
-                        "schema": {
-                            "$ref": "#/definitions/domain.SuccessResponse"
-                        }
+                        "description": "Successfully logged out"
                     }
                 }
             }
@@ -83,7 +80,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully refreshed token",
                         "schema": {
-                            "$ref": "#/definitions/domain.SuccessResponse"
+                            "$ref": "#/definitions/domain.UserToken"
                         }
                     }
                 }
@@ -294,7 +291,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.NoteRequest"
+                            "$ref": "#/definitions/domain.NoteUpdateRequest"
                         }
                     }
                 ],
@@ -327,10 +324,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully deleted a note by ID",
-                        "schema": {
-                            "$ref": "#/definitions/domain.SuccessResponse"
-                        }
+                        "description": "Successfully deleted a note by ID"
                     }
                 }
             }
@@ -478,12 +472,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/domain.UserResponse"
                         }
-                    },
-                    "400": {
-                        "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/domain.ErrorValidationResponse"
-                        }
                     }
                 }
             },
@@ -507,10 +495,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully deleted user by ID",
-                        "schema": {
-                            "$ref": "#/definitions/domain.SuccessResponse"
-                        }
+                        "description": "Successfully deleted user by ID"
                     }
                 }
             }
@@ -545,7 +530,7 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string",
-                    "maxLength": 30,
+                    "maxLength": 20,
                     "minLength": 4
                 },
                 "password": {
@@ -560,20 +545,6 @@ const docTemplate = `{
             "properties": {
                 "user_id": {
                     "type": "integer"
-                }
-            }
-        },
-        "domain.ErrorValidationResponse": {
-            "type": "object",
-            "properties": {
-                "errors": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.ValidationError"
-                    }
-                },
-                "message": {
-                    "type": "string"
                 }
             }
         },
@@ -615,6 +586,9 @@ const docTemplate = `{
         "domain.NoteAuthor": {
             "type": "object",
             "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -639,16 +613,30 @@ const docTemplate = `{
         },
         "domain.NoteRequest": {
             "type": "object",
+            "required": [
+                "content",
+                "cover_url",
+                "description",
+                "title",
+                "visibility"
+            ],
             "properties": {
                 "content": {
                     "type": "string"
+                },
+                "cover_url": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 50
                 },
                 "id": {
                     "type": "integer"
                 },
                 "title": {
                     "type": "string",
-                    "maxLength": 30
+                    "maxLength": 25
                 },
                 "user_id": {
                     "type": "integer"
@@ -671,7 +659,13 @@ const docTemplate = `{
                 "content": {
                     "type": "string"
                 },
+                "cover_url": {
+                    "type": "string"
+                },
                 "created_at": {
+                    "type": "string"
+                },
+                "description": {
                     "type": "string"
                 },
                 "id": {
@@ -688,12 +682,35 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.SuccessResponse": {
+        "domain.NoteUpdateRequest": {
             "type": "object",
             "properties": {
-                "data": {},
-                "message": {
+                "content": {
                     "type": "string"
+                },
+                "cover_url": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 25
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "visibility": {
+                    "type": "string",
+                    "enum": [
+                        "private",
+                        "public"
+                    ]
                 }
             }
         },
@@ -729,7 +746,7 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string",
-                    "maxLength": 30,
+                    "maxLength": 20,
                     "minLength": 4
                 },
                 "password": {
@@ -778,17 +795,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "domain.ValidationError": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string"
-                },
-                "field": {
-                    "type": "string"
-                }
-            }
         }
     }
 }`
@@ -796,7 +802,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "419a-103-10-66-17.ngrok-free.app",
+	Host:             "",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "gocrud",

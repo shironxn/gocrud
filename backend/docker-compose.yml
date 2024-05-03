@@ -2,14 +2,13 @@ version: "3.8"
 
 services:
   db:
-    container_name: mysql
+    container_name: postgres  
     image: mariadb:11.2.3
     hostname: ${DB_HOST}
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASS}
-      MYSQL_DATABASE: ${DB_NAME}
+      POSTGRES_PASSWORD: ${DB_PASS}
       MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
     restart: unless-stopped
     ports:
       - "${DB_PORT}:${DB_PORT}"
@@ -26,7 +25,10 @@ services:
       DB_PASS: ${DB_PASS}
       APP_HOST: ${APP_HOST}
       APP_PORT: ${APP_PORT}
-      JWT_SECRET: ${JWT_SECRET}
+      APP_DEV: ${APP_DEV}
+      APP_WEB: ${APP_WEB}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
     build:
       context: .
       dockerfile: Dockerfile

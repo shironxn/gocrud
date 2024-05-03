@@ -15,7 +15,7 @@ definitions:
       email:
         type: string
       name:
-        maxLength: 30
+        maxLength: 20
         minLength: 4
         type: string
       password:
@@ -31,15 +31,6 @@ definitions:
     properties:
       user_id:
         type: integer
-    type: object
-  domain.ErrorValidationResponse:
-    properties:
-      errors:
-        items:
-          $ref: '#/definitions/domain.ValidationError'
-        type: array
-      message:
-        type: string
     type: object
   domain.Metadata:
     properties:
@@ -68,6 +59,8 @@ definitions:
     type: object
   domain.NoteAuthor:
     properties:
+      avatar_url:
+        type: string
       id:
         type: integer
       name:
@@ -86,10 +79,15 @@ definitions:
     properties:
       content:
         type: string
+      cover_url:
+        type: string
+      description:
+        maxLength: 50
+        type: string
       id:
         type: integer
       title:
-        maxLength: 30
+        maxLength: 25
         type: string
       user_id:
         type: integer
@@ -98,6 +96,12 @@ definitions:
         - private
         - public
         type: string
+    required:
+    - content
+    - cover_url
+    - description
+    - title
+    - visibility
     type: object
   domain.NoteResponse:
     properties:
@@ -105,7 +109,11 @@ definitions:
         $ref: '#/definitions/domain.NoteAuthor'
       content:
         type: string
+      cover_url:
+        type: string
       created_at:
+        type: string
+      description:
         type: string
       id:
         type: integer
@@ -116,10 +124,26 @@ definitions:
       visibility:
         type: string
     type: object
-  domain.SuccessResponse:
+  domain.NoteUpdateRequest:
     properties:
-      data: {}
-      message:
+      content:
+        type: string
+      cover_url:
+        type: string
+      description:
+        maxLength: 50
+        type: string
+      id:
+        type: integer
+      title:
+        maxLength: 25
+        type: string
+      user_id:
+        type: integer
+      visibility:
+        enum:
+        - private
+        - public
         type: string
     type: object
   domain.UserPaginationResponse:
@@ -143,7 +167,7 @@ definitions:
       id:
         type: integer
       name:
-        maxLength: 30
+        maxLength: 20
         minLength: 4
         type: string
       password:
@@ -177,14 +201,6 @@ definitions:
       refresh_token:
         type: string
     type: object
-  domain.ValidationError:
-    properties:
-      error:
-        type: string
-      field:
-        type: string
-    type: object
-host: 419a-103-10-66-17.ngrok-free.app
 info:
   contact: {}
   description: golang crud api
@@ -221,8 +237,6 @@ paths:
       responses:
         "200":
           description: Successfully logged out
-          schema:
-            $ref: '#/definitions/domain.SuccessResponse'
       summary: User logout
       tags:
       - auth
@@ -235,7 +249,7 @@ paths:
         "200":
           description: Successfully refreshed token
           schema:
-            $ref: '#/definitions/domain.SuccessResponse'
+            $ref: '#/definitions/domain.UserToken'
       summary: Refresh access token
       tags:
       - auth
@@ -342,8 +356,6 @@ paths:
       responses:
         "200":
           description: Successfully deleted a note by ID
-          schema:
-            $ref: '#/definitions/domain.SuccessResponse'
       summary: Delete a note by ID
       tags:
       - note
@@ -390,7 +402,7 @@ paths:
         name: note
         required: true
         schema:
-          $ref: '#/definitions/domain.NoteRequest'
+          $ref: '#/definitions/domain.NoteUpdateRequest'
       produces:
       - application/json
       responses:
@@ -459,8 +471,6 @@ paths:
       responses:
         "200":
           description: Successfully deleted user by ID
-          schema:
-            $ref: '#/definitions/domain.SuccessResponse'
       summary: Delete a user by ID
       tags:
       - user
@@ -513,10 +523,6 @@ paths:
           description: Successfully updated user by ID
           schema:
             $ref: '#/definitions/domain.UserResponse'
-        "400":
-          description: Validation error
-          schema:
-            $ref: '#/definitions/domain.ErrorValidationResponse'
       summary: Update user data by ID
       tags:
       - user
