@@ -39,6 +39,8 @@ services:
       - db
     networks:
       - connection
+    env_file:
+      - .env
 
 networks:
   connection:
