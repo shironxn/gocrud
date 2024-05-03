@@ -3,17 +3,19 @@ version: "3.8"
 services:
   db:
     container_name: postgres  
-    image: mariadb:11.2.3
+    image: postgres
     hostname: ${DB_HOST}
     environment:
       POSTGRES_PASSWORD: ${DB_PASS}
-      MYSQL_USER: ${DB_USER}
+      POSTGRES_USER: ${DB_USER}
       POSTGRES_DB: ${DB_NAME}
     restart: unless-stopped
     ports:
       - "${DB_PORT}:${DB_PORT}"
     networks:
       - connection
+    env_file:
+      - .env
 
   app:
     container_name: gocrud
