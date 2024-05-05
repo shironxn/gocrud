@@ -3,9 +3,10 @@ version: "3.8"
 services:
   db:
     container_name: postgres  
-    image: postgres
+    image: postgres:alpine
     hostname: ${DB_HOST}
     environment:
+      POSTGRES_HOST: ${DB_HOST}
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_DB: ${DB_NAME}
@@ -14,8 +15,6 @@ services:
       - "${DB_PORT}:${DB_PORT}"
     networks:
       - connection
-    env_file:
-      - .env
 
   app:
     container_name: gocrud
@@ -41,8 +40,6 @@ services:
       - db
     networks:
       - connection
-    env_file:
-      - .env
 
 networks:
   connection:

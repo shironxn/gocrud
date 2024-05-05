@@ -41,15 +41,15 @@ export default function Page({
           <Image src="/header.jpg" alt="Image" className="object-cover" fill />
         </AspectRatio>
       </div>
-      {data?.data.notes ? (
+      {data?.notes ? (
         <div className="container mx-auto py-8 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data && <NoteCard data={data.data.notes} />}
+            {data && <NoteCard data={data.notes} />}
           </div>
-          {Number(data.data?.metadata?.total_page) > 1 && (
+          {Number(data?.metadata?.total_page) > 1 && (
             <NotePagination
               currentPage={currentPage}
-              totalPage={Number(data.data?.metadata?.total_page)}
+              totalPage={Number(data?.metadata?.total_page)}
             />
           )}
         </div>
