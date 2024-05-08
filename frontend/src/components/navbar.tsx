@@ -171,9 +171,9 @@ const Navbar = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Avatar className="h-12 w-12 cursor-pointer">
-                      <AvatarImage src={userData?.data.avatar_url} />
+                      <AvatarImage src={userData?.data?.avatar_url} />
                       <AvatarFallback>
-                        {userData?.data.name.slice(0, 2).toUpperCase()}
+                        {userData?.data?.name.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>

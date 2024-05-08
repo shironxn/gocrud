@@ -12,10 +12,10 @@ import { useEffect, useState } from "react";
 
 const NotePagination = ({
   currentPage,
-  totalPage,
+  totalPages,
 }: {
   currentPage: number;
-  totalPage: number;
+  totalPages: number;
 }) => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -49,10 +49,10 @@ const NotePagination = ({
         <PaginationItem>
           <PaginationNext
             onClick={() => setPage((prevPage) => prevPage + 1)}
-            aria-disabled={page >= totalPage}
-            tabIndex={page >= totalPage ? totalPage : undefined}
+            aria-disabled={page >= totalPages}
+            tabIndex={page >= totalPages ? totalPages : undefined}
             className={
-              page >= totalPage
+              page >= totalPages
                 ? "pointer-events-none opacity-50"
                 : "cursor-pointer"
             }

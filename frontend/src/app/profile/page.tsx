@@ -75,10 +75,10 @@ export default function Page({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {data && <NoteCard data={data.data.notes} />}
           </div>
-          {Number(data.data?.metadata?.total_page) > 1 && (
+          {Number(data.data?.metadata?.total_pages) > 1 && (
             <NotePagination
               currentPage={currentPage}
-              totalPage={Number(data.data?.metadata?.total_page)}
+              totalPages={Number(data.data?.metadata?.total_pages)}
             />
           )}
         </div>

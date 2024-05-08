@@ -6,7 +6,8 @@ export const successSchema = z.object({
 });
 
 export const errorSchema = z.object({
-  message: z.string(),
+  code: z.string(),
+  error: z.string(),
 });
 
 export const errorValidationSchema = z.object({

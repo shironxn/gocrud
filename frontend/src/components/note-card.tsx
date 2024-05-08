@@ -25,7 +25,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 
 import { Skeleton } from "./ui/skeleton";
-import { NoteMenu, NoteUpdateDialog } from "./note-drawer";
+import { NoteMenu } from "./note-drawer";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
@@ -66,7 +66,6 @@ export const LoadingCard = () => {
 
 export function NoteCard({ data }: { data: Note[] }) {
   const pathname = usePathname();
-  const [imgError, setImgError] = useState(false);
 
   return (
     <>
@@ -77,12 +76,12 @@ export function NoteCard({ data }: { data: Note[] }) {
               <div className="w-full">
                 <AspectRatio ratio={5 / 1}>
                   <Image
-                    src={imgError ? "/cover.jpg" : item.cover_url}
-                    onError={() => setImgError(true)}
+                    src={item.cover_url}
                     alt=""
                     className="object-cover rounded-t-md"
                     fill
                   />
+                  )
                 </AspectRatio>
               </div>
             </CardHeader>
@@ -135,8 +134,7 @@ export function NoteCard({ data }: { data: Note[] }) {
                       <div className="w-full">
                         <AspectRatio ratio={4 / 2}>
                           <Image
-                            src={imgError ? "/cover.jpg" : item.cover_url}
-                            onError={() => setImgError(true)}
+                            src={item.cover_url}
                             alt=""
                             className="object-cover"
                             fill

@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import { Navbar } from "@/components/navbar";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -7,49 +5,36 @@ import { LoadingCard, NoteCard } from "@/components/note-card";
 import { NotePagination } from "@/components/note-pagination";
 import useAxios from "axios-hooks";
 import { toast } from "@/components/ui/use-toast";
+import { GetNotes } from "@/actions/note";
+import { Header } from "@/components/header";
 
-export default function Page({
+interface queryParams {
+  search?: string;
+  page?: number;
+}
+
+export default async function Page({
   searchParams,
 }: {
-  searchParams?: {
-    search?: string;
-    page?: string;
-  };
+  searchParams?: queryParams;
 }) {
   const search = searchParams?.search || "";
   const currentPage = Number(searchParams?.page) || 1;
-
-  const [{ data, loading, error }] = useAxios({
-    url: `/notes?visibility="public"&title=${search}&page=${currentPage}&limit=6&order=desc`,
-    method: "GET",
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
-    withCredentials: true,
-  });
-
-  if (error) {
-    toast({
-      title: "Uh oh! Something went wrong.",
-      description: error.response?.data.message || "An unknown error occurred",
-    });
-  }
+  const data = await GetNotes({ page: currentPage, search: search });
 
   return (
     <div className="min-h-screen justify-center">
       <Navbar />
-      <div className="w-full">
-        <AspectRatio ratio={14 / 2}>
-          <Image src="/header.jpg" alt="Image" className="object-cover" fill />
-        </AspectRatio>
-      </div>
+      <Header />
       {data?.notes ? (
         <div className="container mx-auto py-8 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {data && <NoteCard data={data.notes} />}
           </div>
-          {Number(data?.metadata?.total_page) > 1 && (
+          {Number(data?.metadata?.total_pages) > 1 && (
             <NotePagination
               currentPage={currentPage}
-              totalPage={Number(data?.metadata?.total_page)}
+              totalPages={Number(data?.metadata?.total_pages)}
             />
           )}
         </div>
