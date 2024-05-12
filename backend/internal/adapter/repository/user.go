@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"reflect"
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
@@ -26,7 +27,7 @@ func NewUserRepository(db *gorm.DB, pagination util.Pagination) port.UserReposit
 }
 
 func (r *UserRepository) GetAll(req domain.UserQuery, metadata *domain.Metadata) ([]domain.User, error) {
-	var entities []domain.User
+	var entity []domain.User
 	query := r.db.Model(&domain.User{})
 
 	if !req.Details {
@@ -37,12 +38,16 @@ func (r *UserRepository) GetAll(req domain.UserQuery, metadata *domain.Metadata)
 		Where(&domain.UserQuery{Name: req.Name}).
 		Count(&metadata.TotalRecords).
 		Scopes(r.pagination.Paginate(metadata)).
-		Find(&entities).
+		Find(&entity).
 		Error; err != nil {
 		return nil, err
 	}
 
-	return entities, nil
+	if reflect.DeepEqual(entity, []domain.User{}) {
+		return nil, fiber.NewError(fiber.StatusNotFound, "user not found")
+	}
+
+	return entity, nil
 }
 
 func (r *UserRepository) GetByID(id uint) (*domain.User, error) {

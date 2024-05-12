@@ -6,8 +6,8 @@ type RefreshToken struct {
 }
 
 type AuthRegisterRequest struct {
-	Name     string `json:"name" validate:"required,min=4,max=20"`
-	Email    string `json:"email" validate:"required,email"`
+	Name     string `json:"name" validate:"required,min=4,max=20" conform:"name,trim,lower,alpha"`
+	Email    string `json:"email" validate:"required,email" conform:"email"`
 	Password string `json:"password" validate:"required,min=8,max=100"`
 }
 

@@ -26,20 +26,20 @@ type Note struct {
 
 type NoteRequest struct {
 	ID          uint   `json:"id"`
-	Title       string `json:"title" validate:"required,max=25"`
-	Description string `json:"description" validate:"required,max=50"`
-	CoverURL    string `json:"cover_url" validate:"required,url,image"`
-	Content     string `json:"content" validate:"required"`
+	Title       string `json:"title" validate:"required,max=25" conform:"name,title,alpha"`
+	Description string `json:"description" validate:"required,max=50" conform:"trim"`
+	CoverURL    string `json:"cover_url" validate:"required,url,image" conform:"trim"`
+	Content     string `json:"content" validate:"required" conform:"trim"`
 	Visibility  string `json:"visibility" validate:"required,oneof=private public"`
 	UserID      uint   `json:"user_id"`
 }
 
 type NoteUpdateRequest struct {
 	ID          uint   `json:"id"`
-	Title       string `json:"title" validate:"omitempty,max=25"`
-	Description string `json:"description" validate:"omitempty,max=50"`
-	CoverURL    string `json:"cover_url" validate:"omitempty,url,image"`
-	Content     string `json:"content" validate:"omitempty"`
+	Title       string `json:"title" validate:"omitempty,max=25" conform:"name,title"`
+	Description string `json:"description" validate:"omitempty,max=50" conform:"trim"`
+	CoverURL    string `json:"cover_url" validate:"omitempty,url,image" conform:"trim"`
+	Content     string `json:"content" validate:"omitempty" conform:"trim"`
 	Visibility  string `json:"visibility" validate:"omitempty,oneof=private public"`
 	UserID      uint   `json:"user_id"`
 }

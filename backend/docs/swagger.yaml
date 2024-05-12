@@ -52,7 +52,7 @@ definitions:
         - created_at
         - updated_at
         type: string
-      total_page:
+      total_pages:
         type: integer
       total_records:
         type: integer
@@ -524,6 +524,19 @@ paths:
           schema:
             $ref: '#/definitions/domain.UserResponse'
       summary: Update user data by ID
+      tags:
+      - user
+  /users/me:
+    get:
+      description: Retrieve information of the currently authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved current user's information
+          schema:
+            $ref: '#/definitions/domain.UserResponse'
+      summary: Get current user's information
       tags:
       - user
 swagger: "2.0"

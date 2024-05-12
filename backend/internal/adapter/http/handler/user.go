@@ -73,6 +73,12 @@ func (h *UserHandler) GetAll(ctx *fiber.Ctx) error {
 	})
 }
 
+// @Summary Get current user's information
+// @Description Retrieve information of the currently authenticated user
+// @Tags user
+// @Produce json
+// @Success 200 {object} domain.UserResponse "Successfully retrieved current user's information"
+// @Router /users/me [get]
 func (h *UserHandler) GetMe(ctx *fiber.Ctx) error {
 	claims := ctx.Locals("claims").(*domain.Claims)
 

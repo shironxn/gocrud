@@ -24,14 +24,14 @@ func (p *Pagination) Paginate(metadata *domain.Metadata) func(db *gorm.DB) *gorm
 			metadata.Limit = 10
 		}
 
-		metadata.TotalPage = (int(metadata.TotalRecords) + metadata.Limit - 1) / metadata.Limit
-		if metadata.TotalPage < 1 {
-			metadata.TotalPage = 1
+		metadata.TotalPages = (int(metadata.TotalRecords) + metadata.Limit - 1) / metadata.Limit
+		if metadata.TotalPages < 1 {
+			metadata.TotalPages = 1
 		}
 
 		switch {
-		case metadata.Page > metadata.TotalPage:
-			metadata.Page = metadata.TotalPage
+		case metadata.Page > metadata.TotalPages:
+			metadata.Page = metadata.TotalPages
 		case metadata.Page < 1:
 			metadata.Page = 1
 		}

@@ -389,6 +389,26 @@
                 }
             }
         },
+        "/users/me": {
+            "get": {
+                "description": "Retrieve information of the currently authenticated user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get current user's information",
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved current user's information",
+                        "schema": {
+                            "$ref": "#/definitions/domain.UserResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/{id}": {
             "get": {
                 "description": "Retrieve data of a user based on the provided ID",
@@ -568,7 +588,7 @@
                         "updated_at"
                     ]
                 },
-                "total_page": {
+                "total_pages": {
                     "type": "integer"
                 },
                 "total_records": {

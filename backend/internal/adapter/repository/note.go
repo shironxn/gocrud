@@ -65,6 +65,10 @@ func (r *NoteRepository) GetAll(req domain.NoteQuery, metadata *domain.Metadata)
 		return nil, err
 	}
 
+	if reflect.DeepEqual(entity, []domain.Note{}) {
+		return nil, fiber.NewError(fiber.StatusNotFound, "notes not found")
+	}
+
 	return entity, nil
 }
 

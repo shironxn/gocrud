@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/leebenson/conform"
 	"github.com/shironxn/gocrud/internal/config"
 	"github.com/shironxn/gocrud/internal/core/domain"
 	"github.com/shironxn/gocrud/internal/core/port"
@@ -52,6 +53,10 @@ func (h *NoteHandler) Create(ctx *fiber.Ctx) error {
 	}
 	req.UserID = claims.UserID
 
+	if err := conform.Strings(&req); err != nil {
+		return err
+	}
+
 	result, err := h.service.Create(req)
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -101,22 +106,18 @@ func (h *NoteHandler) GetAll(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	req.Visibility = "public"
 	cookie := ctx.Cookies("access-token")
 	if cookie != "" {
 		claims, _ := h.jwt.ValidateToken(cookie, h.cfg.JWT.Access)
 		if claims != nil {
-			switch {
-			case req.Visibility == "private":
+			if req.Visibility != "public" {
 				req.UserID = int(claims.UserID)
-			case req.UserID != 0:
-				req.UserID = int(claims.UserID)
-			default:
-				req.Visibility = "public"
 			}
 		} else {
 			req.Visibility = "public"
 		}
+	} else {
+		req.Visibility = "public"
 	}
 
 	result, err := h.service.GetAll(req, &metadata)

@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/leebenson/conform"
 	"github.com/shironxn/gocrud/internal/config"
 	"github.com/shironxn/gocrud/internal/core/domain"
 	"github.com/shironxn/gocrud/internal/core/port"
@@ -52,6 +54,12 @@ func (h *AuthHandler) Register(ctx *fiber.Ctx) error {
 	if err := h.validator.Validate(req); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(err)
 	}
+
+	if err := conform.Strings(&req); err != nil {
+		return err
+	}
+
+	req.Name = strings.ReplaceAll(req.Name, " ", "")
 
 	result, err := h.service.Register(req)
 	if err != nil {
