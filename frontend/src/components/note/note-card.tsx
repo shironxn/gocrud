@@ -18,59 +18,57 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { AspectRatio } from "./ui/aspect-ratio";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import Image from "next/image";
-import { Note } from "@/lib/schema/note";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Button } from "./ui/button";
-
-import { Skeleton } from "./ui/skeleton";
-import { NoteMenu } from "./note-drawer";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { Note, NotePagination as NoteData } from "@/lib/schema/note";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { NoteMenu } from "@/components/note-drawer";
+import { usePathname, useRouter } from "next/navigation";
+import { Router } from "lucide-react";
 
 export const LoadingCard = () => {
   return (
-    <div className="container mx-auto py-8 space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Array.from({ length: 6 }).map((_, i: number) => (
-          <Card key={i}>
-            <CardHeader>
-              <div className="w-full">
-                <AspectRatio ratio={5 / 1}>
-                  <Skeleton className="w-full h-full rounded-t-md" />
-                </AspectRatio>
-              </div>
-            </CardHeader>
-            <CardContent className="w-[248px] h-[104px]"></CardContent>
-            <div className="px-6 pb-3">
-              <Separator />
+    <>
+      {Array.from({ length: 6 }).map((_, i: number) => (
+        <Card key={i}>
+          <CardHeader>
+            <div className="w-full">
+              <AspectRatio ratio={5 / 1}>
+                <Skeleton className="w-full h-full rounded-t-md" />
+              </AspectRatio>
             </div>
-            <CardFooter className="justify-between">
-              <div className="flex text-center items-center space-x-4">
-                <Avatar>
-                  <Skeleton className="w-full h-full" />
-                </Avatar>
-                <small className="text-sm font-medium leading-none">
-                  <Skeleton className="w-full h-full" />
-                </small>
-              </div>
-              <Skeleton className="w-16 h-10" />
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
-    </div>
+          </CardHeader>
+          <CardContent className="w-[248px] h-[104px]"></CardContent>
+          <div className="px-6 pb-3">
+            <Separator />
+          </div>
+          <CardFooter className="justify-between">
+            <div className="flex text-center items-center space-x-4">
+              <Avatar>
+                <Skeleton className="w-full h-full" />
+              </Avatar>
+              <small className="text-sm font-medium leading-none">
+                <Skeleton className="w-full h-full" />
+              </small>
+            </div>
+            <Skeleton className="w-16 h-10" />
+          </CardFooter>
+        </Card>
+      ))}
+    </>
   );
 };
 
-export function NoteCard({ data }: { data: Note[] }) {
+export function NoteCard({ data }: { data: NoteData }) {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <>
-      {data &&
-        data.map((item: Note, i: number) => (
+      {data?.notes ? (
+        data.notes.map((item: Note, i: number) => (
           <Card key={i}>
             <CardHeader>
               <div className="w-full">
@@ -81,7 +79,6 @@ export function NoteCard({ data }: { data: Note[] }) {
                     className="object-cover rounded-t-md"
                     fill
                   />
-                  )
                 </AspectRatio>
               </div>
             </CardHeader>
@@ -105,7 +102,7 @@ export function NoteCard({ data }: { data: Note[] }) {
             </div>
             <CardFooter className="justify-between">
               <div className="flex text-center items-center space-x-4">
-                <Avatar className="h-12 w-12">
+                <Avatar className="h-10 w-10">
                   <AvatarImage src={item.author.avatar_url} />
                   <AvatarFallback>
                     {item.author.name.slice(0, 2).toUpperCase()}
@@ -116,6 +113,12 @@ export function NoteCard({ data }: { data: Note[] }) {
                 </small>
               </div>
               <div>
+                {/* <Button
+                  variant={"outline"}
+                  onClick={() => router.push(`/note/${item.id}`)}
+                >
+                  Read
+                </Button> */}
                 <Dialog>
                   <div className="space-x-2">
                     {pathname == "/profile" && <NoteMenu note={item} />}
@@ -186,7 +189,10 @@ export function NoteCard({ data }: { data: Note[] }) {
               </div>
             </CardFooter>
           </Card>
-        ))}
+        ))
+      ) : (
+        <LoadingCard />
+      )}
     </>
   );
 }

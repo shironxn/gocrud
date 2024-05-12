@@ -1,6 +1,6 @@
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import Image from "next/image";
-import { LoginForm } from "@/components/auth-form";
+import { LoginForm } from "@/components/auth/login";
 
 export default function Page() {
   return (

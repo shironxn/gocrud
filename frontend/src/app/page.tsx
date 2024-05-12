@@ -1,12 +1,8 @@
-import Image from "next/image";
-import { Navbar } from "@/components/navbar";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { LoadingCard, NoteCard } from "@/components/note-card";
-import { NotePagination } from "@/components/note-pagination";
-import useAxios from "axios-hooks";
-import { toast } from "@/components/ui/use-toast";
+import { NoteCard } from "@/components/note/note-card";
 import { GetNotes } from "@/actions/note";
 import { Header } from "@/components/header";
+import { NotePagination } from "@/components/note/note-pagination";
+import { number } from "zod";
 
 interface queryParams {
   search?: string;
@@ -19,28 +15,29 @@ export default async function Page({
   searchParams?: queryParams;
 }) {
   const search = searchParams?.search || "";
-  const currentPage = Number(searchParams?.page) || 1;
-  const data = await GetNotes({ page: currentPage, search: search });
+  const page = Number(searchParams?.page) || 1;
+  const notes = await GetNotes({
+    page: page,
+    search: search,
+    visibility: "public",
+  });
 
   return (
-    <div className="min-h-screen justify-center">
-      <Navbar />
+    <div className="min-h-screen justify-center space-y-8">
       <Header />
-      {data?.notes ? (
-        <div className="container mx-auto py-8 space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data && <NoteCard data={data.notes} />}
-          </div>
-          {Number(data?.metadata?.total_pages) > 1 && (
-            <NotePagination
-              currentPage={currentPage}
-              totalPages={Number(data?.metadata?.total_pages)}
-            />
-          )}
+      <div className="flex-grow mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <NoteCard data={notes} />
         </div>
-      ) : (
-        <LoadingCard />
-      )}
+        {Number(notes?.metadata?.total_pages) > 1 && (
+          <div className="mt-8">
+            <NotePagination
+              currentPage={notes.metadata.page}
+              totalPages={Number(notes?.metadata?.total_pages)}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

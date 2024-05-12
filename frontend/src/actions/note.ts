@@ -1,53 +1,91 @@
 "use server";
 
-import { toast } from "@/components/ui/use-toast";
-import { Note, NoteCreate, NoteUpdate } from "@/lib/schema/note";
+import { NoteCreate, NoteQuery, NoteUpdate } from "@/lib/schema/note";
+import { revalidatePath } from "next/cache";
+import { cookies, headers } from "next/headers";
+import { notFound } from "next/navigation";
 
-interface queryParams {
-  search?: string;
-  page?: number;
-}
+const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-const CreateNotes = async (note: NoteCreate) => {
-  const res = await fetch(process.env.NEXT_PUBLIC_API_URL + `/notes`, {
+const CreateNotes = async (data: NoteCreate) => {
+  const res = await fetch(`${BASE_API_URL}/notes`, {
     method: "POST",
-    body: JSON.stringify(note),
-    credentials: "include",
+    body: JSON.stringify(data),
     headers: {
       "Content-Type": "application/json",
+      Cookie: cookies().toString(),
     },
   });
+
+  if (!res.ok) {
+    const result = await res.json();
+    return result.error;
+  }
+
+  revalidatePath("/");
 };
 
-const GetNotes = async (query: queryParams) => {
+const GetNotes = async (query?: NoteQuery) => {
   const res = await fetch(
-    process.env.NEXT_PUBLIC_API_URL +
-      `/notes?visibility="public"&title=${query.search}&page=${query.page}&limit=6&order=desc`
+    `${BASE_API_URL}/notes?user_id=${query?.user_id || 0}&visibility=${
+      query?.visibility || ""
+    }&title=${query?.search || ""}&page=${query?.page || 1}&limit=6&order=desc`,
+    { headers: headers() }
   );
-  return res.json();
+
+  const result = await res.json();
+  if (!res.ok) {
+    return { error: result.error };
+  }
+
+  return result;
 };
 
-const UpdateNotes = async (note: NoteUpdate, id: string) => {
-  const res = await fetch(process.env.NEXT_PUBLIC_API_URL + `/notes/${id}`, {
+const GetNotesByID = async (id: string) => {
+  const res = await fetch(`${BASE_API_URL}/notes/${id}`, {
+    headers: headers(),
+  });
+
+  if (res.status === 404) {
+    notFound();
+  }
+
+  const result = await res.json();
+  if (!res.ok) {
+    return { error: result?.error };
+  }
+
+  return result;
+};
+
+const UpdateNotes = async (data: NoteUpdate, id: number) => {
+  const res = await fetch(`${BASE_API_URL}/notes/${id}`, {
     method: "PUT",
-    body: JSON.stringify(note),
-    credentials: "include",
+    body: JSON.stringify(data),
     headers: {
       "Content-Type": "application/json",
+      Cookie: cookies().toString(),
     },
   });
-  return res.json();
+
+  if (!res.ok) {
+    const result = await res.json();
+    return result.error;
+  }
+
+  revalidatePath("/");
 };
 
 const DeleteNotes = async (id: string) => {
-  const res = await fetch(process.env.NEXT_PUBLIC_API_URL + `/notes/${id}`, {
+  const res = await fetch(`${BASE_API_URL}/notes/${id}`, {
     method: "DELETE",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: headers(),
   });
-  return res.json();
+
+  if (!res.ok) {
+    const result = await res.json();
+    return result.error;
+  }
 };
 
-export { CreateNotes, GetNotes, UpdateNotes, DeleteNotes };
+export { CreateNotes, GetNotes, GetNotesByID, UpdateNotes, DeleteNotes };

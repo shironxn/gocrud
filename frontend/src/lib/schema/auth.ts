@@ -8,7 +8,7 @@ export const authRegisterSchema = z.object({
 
 export const authLoginSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8),
+  password: z.string().min(1),
 });
 
 export type AuthLogin = z.infer<typeof authLoginSchema>;

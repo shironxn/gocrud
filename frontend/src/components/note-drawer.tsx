@@ -23,13 +23,9 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 
-import { User, UserRequest, userRequestSchema } from "@/lib/schema/user";
-import { EllipsisVertical, PenBox } from "lucide-react";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -49,7 +45,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -68,8 +63,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "./ui/use-toast";
 import { useEffect } from "react";
 import useAxios from "axios-hooks";
-import { useRouter } from "next/navigation";
-import { buttonVariants } from "./ui/button";
 import {
   Select,
   SelectContent,
@@ -80,6 +73,8 @@ import {
 import { Textarea } from "./ui/textarea";
 import { Input } from "./ui/input";
 import { Button } from "@/components/ui/button";
+import { CreateNotes, UpdateNotes } from "@/actions/note";
+import { number } from "zod";
 
 type NameOptions =
   | "title"
@@ -203,71 +198,25 @@ function NoteForm({ className, note }: { className?: string; note?: Note }) {
     resolver: zodResolver(!note ? noteCreateSchema : noteUpdateSchema),
   });
 
-  const [
-    { data: createData, loading: createLoading, error: createError },
-    executeCreate,
-  ] = useAxios(
-    {
-      url: "/notes",
-      method: "POST",
-      withCredentials: true,
-      baseURL: process.env.NEXT_PUBLIC_API_URL,
-    },
-    { manual: true }
-  );
+  const [error, setError] = React.useState<string>();
 
-  const [
-    { data: updateData, loading: updateLoading, error: updateError },
-    executeUpdate,
-  ] = useAxios(
-    {
-      url: `/notes/${note?.id}`,
-      method: "PUT",
-      withCredentials: true,
-      baseURL: process.env.NEXT_PUBLIC_API_URL,
-    },
-    { manual: true }
-  );
-
-  const onSubmit = (data: NoteCreate | NoteUpdate) => {
+  const onSubmit = async (data: NoteCreate | NoteUpdate) => {
     if (note) {
-      executeUpdate({ data: data });
+      const error = await UpdateNotes(data as NoteUpdate, note.id);
+      setError(error);
     } else {
-      executeCreate({ data: data });
+      const error = await CreateNotes(data as NoteCreate);
+      setError(error);
     }
   };
 
   useEffect(() => {
-    if (createError) {
+    error &&
       toast({
         title: "Uh oh! Something went wrong.",
-        description:
-          createError.response?.data.message || "An unknown error occurred",
+        description: error,
       });
-    }
-  }, [createError]);
-
-  useEffect(() => {
-    if (updateError) {
-      toast({
-        title: "Uh oh! Something went wrong.",
-        description:
-          updateError.response?.data.message || "An unknown error occurred",
-      });
-    }
-  }, [updateError]);
-
-  useEffect(() => {
-    if (createData) {
-      window.location.reload();
-    }
-  }, [createData]);
-
-  useEffect(() => {
-    if (updateData) {
-      window.location.reload();
-    }
-  }, [updateData]);
+  }, [error]);
 
   return (
     <Form {...form}>
@@ -283,10 +232,14 @@ function NoteForm({ className, note }: { className?: string; note?: Note }) {
                 name={item.name}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{item.label}</FormLabel>
+                    <div className="flex gap-x-2">
+                      <FormLabel>{item.label}</FormLabel>
+                      <FormMessage className="text-xs" />
+                    </div>
                     <FormControl>
                       {item.name === "visibility" ? (
                         <Select
+                          required
                           onValueChange={field.onChange}
                           defaultValue={note?.visibility}
                         >
@@ -303,10 +256,10 @@ function NoteForm({ className, note }: { className?: string; note?: Note }) {
                           placeholder={item.placeholder}
                           defaultValue={note && (note[item.name] as string)}
                           {...field}
+                          required
                         />
                       )}
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -317,25 +270,28 @@ function NoteForm({ className, note }: { className?: string; note?: Note }) {
             name="content"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Content</FormLabel>
+                <div className="flex gap-x-2">
+                  <FormLabel>Content</FormLabel>
+                  <FormMessage className="text-xs" />
+                </div>
                 <FormControl>
                   <Textarea
                     placeholder="Share your thoughts, ideas, or stories here..."
                     defaultValue={note?.content}
                     {...field}
+                    required
                   />
                 </FormControl>
-                <FormMessage />
               </FormItem>
             )}
           />
         </div>
         {!note ? (
-          <LoadingButton type="submit" loading={createLoading}>
+          <LoadingButton type="submit" loading={form.formState.isSubmitting}>
             Create
           </LoadingButton>
         ) : (
-          <LoadingButton type="submit" loading={updateLoading}>
+          <LoadingButton type="submit" loading={form.formState.isSubmitting}>
             Update
           </LoadingButton>
         )}
@@ -406,7 +362,7 @@ const NoteMenu = ({ note }: { note: Note }) => {
   const [open, setOpen] = React.useState(false);
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <Button variant={"outline"}>Menu</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>

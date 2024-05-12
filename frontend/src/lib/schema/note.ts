@@ -46,9 +46,12 @@ export const noteUpdateSchema = z.object({
 });
 
 export const noteQuerySchema = z.object({
-  title: z.string(),
-  visibility: z.enum(["public", "private"]),
-  user_id: z.number(),
+  title: z.string().optional(),
+  visibility: z.enum(["public", "private"]).optional(),
+  user_id: z.number().optional(),
+  search: z.string().optional(),
+  author: z.string().optional(),
+  page: z.number().optional(),
 });
 
 export const notePaginationSchema = z.object({
