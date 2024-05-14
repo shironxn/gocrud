@@ -1,5 +1,17 @@
 "use client";
 
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerPortal,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import Link from "next/link";
 import {
   NavigationMenu,
@@ -11,9 +23,13 @@ import React from "react";
 import { NoteCreateDialog } from "../note-drawer";
 import { UserMenu } from "./user-menu";
 import { SetTheme } from "./set-theme";
-import { SearchNav } from "./search";
+import { NavSearch } from "./nav-search";
 import { User } from "@/lib/schema/user";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { MenuIcon } from "lucide-react";
+import { ScrollArea } from "../ui/scroll-area";
+import { NavMobile } from "./nav-mobile";
 
 const NavMenu = ({
   user,
@@ -29,6 +45,8 @@ const NavMenu = ({
       };
 }) => {
   const pathname = usePathname();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const router = useRouter();
 
   if (!pathname.includes("/login") && !pathname.includes("/register")) {
     return (
@@ -43,12 +61,18 @@ const NavMenu = ({
         <div>
           <NavigationMenu>
             <NavigationMenuList className="flex gap-2">
-              <NavigationMenuItem>
-                <SearchNav />
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                {user.data && <NoteCreateDialog />}
-              </NavigationMenuItem>
+              {isDesktop ? (
+                <>
+                  <NavigationMenuItem>
+                    <NavSearch />
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    {user.data && <NoteCreateDialog />}
+                  </NavigationMenuItem>
+                </>
+              ) : (
+                <NavMobile isLogin={!user.error} />
+              )}
               <NavigationMenuItem>
                 <SetTheme />
               </NavigationMenuItem>
@@ -57,9 +81,16 @@ const NavMenu = ({
                   <UserMenu user={user.data} />
                 </NavigationMenuItem>
               ) : (
-                <Link href={"/login"}>
-                  <Button className="w-24">Login</Button>
-                </Link>
+                isDesktop && (
+                  <NavigationMenuItem>
+                    <Button
+                      onClick={() => router.push("/login")}
+                      className="w-24"
+                    >
+                      Login
+                    </Button>
+                  </NavigationMenuItem>
+                )
               )}
             </NavigationMenuList>
           </NavigationMenu>

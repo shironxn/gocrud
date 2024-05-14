@@ -24,7 +24,6 @@ export default async function Page({
 
   return (
     <div className="min-h-screen justify-center space-y-8">
-      <Header />
       <div className="flex-grow mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           <NoteCard data={notes} />

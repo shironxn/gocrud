@@ -28,14 +28,12 @@ export async function middleware(request: NextRequest) {
       Date.now() + accessTokenExpiresInMinutes * 60 * 1000
     );
 
-    console.log(result);
-
     const response = NextResponse.next();
 
     response.cookies.set("access-token", result.access_token, {
       httpOnly: true,
       path: "/",
-      expires: accessTokenExpires,
+      expires: new Date(accessTokenExpires),
     });
 
     return response;

@@ -116,10 +116,6 @@ const NoteCreateDialog = () => {
           <Button>Create</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Create note</DialogTitle>
-            <DialogDescription>Create a new note</DialogDescription>
-          </DialogHeader>
           <NoteForm />
         </DialogContent>
       </Dialog>

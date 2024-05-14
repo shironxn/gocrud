@@ -21,10 +21,11 @@ func NewJWT(cfg *config.Config) JWT {
 }
 
 func (j JWT) GenerateAccessToken(userID uint) (string, error) {
+	exp := time.Now().Add(10 * time.Minute)
 	claims := domain.Claims{
 		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(10 * time.Minute)),
+			ExpiresAt: jwt.NewNumericDate(exp),
 		},
 	}
 
@@ -32,10 +33,11 @@ func (j JWT) GenerateAccessToken(userID uint) (string, error) {
 }
 
 func (j JWT) GenerateRefreshToken(userID uint) (string, error) {
+	exp := time.Now().Add(24 * time.Hour)
 	claims := domain.Claims{
 		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(exp),
 		},
 	}
 
