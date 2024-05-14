@@ -30,7 +30,7 @@ const menu: { title: string; href: string; icon: JSX.Element }[] = [
   },
   {
     title: "Github",
-    href: "https://github.com/shironxn/gocrud",
+    href: "https://github.com/shironxn/blanknotes",
     icon: <Github />,
   },
   {
@@ -40,7 +40,7 @@ const menu: { title: string; href: string; icon: JSX.Element }[] = [
   },
   {
     title: "Api",
-    href: "https://github.com/shironxn/gocrud",
+    href: "https://github.com/shironxn/blanknotes",
     icon: <SquareArrowOutUpRight />,
   },
 ];

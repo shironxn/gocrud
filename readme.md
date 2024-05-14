@@ -116,7 +116,7 @@ GOCRUD is a simple CRUD (Create, Read, Update, Delete) API developed in Golang. 
 1. Clone the repository
 
    ```bash
-   git clone https://github.com/shironxn/gocrud.git
+   git clone https://github.com/shironxn/blanknotes.git
    ```
 
 2. Navigate to the project directory
@@ -168,13 +168,13 @@ You can see it at http://localhost:3000/api/v1/docs
 
 [built-with-heart-url]: https://github.com/shironxn
 [contributors-shield]: https://img.shields.io/github/contributors/shironxn/gocrud.svg?style=for-the-badge
-[contributors-url]: https://github.com/shironxn/gocrud/graphs/contributors
+[contributors-url]: https://github.com/shironxn/blanknotes/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/shironxn/gocrud.svg?style=for-the-badge
-[forks-url]: https://github.com/shironxn/gocrud/network/members
+[forks-url]: https://github.com/shironxn/blanknotes/network/members
 [stars-shield]: https://img.shields.io/github/stars/shironxn/gocrud.svg?style=for-the-badge
-[stars-url]: https://github.com/shironxn/gocrud/stargazers
+[stars-url]: https://github.com/shironxn/blanknotes/stargazers
 [issues-shield]: https://img.shields.io/github/issues/shironxn/gocrud.svg?style=for-the-badge
-[issues-url]: https://github.com/shironxn/gocrud/issues
+[issues-url]: https://github.com/shironxn/blanknotes/issues
 [database-schema]: ./assets/database-schema.png
 [golang-shield]: https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white
 [golang-url]: https://go.dev

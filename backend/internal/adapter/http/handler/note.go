@@ -2,12 +2,12 @@ package handler
 
 import (
 	"github.com/leebenson/conform"
-	"github.com/shironxn/gocrud/internal/config"
-	"github.com/shironxn/gocrud/internal/core/domain"
-	"github.com/shironxn/gocrud/internal/core/port"
-	"github.com/shironxn/gocrud/internal/util"
+	"github.com/shironxn/blanknotes/internal/config"
+	"github.com/shironxn/blanknotes/internal/core/domain"
+	"github.com/shironxn/blanknotes/internal/core/port"
+	"github.com/shironxn/blanknotes/internal/util"
 
-	_ "github.com/shironxn/gocrud/docs"
+	_ "github.com/shironxn/blanknotes/docs"
 
 	"github.com/gofiber/fiber/v2"
 )

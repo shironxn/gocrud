@@ -3,9 +3,9 @@ package handler
 import (
 	"time"
 
-	"github.com/shironxn/gocrud/internal/core/domain"
-	"github.com/shironxn/gocrud/internal/core/port"
-	"github.com/shironxn/gocrud/internal/util"
+	"github.com/shironxn/blanknotes/internal/core/domain"
+	"github.com/shironxn/blanknotes/internal/core/port"
+	"github.com/shironxn/blanknotes/internal/util"
 
 	"github.com/gofiber/fiber/v2"
 )

@@ -1,7 +1,7 @@
 package route
 
 import (
-	"github.com/shironxn/gocrud/internal/core/port"
+	"github.com/shironxn/blanknotes/internal/core/port"
 
 	"github.com/gofiber/fiber/v2"
 )

@@ -1,16 +1,16 @@
 package main
 
 import (
-	"github.com/shironxn/gocrud/internal/adapter/http/handler"
-	"github.com/shironxn/gocrud/internal/adapter/http/middleware"
-	"github.com/shironxn/gocrud/internal/adapter/http/route"
-	"github.com/shironxn/gocrud/internal/adapter/repository"
-	"github.com/shironxn/gocrud/internal/config"
-	"github.com/shironxn/gocrud/internal/core/domain"
-	"github.com/shironxn/gocrud/internal/core/service"
-	"github.com/shironxn/gocrud/internal/util"
+	"github.com/shironxn/blanknotes/internal/adapter/http/handler"
+	"github.com/shironxn/blanknotes/internal/adapter/http/middleware"
+	"github.com/shironxn/blanknotes/internal/adapter/http/route"
+	"github.com/shironxn/blanknotes/internal/adapter/repository"
+	"github.com/shironxn/blanknotes/internal/config"
+	"github.com/shironxn/blanknotes/internal/core/domain"
+	"github.com/shironxn/blanknotes/internal/core/service"
+	"github.com/shironxn/blanknotes/internal/util"
 
-	_ "github.com/shironxn/gocrud/docs"
+	_ "github.com/shironxn/blanknotes/docs"
 
 	"github.com/charmbracelet/log"
 )

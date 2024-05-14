@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/shironxn/gocrud/internal/core/domain"
-	"github.com/shironxn/gocrud/internal/core/port"
+	"github.com/shironxn/blanknotes/internal/core/domain"
+	"github.com/shironxn/blanknotes/internal/core/port"
 
 	"github.com/gofiber/fiber/v2"
 )

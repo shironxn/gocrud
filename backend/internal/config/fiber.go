@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/shironxn/gocrud/internal/core/domain"
+	"github.com/shironxn/blanknotes/internal/core/domain"
 
 	"github.com/gofiber/fiber/v2"
 )

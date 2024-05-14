@@ -1,7 +1,7 @@
 package util
 
 import (
-	"github.com/shironxn/gocrud/internal/core/domain"
+	"github.com/shironxn/blanknotes/internal/core/domain"
 	"gorm.io/gorm"
 )
 

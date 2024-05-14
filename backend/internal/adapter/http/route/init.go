@@ -4,9 +4,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/shironxn/gocrud/internal/config"
+	"github.com/shironxn/blanknotes/internal/config"
 
-	_ "github.com/shironxn/gocrud/docs"
+	_ "github.com/shironxn/blanknotes/docs"
 
 	"github.com/gofiber/swagger"
 )
