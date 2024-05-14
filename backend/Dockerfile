@@ -24,6 +24,7 @@ WORKDIR /
 # Copy the source from the current directory to the Working Directory inside the container
 COPY . .
 
+RUN go mod tidy
 # Disable Go Modules
 ENV GO111MODULE=off
 
