@@ -4,8 +4,6 @@ WORKDIR /app
 
 COPY . .
 
-ENV GO111MODULE=off
-
 RUN go mod download
 RUN go build -o bin/main ./cmd
 
