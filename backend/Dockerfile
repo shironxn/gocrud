@@ -11,4 +11,4 @@ RUN go build -o bin/main ./cmd
 
 EXPOSE 8080
 
-CMD ["/app/bin/main"]
+CMD ["/bin/main"]
