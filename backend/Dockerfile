@@ -6,7 +6,7 @@ COPY . .
 
 ENV GO111MODULE=off
 
-RUN go mod tidy
+# RUN go mod tidy
 RUN go build -o bin/main ./cmd
 
 EXPOSE 8080
