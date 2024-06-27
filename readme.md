@@ -92,8 +92,7 @@ GOCRUD is a simple CRUD (Create, Read, Update, Delete) API developed in Golang. 
 │       ├── bcrypt.go
 │       ├── jwt.go
 │       └── validator.go
-├── Makefile
-└── readme.md
+└── Makefile
 ```
 
 ### Database Schema
@@ -105,7 +104,7 @@ GOCRUD is a simple CRUD (Create, Read, Update, Delete) API developed in Golang. 
 - Go
 - Fiber
 - GORM
-- MySQL
+- PostgreSQL
 
 <!-- GETTING STARTED -->
 
@@ -113,31 +112,33 @@ GOCRUD is a simple CRUD (Create, Read, Update, Delete) API developed in Golang. 
 
 ### Installation
 
-1. Clone the repository
+Clone the repository
+
+```bash
+git clone https://github.com/shironxn/gocrud
+```
+
+### Backend
+
+1. Navigate to the folder
 
    ```bash
-   git clone https://github.com/shironxn/blanknotes.git
+   cd gocrud/backend
    ```
 
-2. Navigate to the project directory
-
-   ```bash
-   cd gocrud
-   ```
-
-3. Copy or rename .env.example to .env
+2. Copy or rename .env.example to .env
 
    ```bash
    cp .env.example .env
    ```
 
-4. Check available make commands
+3. Check available make commands
 
    ```bash
    make help
    ```
 
-### Running Application
+#### Running Application
 
 Run without docker
 
@@ -156,6 +157,31 @@ Run test
 ```bash
 make test
 ```
+
+### Frontend
+
+1. Navigate to the folder
+
+    ```bash
+    cd gocrud/frontend
+    ```
+
+2. Copy or rename .env.example to .env
+
+    ```bash
+    cp .env.example .env
+    ```
+
+3. Install package
+
+    ```bash
+    npm install
+    ```    
+
+4. Run
+    ```bash
+    npm run dev
+    ```
 
 <!-- API Docs -->
 

@@ -1,4 +1,4 @@
-module github.com/shironxn/blanknotes
+module github.com/shironxn/gocrud
 
 go 1.22.2
 
