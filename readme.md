@@ -188,7 +188,7 @@ make test
 ## API Docs
 
 This API documentation is using [Swagger](https://swagger.io).
-You can see it at http://localhost:3000/api/v1/docs
+You can see it at http://localhost:8080/api/v1/docs
 
 <!-- MARKDOWN LINKS & IMAGES -->
 
